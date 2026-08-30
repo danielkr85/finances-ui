@@ -1,0 +1,33 @@
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { Balance, BalanceRequest, BalanceResponse } from '../models/balance.model';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class BalanceService {
+  private baseUrl = 'http://localhost:8080/api/v1/balances'; // Adjust this URL as needed
+
+  constructor(private http: HttpClient) { }
+
+  getAllBalances(): Observable<BalanceResponse[]> {
+    return this.http.get<BalanceResponse[]>(this.baseUrl);
+  }
+
+  getBalanceById(id: number): Observable<BalanceResponse> {
+    return this.http.get<BalanceResponse>(`${this.baseUrl}/${id}`);
+  }
+
+  createBalance(balance: BalanceRequest): Observable<BalanceResponse> {
+    return this.http.post<BalanceResponse>(this.baseUrl, balance);
+  }
+
+  updateBalance(id: number, balance: BalanceRequest): Observable<BalanceResponse> {
+    return this.http.put<BalanceResponse>(`${this.baseUrl}/${id}`, balance);
+  }
+
+  deleteBalance(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/${id}`);
+  }
+}

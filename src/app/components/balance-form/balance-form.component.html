@@ -1,0 +1,100 @@
+<div class="balance-form-container">
+  <div class="header">
+    <h2>{{ isEditing ? 'update balance' : 'add new balance' }}</h2>
+  </div>
+
+  @if (loading) {
+    <div class="loading">
+      {{ isEditing ? 'Updating balance...' : 'Creating balance...' }}
+    </div>
+  }
+
+  @if (error) {
+    <div class="error">
+      {{ error }}
+    </div>
+  }
+
+  @if (!loading) {
+    <form [formGroup]="balanceForm" (ngSubmit)="onSubmit()" class="balance-form">
+      <div class="form-group">
+        <label for="name">Name *</label>
+        <input
+          id="name"
+          type="text"
+          formControlName="name"
+          class="form-control"
+          [class.error]="balanceForm.get('name')?.invalid && balanceForm.get('name')?.touched">
+        @if (balanceForm.get('name')?.invalid && balanceForm.get('name')?.touched) {
+          <div class="error-message">
+            @if (balanceForm.get('name')?.errors?.['required']) {
+              <div>Name is required</div>
+            }
+            @if (balanceForm.get('name')?.errors?.['minlength']) {
+              <div>Name must be at least 2 characters</div>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="amount">Amount *</label>
+        <input
+          id="amount"
+          type="number"
+          formControlName="amount"
+          class="form-control"
+          [class.error]="balanceForm.get('amount')?.invalid && balanceForm.get('amount')?.touched">
+        @if (balanceForm.get('amount')?.invalid && balanceForm.get('amount')?.touched) {
+          <div class="error-message">
+            @if (balanceForm.get('amount')?.errors?.['required']) {
+              <div>Amount is required</div>
+            }
+            @if (balanceForm.get('amount')?.errors?.['min']) {
+              <div>Amount must be positive</div>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="type">Type *</label>
+        <select
+          id="type"
+          formControlName="type"
+          class="form-control"
+          [class.error]="balanceForm.get('type')?.invalid && balanceForm.get('type')?.touched">
+          <option value="">Select a type</option>
+          @for (type of balanceTypes; track type.value) {
+            <option [value]="type.value">
+              {{ type.label }}
+            </option>
+          }
+        </select>
+        @if (balanceForm.get('type')?.invalid && balanceForm.get('type')?.touched) {
+          <div class="error-message">
+            @if (balanceForm.get('type')?.errors?.['required']) {
+              <div>Type is required</div>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="form-group checkbox-group">
+        <label class="checkbox-label">
+          <input
+            type="checkbox"
+            formControlName="main"
+            class="checkbox-input">
+          <span class="checkbox-text">Set as main balance</span>
+        </label>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="onCancel()">Cancel</button>
+        <button type="submit" class="btn btn-primary" [disabled]="balanceForm.invalid || loading">
+          {{ isEditing ? 'Update Balance' : 'Create Balance' }}
+        </button>
+      </div>
+    </form>
+  }
