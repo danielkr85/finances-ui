@@ -1,100 +1,100 @@
-<div class="balance-form-container">
-  <div class="header">
-    <h2>{{ isEditing ? 'update balance' : 'add new balance' }}</h2>
-  </div>
-
-  @if (loading) {
-    <div class="loading">
-      {{ isEditing ? 'Updating balance...' : 'Creating balance...' }}
-    </div>
-  }
-
+<div class="container my-5" style="max-width: 600px;">
+  
+  <!-- Global Error Alert Box -->
   @if (error) {
-    <div class="error">
+    <div class="alert alert-danger shadow-sm mb-4" role="alert">
       {{ error }}
     </div>
   }
 
-  @if (!loading) {
-    <form [formGroup]="balanceForm" (ngSubmit)="onSubmit()" class="balance-form">
-      <div class="form-group">
-        <label for="name">Name *</label>
-        <input
-          id="name"
-          type="text"
-          formControlName="name"
-          class="form-control"
-          [class.error]="balanceForm.get('name')?.invalid && balanceForm.get('name')?.touched">
-        @if (balanceForm.get('name')?.invalid && balanceForm.get('name')?.touched) {
-          <div class="error-message">
-            @if (balanceForm.get('name')?.errors?.['required']) {
-              <div>Name is required</div>
-            }
-            @if (balanceForm.get('name')?.errors?.['minlength']) {
-              <div>Name must be at least 2 characters</div>
-            }
-          </div>
-        }
+  <div class="card shadow-sm position-relative">
+    <!-- Inline Loading Spinner overlay -->
+    @if (loading) {
+      <div class="position-absolute top-50 start-50 translate-middle text-center z-index-1 bg-white w-100 h-100 d-flex justify-content-center align-items-center opacity-75 rounded">
+        <div class="spinner-border text-primary" role="status"></div>
       </div>
+    }
 
-      <div class="form-group">
-        <label for="amount">Amount *</label>
-        <input
-          id="amount"
-          type="number"
-          formControlName="amount"
-          class="form-control"
-          [class.error]="balanceForm.get('amount')?.invalid && balanceForm.get('amount')?.touched">
-        @if (balanceForm.get('amount')?.invalid && balanceForm.get('amount')?.touched) {
-          <div class="error-message">
-            @if (balanceForm.get('amount')?.errors?.['required']) {
-              <div>Amount is required</div>
-            }
-            @if (balanceForm.get('amount')?.errors?.['min']) {
-              <div>Amount must be positive</div>
-            }
-          </div>
-        }
-      </div>
-
-      <div class="form-group">
-        <label for="type">Type *</label>
-        <select
-          id="type"
-          formControlName="type"
-          class="form-control"
-          [class.error]="balanceForm.get('type')?.invalid && balanceForm.get('type')?.touched">
-          <option value="">Select a type</option>
-          @for (type of balanceTypes; track type.value) {
-            <option [value]="type.value">
-              {{ type.label }}
-            </option>
+    <div class="card-body p-4">
+      
+      <!-- Dynamic Form Title Block -->
+      <h2 class="h4 mb-4 text-capitalize">
+        @if (isEditing) { Edit Balance } @else { Add New Balance }
+      </h2>
+      
+      <!-- Connected to your TypeScript balanceForm structure -->
+      <form [formGroup]="balanceForm" (ngSubmit)="onSubmit()">
+        
+        <!-- Name Input Field -->
+        <div class="mb-3">
+          <label for="balanceName" class="form-label fw-bold">Name <span class="text-danger">*</span></label>
+          <input 
+            type="text" 
+            id="balanceName" 
+            formControlName="name"
+            class="form-control" 
+            [class.is-invalid]="balanceForm.get('name')?.invalid && balanceForm.get('name')?.touched"
+            placeholder="e.g., Main Checking">
+          
+          <!-- Validation Feedback message -->
+          @if (balanceForm.get('name')?.invalid && balanceForm.get('name')?.touched) {
+            <div class="invalid-feedback">
+              Please enter a name with at least 2 characters.
+            </div>
           }
-        </select>
-        @if (balanceForm.get('type')?.invalid && balanceForm.get('type')?.touched) {
-          <div class="error-message">
-            @if (balanceForm.get('type')?.errors?.['required']) {
-              <div>Type is required</div>
+        </div>
+
+        <!-- Amount Input Field -->
+        <div class="mb-3">
+          <label for="balanceAmount" class="form-label fw-bold">Amount <span class="text-danger">*</span></label>
+          <div class="input-group">
+            <span class="input-group-text">$</span>
+            <input 
+              type="number" 
+              id="balanceAmount" 
+              formControlName="amount"
+              class="form-control" 
+              [class.is-invalid]="balanceForm.get('amount')?.invalid && balanceForm.get('amount')?.touched"
+              placeholder="0.00">
+            
+            @if (balanceForm.get('amount')?.invalid && balanceForm.get('amount')?.touched) {
+              <div class="invalid-feedback">
+                Amount is required and cannot be negative.
+              </div>
             }
           </div>
-        }
-      </div>
+        </div>
 
-      <div class="form-group checkbox-group">
-        <label class="checkbox-label">
-          <input
-            type="checkbox"
-            formControlName="main"
-            class="checkbox-input">
-          <span class="checkbox-text">Set as main balance</span>
-        </label>
-      </div>
+        <!-- Type Dropdown Selection -->
+        <div class="mb-3">
+          <label for="balanceType" class="form-label fw-bold">Type <span class="text-danger">*</span></label>
+          <select id="balanceType" formControlName="type" class="form-select">
+            @for (type of balanceTypes; track type.value) {
+              <option [value]="type.value">{{ type.label }}</option>
+            }
+          </select>
+        </div>
 
-      <div class="form-actions">
-        <button type="button" class="btn btn-secondary" (click)="onCancel()">Cancel</button>
-        <button type="submit" class="btn btn-primary" [disabled]="balanceForm.invalid || loading">
-          {{ isEditing ? 'Update Balance' : 'Create Balance' }}
-        </button>
-      </div>
-    </form>
-  }
+        <!-- Checkbox Wrapper Component -->
+        <div class="mb-4 form-check">
+          <input type="checkbox" id="mainBalance" formControlName="main" class="form-check-input">
+          <label class="form-check-label" for="mainBalance">Set as main balance</label>
+        </div>
+
+        <!-- Form Actions Layout Control -->
+        <div class="d-flex justify-content-end gap-2 border-top pt-3">
+          <button type="button" class="btn btn-outline-secondary px-4" (click)="onCancel()" [disabled]="loading">
+            Cancel
+          </button>
+          
+          <!-- Submit Action (Disabled if the validation validation fails completely) -->
+          <button type="submit" class="btn btn-primary px-4" [disabled]="balanceForm.invalid || loading">
+            @if (isEditing) { Save Changes } @else { Create Balance }
+          </button>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+</div>

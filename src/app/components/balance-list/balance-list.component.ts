@@ -1,14 +1,14 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { BalanceService } from '../../services/balance.service';
 import { Balance } from '../../models/balance.model';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
 
 @Component({
   selector: 'app-balance-list',
   templateUrl: './balance-list.component.html',
   styleUrls: ['./balance-list.component.css'],
-  imports: [DecimalPipe]
+  imports: [DecimalPipe, RouterLink]
 })
 export class BalanceListComponent implements OnInit {
   balances: Balance[] = [];
@@ -67,5 +67,22 @@ export class BalanceListComponent implements OnInit {
 
   addBalance(): void {
     this.router.navigate(['/balances', 'new']);
+  }
+
+  // Keep track of the item to delete
+  targetDeleteId: number | null = null;
+
+  setTargetDeleteId(id: number) {
+    this.targetDeleteId = id;
+  }
+
+  confirmDelete() {
+    if (this.targetDeleteId) {
+      // Call your actual service logic here
+      this.balanceService.deleteBalance(this.targetDeleteId).subscribe(() => {
+        this.loadBalances(); // Refresh the list view
+        this.targetDeleteId = null;
+      });
+    }
   }
 }
