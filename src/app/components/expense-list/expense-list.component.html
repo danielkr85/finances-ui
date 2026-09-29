@@ -1,8 +1,12 @@
 <div class="container my-4">
     <!-- Header Layout -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex align-items-center gap-3 mb-4">
         <h2 class="h3 mb-0">My Expenses</h2>
-        <button class="btn btn-primary" (click)="addExpense()">Add New Expense</button>
+
+        <button class="btn btn-primary rounded-circle d-flex justify-content-center align-items-center"
+            style="width: 26px; height: 26px; padding: 0;" (click)="addExpense()" title="Add New Expense">
+            <i class="bi bi-plus-lg fs-5"></i>
+        </button>
     </div>
 
     <!-- Loading State -->
@@ -33,43 +37,44 @@
         @for (expense of expenses; track expense.id) {
         <div class="col-12 col-md-6 col-lg-4">
             <div class="card h-100 shadow-sm">
-
                 <div class="card-body d-flex flex-column">
-                    <!-- Card Header Alignment -->
-                    <div class="d-flex justify-content-between align-items-start mb-3">
+
+                    <!-- Card Header: Title and Category -->
+                    <div class="d-flex justify-content-between align-items-start mb-1">
                         <h3 class="card-title h5 mb-0 text-truncate" style="max-width: 70%;">
                             {{ expense.name }}
                         </h3>
-                        <span class="badge bg-secondary">
+                        <span class="badge text-bg-secondary">
                             {{ expense.category?.name || 'Uncategorized' }}
                         </span>
                     </div>
 
-                    <!-- Card Amount Display -->
-                    <div class="h2 font-monospace text-dark my-auto py-3">
-                        ${{ expense.amount | number }}
-                        <span class="badge text-bg-info position-relative ms-2">
-                            {{ expense.frequency.intervalType || 'N/A' }}
-                            <span
-                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill text-bg-dark badge-micro">
-                                {{ expense.frequency.dayOfWeek || 'N/A' }}
-                            </span>
-                        </span>
+                    <!-- Subtitle: Frequency as clean, readable text -->
+                    <div class="text-muted small mb-2">
+                        {{ expense.frequency.intervalType | titlecase }}
+                        @if (expense.frequency.dayOfWeek) {
+                        on {{ expense.frequency.dayOfWeek | titlecase }}
+                        }
                     </div>
 
-                    <!-- Card Footer Buttons Alignment -->
-                    <div class="d-flex justify-content-end gap-2 mt-3 pt-2 border-top">
-                        <button class="btn btn-outline-success btn-sm flex-fill"
+                    <!-- Card Amount Display -->
+                    <div class="h2 font-monospace text-dark my-auto py-2">
+                        ${{ expense.amount | number }}
+                    </div>
+
+                    <!-- Card Footer: Symmetrical Buttons -->
+                    <div class="d-flex gap-2 mt-3 pt-3 border-top">
+                        <button class="btn btn-outline-secondary btn-sm w-50"
                             [routerLink]="['/expenses', expense.id, 'edit']">
                             Edit
                         </button>
-                        <button class="btn btn-danger btn-sm px-3" data-bs-toggle="modal"
+                        <button class="btn btn-outline-danger btn-sm w-50" data-bs-toggle="modal"
                             data-bs-target="#deleteExpenseModal" (click)="setTargetDeleteId(expense.id!)">
                             Delete
                         </button>
                     </div>
-                </div>
 
+                </div>
             </div>
         </div>
         }

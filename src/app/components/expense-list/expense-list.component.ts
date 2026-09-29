@@ -2,13 +2,13 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { ExpenseService } from '../../services/expense.service';
 import { Expense } from '../../models/expense.model';
 import { Router, RouterLink } from '@angular/router';
-import { DecimalPipe } from '@angular/common';
+import { DecimalPipe, TitleCasePipe } from '@angular/common';
 
 @Component({
     selector: 'app-expense-list',
     templateUrl: './expense-list.component.html',
     styleUrls: ['./expense-list.component.css'],
-    imports: [DecimalPipe, RouterLink]
+    imports: [DecimalPipe, RouterLink, TitleCasePipe]
 })
 export class ExpenseListComponent implements OnInit {
     expenses: Expense[] = [];
