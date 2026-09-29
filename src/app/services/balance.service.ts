@@ -1,13 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Balance, BalanceRequest, BalanceResponse } from '../models/balance.model';
+import { BalanceRequest, BalanceResponse } from '../models/balance.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class BalanceService {
-  private baseUrl = 'http://localhost:8080/api/v1/balances'; // Adjust this URL as needed
+  private baseUrl = `${environment.apiUrl}/balances`;
 
   constructor(private http: HttpClient) { }
 
