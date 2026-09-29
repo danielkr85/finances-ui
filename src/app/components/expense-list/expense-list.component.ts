@@ -14,7 +14,7 @@ export class ExpenseListComponent implements OnInit {
     expenses: Expense[] = [];
     loading = false;
     error: string | null = null;
-    targetDeleteId: number | null = null;
+    targetDeleteId: number | string | null = null;
 
     constructor(
         private expenseService: ExpenseService,
@@ -49,7 +49,7 @@ export class ExpenseListComponent implements OnInit {
         this.router.navigate(['/expenses', 'new']);
     }
 
-    setTargetDeleteId(id: number) {
+    setTargetDeleteId(id: number | string) {
         this.targetDeleteId = id;
     }
 

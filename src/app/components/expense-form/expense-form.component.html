@@ -1,1 +1,173 @@
-<p>expense-form works!</p>
+<div class="container my-5" style="max-width: 600px;">
+  
+  <!-- Global Error Alert Box -->
+  @if (error) {
+    <div class="alert alert-danger shadow-sm mb-4" role="alert">
+      {{ error }}
+    </div>
+  }
+
+  <div class="card shadow-sm position-relative">
+    <!-- Inline Loading Spinner overlay -->
+    @if (loading) {
+      <div class="position-absolute top-50 start-50 translate-middle text-center z-index-1 bg-white w-100 h-100 d-flex justify-content-center align-items-center opacity-75 rounded">
+        <div class="spinner-border text-primary" role="status"></div>
+      </div>
+    }
+
+    <div class="card-body p-4">
+      
+      <!-- Dynamic Form Title Block -->
+      <h2 class="h4 mb-4 text-capitalize">
+        @if (isEditing) { Edit Expense } @else { Add New Expense }
+      </h2>
+      
+      <!-- Connected to your TypeScript expenseForm structure -->
+      <form [formGroup]="expenseForm" (ngSubmit)="onSubmit()">
+        
+        <!-- Name Input Field -->
+        <div class="mb-3">
+          <label for="expenseName" class="form-label fw-bold">Name <span class="text-danger">*</span></label>
+          <input 
+            type="text" 
+            id="expenseName" 
+            formControlName="name"
+            class="form-control" 
+            [class.is-invalid]="expenseForm.get('name')?.invalid && expenseForm.get('name')?.touched"
+            placeholder="e.g., Groceries">
+          
+          <!-- Validation Feedback message -->
+          @if (expenseForm.get('name')?.invalid && expenseForm.get('name')?.touched) {
+            <div class="invalid-feedback">
+              Please enter a name with at least 2 characters.
+            </div>
+          }
+        </div>
+
+        <!-- Amount Input Field -->
+        <div class="mb-3">
+          <label for="expenseAmount" class="form-label fw-bold">Amount <span class="text-danger">*</span></label>
+          <div class="input-group">
+            <span class="input-group-text">$</span>
+            <input 
+              type="number" 
+              id="expenseAmount" 
+              formControlName="amount"
+              class="form-control" 
+              [class.is-invalid]="expenseForm.get('amount')?.invalid && expenseForm.get('amount')?.touched"
+              placeholder="0.00"
+              step="0.01">
+            
+            @if (expenseForm.get('amount')?.invalid && expenseForm.get('amount')?.touched) {
+              <div class="invalid-feedback">
+                Amount is required and cannot be negative.
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Category Dropdown Selection -->
+        <div class="mb-3">
+          <label for="expenseCategory" class="form-label fw-bold">Category</label>
+          <select id="expenseCategory" formControlName="categoryId" class="form-select">
+            <option [ngValue]="null">Select Category (Optional)</option>
+            @for (category of categories; track category.id) {
+              <option [ngValue]="category.id">{{ category.name }}</option>
+            }
+          </select>
+        </div>
+
+        <!-- Frequency and Repeat Interval -->
+        <div class="row g-3 mb-3">
+          <!-- Interval Type Selection -->
+          <div class="col-md-7">
+            <label for="intervalType" class="form-label fw-bold">Frequency <span class="text-danger">*</span></label>
+            <select id="intervalType" formControlName="intervalType" class="form-select">
+              @for (type of intervalTypes; track type.value) {
+                <option [value]="type.value">{{ type.label }}</option>
+              }
+            </select>
+          </div>
+
+          <!-- Interval Count (Repeat Every) -->
+          <div class="col-md-5">
+            <label for="intervalCount" class="form-label fw-bold">Every <span class="text-danger">*</span></label>
+            <div class="input-group">
+              <input 
+                type="number" 
+                id="intervalCount" 
+                formControlName="intervalCount"
+                class="form-control" 
+                [class.is-invalid]="expenseForm.get('intervalCount')?.invalid && expenseForm.get('intervalCount')?.touched"
+                min="1"
+                placeholder="1">
+              <span class="input-group-text">
+                @switch (expenseForm.get('intervalType')?.value) {
+                  @case ('DAILY') { day(s) }
+                  @case ('WEEKLY') { week(s) }
+                  @case ('BI_WEEKLY') { bi-week(s) }
+                  @case ('MONTHLY') { month(s) }
+                  @case ('YEARLY') { year(s) }
+                  @default { cycle(s) }
+                }
+              </span>
+            </div>
+            @if (expenseForm.get('intervalCount')?.invalid && expenseForm.get('intervalCount')?.touched) {
+              <div class="invalid-feedback d-block">
+                Repeat interval must be at least 1.
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Conditional: Day of Week for Weekly / Bi-Weekly -->
+        @if (expenseForm.get('intervalType')?.value === 'WEEKLY' || expenseForm.get('intervalType')?.value === 'BI_WEEKLY') {
+          <div class="mb-3">
+            <label for="dayOfWeek" class="form-label fw-bold">Day of Week</label>
+            <select id="dayOfWeek" formControlName="dayOfWeek" class="form-select">
+              <option value="">Any day / Not specified</option>
+              @for (day of daysOfWeek; track day.value) {
+                <option [value]="day.value">{{ day.label }}</option>
+              }
+            </select>
+          </div>
+        }
+
+        <!-- Conditional: Day of Month for Monthly -->
+        @if (expenseForm.get('intervalType')?.value === 'MONTHLY') {
+          <div class="mb-3">
+            <label for="dayOfMonth" class="form-label fw-bold">Day of Month</label>
+            <input 
+              type="number" 
+              id="dayOfMonth" 
+              formControlName="dayOfMonth" 
+              class="form-control" 
+              [class.is-invalid]="expenseForm.get('dayOfMonth')?.invalid && expenseForm.get('dayOfMonth')?.touched"
+              placeholder="e.g., 1 (due on 1st of month)"
+              min="1" 
+              max="31">
+            @if (expenseForm.get('dayOfMonth')?.invalid && expenseForm.get('dayOfMonth')?.touched) {
+              <div class="invalid-feedback">
+                Day of month must be between 1 and 31.
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Form Actions Layout Control -->
+        <div class="d-flex justify-content-end gap-2 border-top pt-3">
+          <button type="button" class="btn btn-outline-secondary px-4" (click)="onCancel()" [disabled]="loading">
+            Cancel
+          </button>
+          
+          <!-- Submit Action (Disabled if the validation fails completely) -->
+          <button type="submit" class="btn btn-primary px-4" [disabled]="expenseForm.invalid || loading">
+            @if (isEditing) { Save Changes } @else { Create Expense }
+          </button>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+</div>

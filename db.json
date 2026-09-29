@@ -1,62 +1,76 @@
 {
-    "balances": [
-        {
-            "id": "1",
-            "name": "Main Checking",
-            "amount": 4250,
-            "type": "CHECKING",
-            "main": true
-        },
-        {
-            "id": "2",
-            "name": "St. John Travel Fund",
-            "amount": 3800,
-            "type": "SAVINGS",
-            "main": false
-        },
-        {
-            "id": "3",
-            "name": "RV Maintenance Reserve",
-            "amount": 1200,
-            "type": "SAVINGS",
-            "main": false
-        },
-        {
-            "id": "4",
-            "name": "Rewards Credit Card",
-            "amount": 450,
-            "type": "CREDIT_CARD",
-            "main": false
-        }
-    ],
-    "expenses": [
-        {
-            "id": "1",
-            "name": "Groceries",
-            "amount": 150,
-            "frequency": {
-                "intervalType": "WEEKLY",
-                "intervalCount": 1,
-                "dayOfWeek": "MONDAY"
-            },
-            "category": {
-                "id": 1,
-                "name": "Food"
-            }
-        },
-        {
-            "id": "2",
-            "name": "Internet Bill",
-            "amount": 80,
-            "frequency": {
-                "intervalType": "MONTHLY",
-                "intervalCount": 1
-            },
-            "category": {
-                "id": 2,
-                "name": "Utilities"
-            }
-        }
-    ],
-    "$schema": "./node_modules/json-server/schema.json"
+  "balances": [
+    {
+      "id": "1",
+      "name": "Main Checking",
+      "amount": 4250,
+      "type": "CHECKING",
+      "main": true
+    },
+    {
+      "id": "2",
+      "name": "St. John Travel Fund",
+      "amount": 3800,
+      "type": "SAVINGS",
+      "main": false
+    },
+    {
+      "id": "3",
+      "name": "RV Maintenance Reserve",
+      "amount": 1200,
+      "type": "SAVINGS",
+      "main": false
+    },
+    {
+      "id": "4",
+      "name": "Rewards Credit Card",
+      "amount": 450,
+      "type": "CREDIT_CARD",
+      "main": false
+    }
+  ],
+  "expenses": [
+    {
+      "id": "1",
+      "name": "Groceries",
+      "amount": 150,
+      "frequency": {
+        "intervalType": "WEEKLY",
+        "intervalCount": 1,
+        "dayOfWeek": "MONDAY"
+      },
+      "category": {
+        "id": 1,
+        "name": "Food"
+      }
+    },
+    {
+      "id": "2",
+      "name": "Internet Bill",
+      "amount": 80,
+      "frequency": {
+        "intervalType": "MONTHLY",
+        "intervalCount": 1
+      },
+      "category": {
+        "id": 2,
+        "name": "Utilities"
+      }
+    },
+    {
+      "name": "Restaurent",
+      "amount": 100,
+      "frequency": {
+        "intervalType": "WEEKLY",
+        "intervalCount": 1,
+        "dayOfWeek": "FRIDAY"
+      },
+      "category": {
+        "id": 1,
+        "name": "Food"
+      },
+      "id": "8w7xcNWL-sU"
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
 }

@@ -14,7 +14,7 @@ export interface Category {
 }
 
 export interface Expense {
-    id?: number;
+    id?: number | string;
     name: string;
     amount: number;
     frequency: Frequency;
@@ -22,3 +22,10 @@ export interface Expense {
     createdAt?: string;
     updatedAt?: string;
 }
+
+export interface ExpenseRequest {
+    name: string;
+    amount: number;
+    frequency: Frequency;
+    category?: Category;
+}
