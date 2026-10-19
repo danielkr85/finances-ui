@@ -3,6 +3,13 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "label": "run-json-server",
+      "type": "shell",
+      "command": "json-server --watch db.json --port 3000",
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
       "type": "npm",
       "script": "start",
       "isBackground": true,
