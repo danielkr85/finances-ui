@@ -45,36 +45,130 @@
   ],
   "categories": [
     {
-      "id": 1,
+      "id": "1",
       "name": "Food"
     },
     {
-      "id": 2,
+      "id": "2",
       "name": "Utilities"
     },
     {
-      "id": 3,
+      "id": "3",
       "name": "Housing"
     },
     {
-      "id": 4,
+      "id": "4",
       "name": "Transportation"
     },
     {
-      "id": 5,
+      "id": "5",
       "name": "Entertainment"
     },
     {
-      "id": 6,
+      "id": "6",
       "name": "Healthcare"
     },
     {
-      "id": 7,
+      "id": "7",
       "name": "Personal"
     },
     {
-      "id": 8,
+      "id": "8",
       "name": "Other"
+    }
+  ],
+  "incomes": [
+    {
+      "id": "1",
+      "name": "Primary Tech Salary",
+      "amount": 4850,
+      "frequency": {
+        "intervalUnit": "WEEK",
+        "intervalCount": 2,
+        "dayOfWeek": "FRIDAY",
+        "description": "Bi-weekly"
+      },
+      "category": {
+        "id": 8,
+        "name": "Other"
+      }
+    },
+    {
+      "id": "2",
+      "name": "Rental Property Income (Duplex)",
+      "amount": 1400,
+      "frequency": {
+        "intervalUnit": "MONTH",
+        "intervalCount": 1,
+        "dayOfMonth": 1,
+        "description": "Monthly"
+      },
+      "category": {
+        "id": 3,
+        "name": "Housing"
+      }
+    },
+    {
+      "id": "3",
+      "name": "Consulting & Retainer Services",
+      "amount": 2200,
+      "frequency": {
+        "intervalUnit": "MONTH",
+        "intervalCount": 1,
+        "dayOfMonth": 15,
+        "description": "Monthly"
+      },
+      "category": {
+        "id": 8,
+        "name": "Other"
+      }
+    },
+    {
+      "id": "4",
+      "name": "Quarterly Dividend Distribution",
+      "amount": 650,
+      "frequency": {
+        "intervalUnit": "MONTH",
+        "intervalCount": 3,
+        "month": "MARCH",
+        "dayOfMonth": 20,
+        "description": "Quarterly"
+      },
+      "category": {
+        "id": 8,
+        "name": "Other"
+      }
+    },
+    {
+      "id": "5",
+      "name": "Annual Performance Bonus",
+      "amount": 8500,
+      "frequency": {
+        "intervalUnit": "YEAR",
+        "intervalCount": 1,
+        "month": "DECEMBER",
+        "dayOfMonth": 15,
+        "description": "Yearly"
+      },
+      "category": {
+        "id": 8,
+        "name": "Other"
+      }
+    },
+    {
+      "id": "6",
+      "name": "Weekend Freelance & Tutoring",
+      "amount": 180,
+      "frequency": {
+        "intervalUnit": "WEEK",
+        "intervalCount": 1,
+        "dayOfWeek": "SATURDAY",
+        "description": "Weekly"
+      },
+      "category": {
+        "id": 5,
+        "name": "Entertainment"
+      }
     }
   ],
   "expenses": [
@@ -94,19 +188,20 @@
       }
     },
     {
-      "id": "2",
       "name": "Primary Mortgage Payment",
       "amount": 1850,
       "frequency": {
         "intervalUnit": "MONTH",
-        "intervalCount": 1,
+        "intervalCount": 2,
         "dayOfMonth": 1,
-        "description": "Monthly"
+        "month": "MARCH"
       },
       "category": {
         "id": 3,
         "name": "Housing"
-      }
+      },
+      "categoryId": 3,
+      "id": "2"
     },
     {
       "id": "3",

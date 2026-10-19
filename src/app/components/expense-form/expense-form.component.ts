@@ -3,7 +3,17 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ExpenseService } from '../../services/expense.service';
-import { ExpenseRequest, Category, IntervalUnit } from '../../models/expense.model';
+import { ExpenseRequest } from '../../models/expense.model';
+import {
+  IntervalUnit,
+  INTERVAL_UNITS,
+  DAYS_OF_WEEK,
+  MONTHS_OF_YEAR,
+  mapLegacyIntervalType,
+  updateFrequencyFieldRequirements,
+  buildFrequencyPayload
+} from '../../models/frequency.model';
+import { Category, DEFAULT_CATEGORIES } from '../../models/category.model';
 
 @Component({
   selector: 'app-expense-form',
@@ -19,49 +29,10 @@ export class ExpenseFormComponent implements OnInit {
   error: string | null = null;
   expenseId: number | string | null = null;
 
-  intervalUnits = [
-    { value: 'DAY', label: 'Daily' },
-    { value: 'WEEK', label: 'Weekly' },
-    { value: 'MONTH', label: 'Monthly' },
-    { value: 'YEAR', label: 'Yearly' },
-    { value: 'CUSTOM', label: 'Custom' }
-  ];
-
-  daysOfWeek = [
-    { value: 'MONDAY', label: 'Monday' },
-    { value: 'TUESDAY', label: 'Tuesday' },
-    { value: 'WEDNESDAY', label: 'Wednesday' },
-    { value: 'THURSDAY', label: 'Thursday' },
-    { value: 'FRIDAY', label: 'Friday' },
-    { value: 'SATURDAY', label: 'Saturday' },
-    { value: 'SUNDAY', label: 'Sunday' }
-  ];
-
-  monthsOfYear = [
-    { value: 'JANUARY', label: 'January' },
-    { value: 'FEBRUARY', label: 'February' },
-    { value: 'MARCH', label: 'March' },
-    { value: 'APRIL', label: 'April' },
-    { value: 'MAY', label: 'May' },
-    { value: 'JUNE', label: 'June' },
-    { value: 'JULY', label: 'July' },
-    { value: 'AUGUST', label: 'August' },
-    { value: 'SEPTEMBER', label: 'September' },
-    { value: 'OCTOBER', label: 'October' },
-    { value: 'NOVEMBER', label: 'November' },
-    { value: 'DECEMBER', label: 'December' }
-  ];
-
-  categories: Category[] = [
-    { id: 1, name: 'Food' },
-    { id: 2, name: 'Utilities' },
-    { id: 3, name: 'Housing' },
-    { id: 4, name: 'Transportation' },
-    { id: 5, name: 'Entertainment' },
-    { id: 6, name: 'Healthcare' },
-    { id: 7, name: 'Personal' },
-    { id: 8, name: 'Other' }
-  ];
+  intervalUnits = INTERVAL_UNITS;
+  daysOfWeek = DAYS_OF_WEEK;
+  monthsOfYear = MONTHS_OF_YEAR;
+  categories: Category[] = [...DEFAULT_CATEGORIES];
 
   constructor(
     private fb: FormBuilder,
@@ -102,71 +73,7 @@ export class ExpenseFormComponent implements OnInit {
   }
 
   updateFieldRequirements(): void {
-    const unit = this.expenseForm.get('intervalUnit')?.value;
-    const count = Number(this.expenseForm.get('intervalCount')?.value) || 1;
-
-    const dayOfWeekControl = this.expenseForm.get('dayOfWeek');
-    const dayOfMonthControl = this.expenseForm.get('dayOfMonth');
-    const monthControl = this.expenseForm.get('month');
-    const customExpressionControl = this.expenseForm.get('customExpression');
-
-    if (unit === 'WEEK') {
-      dayOfWeekControl?.setValidators([Validators.required]);
-      dayOfMonthControl?.clearValidators();
-      dayOfMonthControl?.setValue(null, { emitEvent: false });
-      monthControl?.clearValidators();
-      monthControl?.setValue('', { emitEvent: false });
-      customExpressionControl?.clearValidators();
-      customExpressionControl?.setValue('', { emitEvent: false });
-    } else if (unit === 'MONTH') {
-      dayOfMonthControl?.setValidators([Validators.required, Validators.min(1), Validators.max(31)]);
-      if (dayOfMonthControl?.value == null) {
-        dayOfMonthControl?.setValue(1, { emitEvent: false });
-      }
-      if (count > 1) {
-        monthControl?.setValidators([Validators.required]);
-      } else {
-        monthControl?.clearValidators();
-        monthControl?.setValue('', { emitEvent: false });
-      }
-      dayOfWeekControl?.clearValidators();
-      dayOfWeekControl?.setValue('', { emitEvent: false });
-      customExpressionControl?.clearValidators();
-      customExpressionControl?.setValue('', { emitEvent: false });
-    } else if (unit === 'YEAR') {
-      monthControl?.setValidators([Validators.required]);
-      dayOfMonthControl?.setValidators([Validators.required, Validators.min(1), Validators.max(31)]);
-      if (dayOfMonthControl?.value == null) {
-        dayOfMonthControl?.setValue(1, { emitEvent: false });
-      }
-      dayOfWeekControl?.clearValidators();
-      dayOfWeekControl?.setValue('', { emitEvent: false });
-      customExpressionControl?.clearValidators();
-      customExpressionControl?.setValue('', { emitEvent: false });
-    } else if (unit === 'CUSTOM') {
-      customExpressionControl?.setValidators([Validators.required]);
-      dayOfWeekControl?.clearValidators();
-      dayOfWeekControl?.setValue('', { emitEvent: false });
-      dayOfMonthControl?.clearValidators();
-      dayOfMonthControl?.setValue(null, { emitEvent: false });
-      monthControl?.clearValidators();
-      monthControl?.setValue('', { emitEvent: false });
-    } else {
-      // DAY
-      dayOfWeekControl?.clearValidators();
-      dayOfWeekControl?.setValue('', { emitEvent: false });
-      dayOfMonthControl?.clearValidators();
-      dayOfMonthControl?.setValue(null, { emitEvent: false });
-      monthControl?.clearValidators();
-      monthControl?.setValue('', { emitEvent: false });
-      customExpressionControl?.clearValidators();
-      customExpressionControl?.setValue('', { emitEvent: false });
-    }
-
-    dayOfWeekControl?.updateValueAndValidity({ emitEvent: false });
-    dayOfMonthControl?.updateValueAndValidity({ emitEvent: false });
-    monthControl?.updateValueAndValidity({ emitEvent: false });
-    customExpressionControl?.updateValueAndValidity({ emitEvent: false });
+    updateFrequencyFieldRequirements(this.expenseForm);
   }
 
   loadExpenseForEdit(): void {
@@ -185,18 +92,9 @@ export class ExpenseFormComponent implements OnInit {
         let count = expense.frequency?.intervalCount ?? 1;
 
         if (!unit && (expense.frequency as any)?.intervalType) {
-          const oldType = (expense.frequency as any).intervalType;
-          switch (oldType) {
-            case 'DAILY': unit = 'DAY'; count = 1; break;
-            case 'WEEKLY': unit = 'WEEK'; count = 1; break;
-            case 'BI_WEEKLY': unit = 'WEEK'; count = 2; break;
-            case 'MONTHLY': unit = 'MONTH'; count = 1; break;
-            case 'QUARTERLY': unit = 'MONTH'; count = 3; break;
-            case 'SEMI_ANNUALLY': unit = 'MONTH'; count = 6; break;
-            case 'YEARLY': unit = 'YEAR'; count = 1; break;
-            case 'CUSTOM': unit = 'CUSTOM'; count = 1; break;
-            default: unit = 'MONTH'; count = 1;
-          }
+          const legacy = mapLegacyIntervalType((expense.frequency as any).intervalType);
+          unit = legacy.intervalUnit;
+          count = legacy.intervalCount;
         }
 
         this.expenseForm.patchValue({
@@ -232,28 +130,7 @@ export class ExpenseFormComponent implements OnInit {
 
     const formVal = this.expenseForm.value;
     const selectedCategory = this.categories.find(c => c.id === Number(formVal.categoryId));
-    const unit: IntervalUnit = formVal.intervalUnit;
-    const count = Number(formVal.intervalCount) || 1;
-
-    const frequency: any = {
-      intervalUnit: unit,
-      intervalCount: count
-    };
-
-    if (unit === 'WEEK') {
-      frequency.dayOfWeek = formVal.dayOfWeek;
-    } else if (unit === 'MONTH') {
-      frequency.dayOfMonth = Number(formVal.dayOfMonth);
-      if (count > 1 && formVal.month) {
-        frequency.month = formVal.month;
-      }
-    } else if (unit === 'YEAR') {
-      frequency.month = formVal.month;
-      frequency.dayOfMonth = Number(formVal.dayOfMonth);
-    } else if (unit === 'CUSTOM') {
-      frequency.customExpression = formVal.customExpression;
-      frequency.intervalCount = 1;
-    }
+    const frequency = buildFrequencyPayload(formVal);
 
     const expenseData: ExpenseRequest = {
       name: formVal.name.trim(),

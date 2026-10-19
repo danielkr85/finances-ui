@@ -1,23 +1,8 @@
-export type IntervalUnit = 'DAY' | 'WEEK' | 'MONTH' | 'YEAR' | 'CUSTOM';
+export * from './frequency.model';
+export * from './category.model';
 
-export interface Frequency {
-    id?: number;
-    intervalUnit: IntervalUnit;
-    intervalCount: number;
-    dayOfWeek?: string;
-    dayOfMonth?: number;
-    month?: string;
-    customExpression?: string;
-    description?: string;
-    intervalType?: string;
-}
-
-export interface Category {
-    id: number;
-    name: string;
-    createdAt?: string;
-    updatedAt?: string;
-}
+import { Frequency } from './frequency.model';
+import { Category } from './category.model';
 
 export interface Expense {
     id?: number | string;
