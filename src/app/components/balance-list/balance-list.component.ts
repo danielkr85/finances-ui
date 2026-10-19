@@ -26,17 +26,14 @@ export class BalanceListComponent implements OnInit {
   }
 
   loadBalances(): void {
-      console.log('Step 1: loadBalances started'); // New log
     this.loading = true;
     this.error = null;
 
     this.balanceService.getAllBalances().subscribe({
       next: (balances) => {
-        console.log('Step 2: Data received', balances);
         this.balances = balances;
         this.loading = false;
         this.cdr.detectChanges();
-        console.log('Step 3: Loading set to false'); // New log
       },
       error: (error) => {
         this.error = 'Failed to load balances';

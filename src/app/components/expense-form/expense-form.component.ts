@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ExpenseService } from '../../services/expense.service';
+import { CategoryService } from '../../services/category.service';
 import { ExpenseRequest } from '../../models/expense.model';
 import {
   IntervalUnit,
@@ -18,7 +19,7 @@ import { Category, DEFAULT_CATEGORIES } from '../../models/category.model';
 @Component({
   selector: 'app-expense-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
   templateUrl: './expense-form.component.html',
   styleUrl: './expense-form.component.css'
 })
@@ -34,9 +35,17 @@ export class ExpenseFormComponent implements OnInit {
   monthsOfYear = MONTHS_OF_YEAR;
   categories: Category[] = [...DEFAULT_CATEGORIES];
 
+  showNewCategoryInput = false;
+  newCategoryName = '';
+  creatingCategory = false;
+  categoryError: string | null = null;
+  loadingCategories = false;
+  private previousCategoryId: number | null = null;
+
   constructor(
     private fb: FormBuilder,
     private expenseService: ExpenseService,
+    private categoryService: CategoryService,
     private router: Router,
     private route: ActivatedRoute
   ) {
@@ -62,6 +71,8 @@ export class ExpenseFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.loadCategories();
+
     const id = this.route.snapshot.paramMap.get('id');
     if (id && id !== 'new') {
       this.isEditing = true;
@@ -70,6 +81,91 @@ export class ExpenseFormComponent implements OnInit {
     } else {
       this.updateFieldRequirements();
     }
+  }
+
+  loadCategories(): void {
+    this.loadingCategories = true;
+    this.categoryService.getCategories().subscribe({
+      next: (data) => {
+        if (data && data.length > 0) {
+          const currentId = this.expenseForm.get('categoryId')?.value;
+          const currentCat = this.categories.find(c => c.id === currentId);
+          this.categories = data;
+          if (currentCat && !this.categories.some(c => c.id === currentCat.id)) {
+            this.categories.push(currentCat);
+          }
+        }
+        this.loadingCategories = false;
+      },
+      error: (err) => {
+        console.error('Failed to load categories from API, keeping defaults:', err);
+        this.loadingCategories = false;
+      }
+    });
+  }
+
+  onCategoryChange(): void {
+    const val = this.expenseForm.get('categoryId')?.value;
+    if (val === '__NEW__') {
+      this.openNewCategoryInput();
+      this.expenseForm.get('categoryId')?.setValue(this.previousCategoryId, { emitEvent: false });
+    } else {
+      this.previousCategoryId = val !== null && val !== undefined ? Number(val) : null;
+    }
+  }
+
+  openNewCategoryInput(): void {
+    this.showNewCategoryInput = true;
+    this.newCategoryName = '';
+    this.categoryError = null;
+  }
+
+  cancelNewCategory(): void {
+    this.showNewCategoryInput = false;
+    this.newCategoryName = '';
+    this.categoryError = null;
+    this.expenseForm.get('categoryId')?.setValue(this.previousCategoryId);
+  }
+
+  saveNewCategory(): void {
+    const trimmed = this.newCategoryName.trim();
+    if (!trimmed) {
+      this.categoryError = 'Category name cannot be empty.';
+      return;
+    }
+
+    const existing = this.categories.find(c => c.name.toLowerCase() === trimmed.toLowerCase());
+    if (existing) {
+      this.expenseForm.get('categoryId')?.setValue(existing.id);
+      this.previousCategoryId = existing.id;
+      this.showNewCategoryInput = false;
+      this.newCategoryName = '';
+      this.categoryError = null;
+      return;
+    }
+
+    this.creatingCategory = true;
+    this.categoryError = null;
+
+    this.categoryService.createCategory({ name: trimmed }).subscribe({
+      next: (newCategory) => {
+        const parsedCategory: Category = {
+          ...newCategory,
+          id: Number(newCategory.id)
+        };
+        this.categories.push(parsedCategory);
+        this.expenseForm.get('categoryId')?.setValue(parsedCategory.id);
+        this.previousCategoryId = parsedCategory.id;
+        this.creatingCategory = false;
+        this.showNewCategoryInput = false;
+        this.newCategoryName = '';
+      },
+      error: (err) => {
+        console.error('Error creating category:', err);
+        this.categoryError = err?.error?.message || 'Failed to create category. Please try again.';
+        this.creatingCategory = false;
+      }
+    });
   }
 
   updateFieldRequirements(): void {
@@ -88,6 +184,9 @@ export class ExpenseFormComponent implements OnInit {
           this.categories.push(expense.category);
         }
 
+        const categoryId = expense.category ? Number(expense.category.id) : null;
+        this.previousCategoryId = categoryId;
+
         let unit = expense.frequency?.intervalUnit;
         let count = expense.frequency?.intervalCount ?? 1;
 
@@ -100,7 +199,7 @@ export class ExpenseFormComponent implements OnInit {
         this.expenseForm.patchValue({
           name: expense.name,
           amount: expense.amount,
-          categoryId: expense.category ? Number(expense.category.id) : null,
+          categoryId: categoryId,
           intervalUnit: unit || 'MONTH',
           intervalCount: count,
           dayOfWeek: expense.frequency?.dayOfWeek || '',

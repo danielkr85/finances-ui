@@ -4,6 +4,10 @@ export interface Category {
     createdAt?: string;
     updatedAt?: string;
 }
+export interface CategoryRequest {
+    name: string;
+}
+
 
 export const DEFAULT_CATEGORIES: Category[] = [
     { id: 1, name: 'Food' },

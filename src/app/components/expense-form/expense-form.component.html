@@ -68,13 +68,81 @@
 
         <!-- Category Dropdown Selection -->
         <div class="mb-3">
-          <label for="expenseCategory" class="form-label fw-bold">Category</label>
-          <select id="expenseCategory" formControlName="categoryId" class="form-select">
-            <option [ngValue]="null">Select Category (Optional)</option>
-            @for (category of categories; track category.id) {
-              <option [ngValue]="category.id">{{ category.name }}</option>
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <label for="expenseCategory" class="form-label fw-bold mb-0">Category</label>
+            @if (!showNewCategoryInput) {
+              <button 
+                type="button" 
+                class="btn btn-sm btn-link text-decoration-none p-0 fw-semibold"
+                (click)="openNewCategoryInput()">
+                + New Category
+              </button>
             }
-          </select>
+          </div>
+
+          <div class="position-relative">
+            <select 
+              id="expenseCategory" 
+              formControlName="categoryId" 
+              class="form-select"
+              (change)="onCategoryChange()">
+              <option [ngValue]="null">Select Category (Optional)</option>
+              @for (category of categories; track category.id) {
+                <option [ngValue]="category.id">{{ category.name }}</option>
+              }
+              <option value="__NEW__" class="fw-bold text-primary">+ Add New Category...</option>
+            </select>
+            @if (loadingCategories) {
+              <div class="position-absolute end-0 top-50 translate-middle-y me-4 pe-2">
+                <span class="spinner-border spinner-border-sm text-secondary" role="status"></span>
+              </div>
+            }
+          </div>
+
+          <!-- Inline New Category Form -->
+          @if (showNewCategoryInput) {
+            <div class="card mt-2 border-primary-subtle bg-light shadow-sm">
+              <div class="card-body p-3">
+                <label for="newCategoryNameInput" class="form-label small fw-bold text-secondary mb-1">
+                  Create New Category
+                </label>
+                <div class="input-group">
+                  <input 
+                    type="text" 
+                    id="newCategoryNameInput"
+                    class="form-control" 
+                    placeholder="e.g., Subscriptions"
+                    [(ngModel)]="newCategoryName" 
+                    [ngModelOptions]="{standalone: true}"
+                    [disabled]="creatingCategory"
+                    (keyup.enter)="saveNewCategory()"
+                    (keydown.escape)="cancelNewCategory()">
+                  <button 
+                    type="button" 
+                    class="btn btn-primary d-flex align-items-center gap-1"
+                    (click)="saveNewCategory()"
+                    [disabled]="!newCategoryName.trim() || creatingCategory">
+                    @if (creatingCategory) {
+                      <span class="spinner-border spinner-border-sm" role="status"></span>
+                    }
+                    Save
+                  </button>
+                  <button 
+                    type="button" 
+                    class="btn btn-outline-secondary"
+                    (click)="cancelNewCategory()"
+                    [disabled]="creatingCategory">
+                    Cancel
+                  </button>
+                </div>
+                @if (categoryError) {
+                  <div class="text-danger small mt-2">
+                    {{ categoryError }}
+                  </div>
+                }
+              </div>
+            </div>
+          }
         </div>
 
         <!-- Frequency and Repeat Interval -->
