@@ -12,6 +12,14 @@ export class BalanceService {
 
   constructor(private http: HttpClient) { }
 
+  getAllBalances(): Observable<BalanceResponse[]> {
+    return this.http.get<BalanceResponse[]>(this.baseUrl);
+  }
+
+  getBalanceById(id: number | string): Observable<BalanceResponse> {
+    return this.http.get<BalanceResponse>(`${this.baseUrl}/${id}`);
+  }
+
   getCurrentBalance(): Observable<BalanceResponse> {
     return this.http.get<BalanceResponse>(`${this.baseUrl}/current`);
   }

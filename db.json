@@ -16,28 +16,77 @@
     },
     {
       "id": "3",
+      "name": "High Yield Emergency Fund",
+      "amount": 12500,
+      "type": "SAVINGS",
+      "main": false
+    },
+    {
+      "id": "4",
       "name": "RV Maintenance Reserve",
       "amount": 1200,
       "type": "SAVINGS",
       "main": false
     },
     {
-      "id": "4",
+      "id": "5",
       "name": "Rewards Credit Card",
       "amount": 450,
       "type": "CREDIT_CARD",
       "main": false
+    },
+    {
+      "id": "6",
+      "name": "Prime Cash Rewards Visa",
+      "amount": 890,
+      "type": "CREDIT_CARD",
+      "main": false
+    }
+  ],
+  "categories": [
+    {
+      "id": 1,
+      "name": "Food"
+    },
+    {
+      "id": 2,
+      "name": "Utilities"
+    },
+    {
+      "id": 3,
+      "name": "Housing"
+    },
+    {
+      "id": 4,
+      "name": "Transportation"
+    },
+    {
+      "id": 5,
+      "name": "Entertainment"
+    },
+    {
+      "id": 6,
+      "name": "Healthcare"
+    },
+    {
+      "id": 7,
+      "name": "Personal"
+    },
+    {
+      "id": 8,
+      "name": "Other"
     }
   ],
   "expenses": [
     {
       "id": "1",
-      "name": "Groceries",
-      "amount": 150,
+      "name": "Weekly Supermarket & Farmers Market",
+      "amount": 175,
       "frequency": {
-        "intervalType": "WEEKLY",
+        "intervalUnit": "WEEK",
         "intervalCount": 1,
-        "dayOfWeek": "MONDAY"
+        "dayOfWeek": "SUNDAY",
+        "description": "Weekly"
       },
       "category": {
         "id": 1,
@@ -46,11 +95,28 @@
     },
     {
       "id": "2",
-      "name": "Internet Bill",
-      "amount": 80,
+      "name": "Primary Mortgage Payment",
+      "amount": 1850,
       "frequency": {
-        "intervalType": "MONTHLY",
-        "intervalCount": 1
+        "intervalUnit": "MONTH",
+        "intervalCount": 1,
+        "dayOfMonth": 1,
+        "description": "Monthly"
+      },
+      "category": {
+        "id": 3,
+        "name": "Housing"
+      }
+    },
+    {
+      "id": "3",
+      "name": "High-Speed Fiber Internet",
+      "amount": 79.99,
+      "frequency": {
+        "intervalUnit": "MONTH",
+        "intervalCount": 1,
+        "dayOfMonth": 18,
+        "description": "Monthly"
       },
       "category": {
         "id": 2,
@@ -58,32 +124,293 @@
       }
     },
     {
-      "name": "Restaurent",
-      "amount": 100,
+      "id": "4",
+      "name": "Electric & Natural Gas (National Grid)",
+      "amount": 165,
       "frequency": {
-        "intervalType": "WEEKLY",
+        "intervalUnit": "MONTH",
         "intervalCount": 1,
-        "dayOfWeek": "FRIDAY"
+        "dayOfMonth": 22,
+        "description": "Monthly"
+      },
+      "category": {
+        "id": 2,
+        "name": "Utilities"
+      }
+    },
+    {
+      "id": "5",
+      "name": "Friday Dinner & Cocktails",
+      "amount": 95,
+      "frequency": {
+        "intervalUnit": "WEEK",
+        "intervalCount": 1,
+        "dayOfWeek": "FRIDAY",
+        "description": "Weekly"
       },
       "category": {
         "id": 1,
         "name": "Food"
-      },
-      "id": "8w7xcNWL-sU"
+      }
     },
     {
-      "name": "Mortgage",
-      "amount": 870,
+      "id": "6",
+      "name": "Organic Farm Share (CSA Box)",
+      "amount": 60,
+      "frequency": {
+        "intervalUnit": "WEEK",
+        "intervalCount": 2,
+        "dayOfWeek": "WEDNESDAY",
+        "description": "Bi-weekly"
+      },
+      "category": {
+        "id": 1,
+        "name": "Food"
+      }
+    },
+    {
+      "id": "7",
+      "name": "Lawn Care & Landscaping Service",
+      "amount": 85,
+      "frequency": {
+        "intervalUnit": "WEEK",
+        "intervalCount": 2,
+        "dayOfWeek": "THURSDAY",
+        "description": "Bi-weekly"
+      },
+      "category": {
+        "id": 3,
+        "name": "Housing"
+      }
+    },
+    {
+      "id": "8",
+      "name": "Municipal Water, Sewer & Trash",
+      "amount": 145,
+      "frequency": {
+        "intervalUnit": "MONTH",
+        "intervalCount": 3,
+        "month": "JANUARY",
+        "dayOfMonth": 15,
+        "description": "Quarterly"
+      },
+      "category": {
+        "id": 2,
+        "name": "Utilities"
+      }
+    },
+    {
+      "id": "9",
+      "name": "Pest Control & Exterior Shield",
+      "amount": 115,
+      "frequency": {
+        "intervalUnit": "MONTH",
+        "intervalCount": 3,
+        "month": "MARCH",
+        "dayOfMonth": 10,
+        "description": "Quarterly"
+      },
+      "category": {
+        "id": 3,
+        "name": "Housing"
+      }
+    },
+    {
+      "id": "10",
+      "name": "Auto Insurance Premium (Full Coverage)",
+      "amount": 620,
+      "frequency": {
+        "intervalUnit": "MONTH",
+        "intervalCount": 6,
+        "month": "APRIL",
+        "dayOfMonth": 15,
+        "description": "Semi-annually"
+      },
+      "category": {
+        "id": 4,
+        "name": "Transportation"
+      }
+    },
+    {
+      "id": "11",
+      "name": "Dental Checkup & Teeth Cleaning",
+      "amount": 135,
+      "frequency": {
+        "intervalUnit": "MONTH",
+        "intervalCount": 6,
+        "month": "JUNE",
+        "dayOfMonth": 1,
+        "description": "Semi-annually"
+      },
+      "category": {
+        "id": 6,
+        "name": "Healthcare"
+      }
+    },
+    {
+      "id": "12",
+      "name": "Annual Homeowners Insurance Policy",
+      "amount": 1250,
+      "frequency": {
+        "intervalUnit": "YEAR",
+        "intervalCount": 1,
+        "month": "OCTOBER",
+        "dayOfMonth": 5,
+        "description": "Yearly"
+      },
+      "category": {
+        "id": 3,
+        "name": "Housing"
+      }
+    },
+    {
+      "id": "13",
+      "name": "Amazon Prime Annual Membership",
+      "amount": 139,
+      "frequency": {
+        "intervalUnit": "YEAR",
+        "intervalCount": 1,
+        "month": "JULY",
+        "dayOfMonth": 16,
+        "description": "Yearly"
+      },
+      "category": {
+        "id": 7,
+        "name": "Personal"
+      }
+    },
+    {
+      "id": "14",
+      "name": "Vehicle Registration & City Sticker",
+      "amount": 145,
+      "frequency": {
+        "intervalUnit": "YEAR",
+        "intervalCount": 1,
+        "month": "MAY",
+        "dayOfMonth": 31,
+        "description": "Yearly"
+      },
+      "category": {
+        "id": 4,
+        "name": "Transportation"
+      }
+    },
+    {
+      "id": "15",
+      "name": "Daily Commuter Espresso & Pastry",
+      "amount": 6.5,
+      "frequency": {
+        "intervalUnit": "DAY",
+        "intervalCount": 1,
+        "description": "Daily"
+      },
+      "category": {
+        "id": 1,
+        "name": "Food"
+      }
+    },
+    {
+      "id": "16",
+      "name": "Express Highway Toll Refill",
+      "amount": 15,
+      "frequency": {
+        "intervalUnit": "DAY",
+        "intervalCount": 3,
+        "description": "Every 3 days"
+      },
+      "category": {
+        "id": 4,
+        "name": "Transportation"
+      }
+    },
+    {
+      "id": "17",
+      "name": "Streaming Services Bundle (4K)",
+      "amount": 42.99,
+      "frequency": {
+        "intervalUnit": "MONTH",
+        "intervalCount": 1,
+        "dayOfMonth": 14,
+        "description": "Monthly"
+      },
+      "category": {
+        "id": 5,
+        "name": "Entertainment"
+      }
+    },
+    {
+      "id": "18",
+      "name": "Health Club & Crossfit Gym",
+      "amount": 85,
+      "frequency": {
+        "intervalUnit": "MONTH",
+        "intervalCount": 1,
+        "dayOfMonth": 1,
+        "description": "Monthly"
+      },
+      "category": {
+        "id": 6,
+        "name": "Healthcare"
+      }
+    },
+    {
+      "id": "19",
+      "name": "Unlimited Mobile Family Plan",
+      "amount": 120,
+      "frequency": {
+        "intervalUnit": "MONTH",
+        "intervalCount": 1,
+        "dayOfMonth": 25,
+        "description": "Monthly"
+      },
+      "category": {
+        "id": 2,
+        "name": "Utilities"
+      }
+    },
+    {
+      "id": "20",
+      "name": "Mid-Month & Month-End Savings Transfer",
+      "amount": 250,
+      "frequency": {
+        "intervalUnit": "CUSTOM",
+        "intervalCount": 1,
+        "customExpression": "0 0 12 1,15 * ?",
+        "description": "Custom (1st & 15th)"
+      },
+      "category": {
+        "id": 8,
+        "name": "Other"
+      }
+    },
+    {
+      "id": "21",
+      "name": "Bi-Monthly Equipment Safety Inspection",
+      "amount": 75,
+      "frequency": {
+        "intervalUnit": "CUSTOM",
+        "intervalCount": 1,
+        "customExpression": "0 0 9 ? * 2#1,2#3",
+        "description": "Custom (1st & 3rd Mon)"
+      },
+      "category": {
+        "id": 8,
+        "name": "Other"
+      }
+    },
+    {
+      "id": "22",
+      "name": "Legacy Storage Locker Rental",
+      "amount": 65,
       "frequency": {
         "intervalType": "MONTHLY",
         "intervalCount": 1,
         "dayOfMonth": 1
       },
       "category": {
-        "id": 3,
-        "name": "Housing"
-      },
-      "id": "U0jUz8LSM00"
+        "id": 7,
+        "name": "Personal"
+      }
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"

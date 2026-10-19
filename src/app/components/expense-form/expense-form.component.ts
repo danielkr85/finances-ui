@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ExpenseService } from '../../services/expense.service';
-import { ExpenseRequest, Category } from '../../models/expense.model';
+import { ExpenseRequest, Category, IntervalUnit } from '../../models/expense.model';
 
 @Component({
   selector: 'app-expense-form',
@@ -19,12 +19,12 @@ export class ExpenseFormComponent implements OnInit {
   error: string | null = null;
   expenseId: number | string | null = null;
 
-  intervalTypes = [
-    { value: 'DAILY', label: 'Daily' },
-    { value: 'WEEKLY', label: 'Weekly' },
-    { value: 'BI_WEEKLY', label: 'Bi-Weekly' },
-    { value: 'MONTHLY', label: 'Monthly' },
-    { value: 'YEARLY', label: 'Yearly' }
+  intervalUnits = [
+    { value: 'DAY', label: 'Daily' },
+    { value: 'WEEK', label: 'Weekly' },
+    { value: 'MONTH', label: 'Monthly' },
+    { value: 'YEAR', label: 'Yearly' },
+    { value: 'CUSTOM', label: 'Custom' }
   ];
 
   daysOfWeek = [
@@ -35,6 +35,21 @@ export class ExpenseFormComponent implements OnInit {
     { value: 'FRIDAY', label: 'Friday' },
     { value: 'SATURDAY', label: 'Saturday' },
     { value: 'SUNDAY', label: 'Sunday' }
+  ];
+
+  monthsOfYear = [
+    { value: 'JANUARY', label: 'January' },
+    { value: 'FEBRUARY', label: 'February' },
+    { value: 'MARCH', label: 'March' },
+    { value: 'APRIL', label: 'April' },
+    { value: 'MAY', label: 'May' },
+    { value: 'JUNE', label: 'June' },
+    { value: 'JULY', label: 'July' },
+    { value: 'AUGUST', label: 'August' },
+    { value: 'SEPTEMBER', label: 'September' },
+    { value: 'OCTOBER', label: 'October' },
+    { value: 'NOVEMBER', label: 'November' },
+    { value: 'DECEMBER', label: 'December' }
   ];
 
   categories: Category[] = [
@@ -58,19 +73,20 @@ export class ExpenseFormComponent implements OnInit {
       name: ['', [Validators.required, Validators.minLength(2)]],
       amount: ['', [Validators.required, Validators.min(0)]],
       categoryId: [null],
-      intervalType: ['MONTHLY', [Validators.required]],
+      intervalUnit: ['MONTH', [Validators.required]],
       intervalCount: [1, [Validators.required, Validators.min(1)]],
       dayOfWeek: [''],
-      dayOfMonth: [null, [Validators.min(1), Validators.max(31)]]
+      dayOfMonth: [1, [Validators.required, Validators.min(1), Validators.max(31)]],
+      month: [''],
+      customExpression: ['']
     });
 
-    this.expenseForm.get('intervalType')?.valueChanges.subscribe((type) => {
-      if (type !== 'WEEKLY' && type !== 'BI_WEEKLY') {
-        this.expenseForm.get('dayOfWeek')?.setValue('');
-      }
-      if (type !== 'MONTHLY') {
-        this.expenseForm.get('dayOfMonth')?.setValue(null);
-      }
+    this.expenseForm.get('intervalUnit')?.valueChanges.subscribe(() => {
+      this.updateFieldRequirements();
+    });
+
+    this.expenseForm.get('intervalCount')?.valueChanges.subscribe(() => {
+      this.updateFieldRequirements();
     });
   }
 
@@ -80,7 +96,77 @@ export class ExpenseFormComponent implements OnInit {
       this.isEditing = true;
       this.expenseId = id;
       this.loadExpenseForEdit();
+    } else {
+      this.updateFieldRequirements();
     }
+  }
+
+  updateFieldRequirements(): void {
+    const unit = this.expenseForm.get('intervalUnit')?.value;
+    const count = Number(this.expenseForm.get('intervalCount')?.value) || 1;
+
+    const dayOfWeekControl = this.expenseForm.get('dayOfWeek');
+    const dayOfMonthControl = this.expenseForm.get('dayOfMonth');
+    const monthControl = this.expenseForm.get('month');
+    const customExpressionControl = this.expenseForm.get('customExpression');
+
+    if (unit === 'WEEK') {
+      dayOfWeekControl?.setValidators([Validators.required]);
+      dayOfMonthControl?.clearValidators();
+      dayOfMonthControl?.setValue(null, { emitEvent: false });
+      monthControl?.clearValidators();
+      monthControl?.setValue('', { emitEvent: false });
+      customExpressionControl?.clearValidators();
+      customExpressionControl?.setValue('', { emitEvent: false });
+    } else if (unit === 'MONTH') {
+      dayOfMonthControl?.setValidators([Validators.required, Validators.min(1), Validators.max(31)]);
+      if (dayOfMonthControl?.value == null) {
+        dayOfMonthControl?.setValue(1, { emitEvent: false });
+      }
+      if (count > 1) {
+        monthControl?.setValidators([Validators.required]);
+      } else {
+        monthControl?.clearValidators();
+        monthControl?.setValue('', { emitEvent: false });
+      }
+      dayOfWeekControl?.clearValidators();
+      dayOfWeekControl?.setValue('', { emitEvent: false });
+      customExpressionControl?.clearValidators();
+      customExpressionControl?.setValue('', { emitEvent: false });
+    } else if (unit === 'YEAR') {
+      monthControl?.setValidators([Validators.required]);
+      dayOfMonthControl?.setValidators([Validators.required, Validators.min(1), Validators.max(31)]);
+      if (dayOfMonthControl?.value == null) {
+        dayOfMonthControl?.setValue(1, { emitEvent: false });
+      }
+      dayOfWeekControl?.clearValidators();
+      dayOfWeekControl?.setValue('', { emitEvent: false });
+      customExpressionControl?.clearValidators();
+      customExpressionControl?.setValue('', { emitEvent: false });
+    } else if (unit === 'CUSTOM') {
+      customExpressionControl?.setValidators([Validators.required]);
+      dayOfWeekControl?.clearValidators();
+      dayOfWeekControl?.setValue('', { emitEvent: false });
+      dayOfMonthControl?.clearValidators();
+      dayOfMonthControl?.setValue(null, { emitEvent: false });
+      monthControl?.clearValidators();
+      monthControl?.setValue('', { emitEvent: false });
+    } else {
+      // DAY
+      dayOfWeekControl?.clearValidators();
+      dayOfWeekControl?.setValue('', { emitEvent: false });
+      dayOfMonthControl?.clearValidators();
+      dayOfMonthControl?.setValue(null, { emitEvent: false });
+      monthControl?.clearValidators();
+      monthControl?.setValue('', { emitEvent: false });
+      customExpressionControl?.clearValidators();
+      customExpressionControl?.setValue('', { emitEvent: false });
+    }
+
+    dayOfWeekControl?.updateValueAndValidity({ emitEvent: false });
+    dayOfMonthControl?.updateValueAndValidity({ emitEvent: false });
+    monthControl?.updateValueAndValidity({ emitEvent: false });
+    customExpressionControl?.updateValueAndValidity({ emitEvent: false });
   }
 
   loadExpenseForEdit(): void {
@@ -94,15 +180,37 @@ export class ExpenseFormComponent implements OnInit {
         if (expense.category && !this.categories.some(c => c.id === expense.category?.id)) {
           this.categories.push(expense.category);
         }
+
+        let unit = expense.frequency?.intervalUnit;
+        let count = expense.frequency?.intervalCount ?? 1;
+
+        if (!unit && (expense.frequency as any)?.intervalType) {
+          const oldType = (expense.frequency as any).intervalType;
+          switch (oldType) {
+            case 'DAILY': unit = 'DAY'; count = 1; break;
+            case 'WEEKLY': unit = 'WEEK'; count = 1; break;
+            case 'BI_WEEKLY': unit = 'WEEK'; count = 2; break;
+            case 'MONTHLY': unit = 'MONTH'; count = 1; break;
+            case 'QUARTERLY': unit = 'MONTH'; count = 3; break;
+            case 'SEMI_ANNUALLY': unit = 'MONTH'; count = 6; break;
+            case 'YEARLY': unit = 'YEAR'; count = 1; break;
+            case 'CUSTOM': unit = 'CUSTOM'; count = 1; break;
+            default: unit = 'MONTH'; count = 1;
+          }
+        }
+
         this.expenseForm.patchValue({
           name: expense.name,
           amount: expense.amount,
           categoryId: expense.category ? Number(expense.category.id) : null,
-          intervalType: expense.frequency?.intervalType || 'MONTHLY',
-          intervalCount: expense.frequency?.intervalCount ?? 1,
+          intervalUnit: unit || 'MONTH',
+          intervalCount: count,
           dayOfWeek: expense.frequency?.dayOfWeek || '',
-          dayOfMonth: expense.frequency?.dayOfMonth ?? null
+          dayOfMonth: expense.frequency?.dayOfMonth ?? ((unit === 'MONTH' || unit === 'YEAR') ? 1 : null),
+          month: expense.frequency?.month || '',
+          customExpression: expense.frequency?.customExpression || ''
         });
+        this.updateFieldRequirements();
         this.loading = false;
       },
       error: (error) => {
@@ -124,25 +232,34 @@ export class ExpenseFormComponent implements OnInit {
 
     const formVal = this.expenseForm.value;
     const selectedCategory = this.categories.find(c => c.id === Number(formVal.categoryId));
+    const unit: IntervalUnit = formVal.intervalUnit;
+    const count = Number(formVal.intervalCount) || 1;
 
     const frequency: any = {
-      intervalType: formVal.intervalType,
-      intervalCount: Number(formVal.intervalCount) || 1
+      intervalUnit: unit,
+      intervalCount: count
     };
 
-    if ((formVal.intervalType === 'WEEKLY' || formVal.intervalType === 'BI_WEEKLY') && formVal.dayOfWeek) {
+    if (unit === 'WEEK') {
       frequency.dayOfWeek = formVal.dayOfWeek;
-    }
-
-    if (formVal.intervalType === 'MONTHLY' && formVal.dayOfMonth) {
+    } else if (unit === 'MONTH') {
       frequency.dayOfMonth = Number(formVal.dayOfMonth);
+      if (count > 1 && formVal.month) {
+        frequency.month = formVal.month;
+      }
+    } else if (unit === 'YEAR') {
+      frequency.month = formVal.month;
+      frequency.dayOfMonth = Number(formVal.dayOfMonth);
+    } else if (unit === 'CUSTOM') {
+      frequency.customExpression = formVal.customExpression;
+      frequency.intervalCount = 1;
     }
 
     const expenseData: ExpenseRequest = {
       name: formVal.name.trim(),
       amount: Number(formVal.amount),
       frequency,
-      ...(selectedCategory ? { category: selectedCategory } : {})
+      ...(selectedCategory ? { category: selectedCategory, categoryId: selectedCategory.id } : {})
     };
 
     if (this.isEditing && this.expenseId !== null) {

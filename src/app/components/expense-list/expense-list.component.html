@@ -51,9 +51,16 @@
 
                     <!-- Subtitle: Frequency as clean, readable text -->
                     <div class="text-muted small mb-2">
-                        {{ expense.frequency.intervalType | titlecase }}
+                        {{ expense.frequency.description || (expense.frequency.intervalUnit || expense.frequency.intervalType | titlecase) }}
                         @if (expense.frequency.dayOfWeek) {
                         on {{ expense.frequency.dayOfWeek | titlecase }}
+                        }
+                        @if (expense.frequency.dayOfMonth) {
+                        @if (expense.frequency.month) {
+                        ({{ expense.frequency.month | titlecase }} {{ expense.frequency.dayOfMonth }})
+                        } @else if (expense.frequency.intervalUnit === 'MONTH') {
+                        (day {{ expense.frequency.dayOfMonth }})
+                        }
                         }
                     </div>
 

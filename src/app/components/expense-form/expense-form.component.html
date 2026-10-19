@@ -79,11 +79,11 @@
 
         <!-- Frequency and Repeat Interval -->
         <div class="row g-3 mb-3">
-          <!-- Interval Type Selection -->
+          <!-- Interval Unit Selection -->
           <div class="col-md-7">
-            <label for="intervalType" class="form-label fw-bold">Frequency <span class="text-danger">*</span></label>
-            <select id="intervalType" formControlName="intervalType" class="form-select">
-              @for (type of intervalTypes; track type.value) {
+            <label for="intervalUnit" class="form-label fw-bold">Frequency <span class="text-danger">*</span></label>
+            <select id="intervalUnit" formControlName="intervalUnit" class="form-select">
+              @for (type of intervalUnits; track type.value) {
                 <option [value]="type.value">{{ type.label }}</option>
               }
             </select>
@@ -102,12 +102,12 @@
                 min="1"
                 placeholder="1">
               <span class="input-group-text">
-                @switch (expenseForm.get('intervalType')?.value) {
-                  @case ('DAILY') { day(s) }
-                  @case ('WEEKLY') { week(s) }
-                  @case ('BI_WEEKLY') { bi-week(s) }
-                  @case ('MONTHLY') { month(s) }
-                  @case ('YEARLY') { year(s) }
+                @switch (expenseForm.get('intervalUnit')?.value) {
+                  @case ('DAY') { day(s) }
+                  @case ('WEEK') { week(s) }
+                  @case ('MONTH') { month(s) }
+                  @case ('YEAR') { year(s) }
+                  @case ('CUSTOM') { cycle(s) }
                   @default { cycle(s) }
                 }
               </span>
@@ -120,23 +120,61 @@
           </div>
         </div>
 
-        <!-- Conditional: Day of Week for Weekly / Bi-Weekly -->
-        @if (expenseForm.get('intervalType')?.value === 'WEEKLY' || expenseForm.get('intervalType')?.value === 'BI_WEEKLY') {
+        <!-- Conditional: Day of Week for Weekly -->
+        @if (expenseForm.get('intervalUnit')?.value === 'WEEK') {
           <div class="mb-3">
-            <label for="dayOfWeek" class="form-label fw-bold">Day of Week</label>
-            <select id="dayOfWeek" formControlName="dayOfWeek" class="form-select">
-              <option value="">Any day / Not specified</option>
+            <label for="dayOfWeek" class="form-label fw-bold">Day of Week <span class="text-danger">*</span></label>
+            <select 
+              id="dayOfWeek" 
+              formControlName="dayOfWeek" 
+              class="form-select"
+              [class.is-invalid]="expenseForm.get('dayOfWeek')?.invalid && expenseForm.get('dayOfWeek')?.touched">
+              <option value="" disabled>Select a day</option>
               @for (day of daysOfWeek; track day.value) {
                 <option [value]="day.value">{{ day.label }}</option>
               }
             </select>
+            @if (expenseForm.get('dayOfWeek')?.invalid && expenseForm.get('dayOfWeek')?.touched) {
+              <div class="invalid-feedback">
+                Please select a day of the week.
+              </div>
+            }
           </div>
         }
 
-        <!-- Conditional: Day of Month for Monthly -->
-        @if (expenseForm.get('intervalType')?.value === 'MONTHLY') {
+        <!-- Conditional: Starting Month (for Multi-Month like Quarterly or Yearly) -->
+        @if (expenseForm.get('intervalUnit')?.value === 'YEAR' || 
+             (expenseForm.get('intervalUnit')?.value === 'MONTH' && (expenseForm.get('intervalCount')?.value || 1) > 1)) {
           <div class="mb-3">
-            <label for="dayOfMonth" class="form-label fw-bold">Day of Month</label>
+            <label for="month" class="form-label fw-bold">
+              @if (expenseForm.get('intervalUnit')?.value === 'YEAR') {
+                Month <span class="text-danger">*</span>
+              } @else {
+                Starting Month <span class="text-danger">*</span>
+              }
+            </label>
+            <select 
+              id="month" 
+              formControlName="month" 
+              class="form-select"
+              [class.is-invalid]="expenseForm.get('month')?.invalid && expenseForm.get('month')?.touched">
+              <option value="" disabled>Select a month</option>
+              @for (m of monthsOfYear; track m.value) {
+                <option [value]="m.value">{{ m.label }}</option>
+              }
+            </select>
+            @if (expenseForm.get('month')?.invalid && expenseForm.get('month')?.touched) {
+              <div class="invalid-feedback">
+                Please select a month.
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Conditional: Day of Month for Monthly or Yearly -->
+        @if (expenseForm.get('intervalUnit')?.value === 'MONTH' || expenseForm.get('intervalUnit')?.value === 'YEAR') {
+          <div class="mb-3">
+            <label for="dayOfMonth" class="form-label fw-bold">Day of Month <span class="text-danger">*</span></label>
             <input 
               type="number" 
               id="dayOfMonth" 
@@ -148,7 +186,26 @@
               max="31">
             @if (expenseForm.get('dayOfMonth')?.invalid && expenseForm.get('dayOfMonth')?.touched) {
               <div class="invalid-feedback">
-                Day of month must be between 1 and 31.
+                Day of month is required and must be between 1 and 31.
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Conditional: Custom Expression -->
+        @if (expenseForm.get('intervalUnit')?.value === 'CUSTOM') {
+          <div class="mb-3">
+            <label for="customExpression" class="form-label fw-bold">Custom Cron Expression <span class="text-danger">*</span></label>
+            <input 
+              type="text" 
+              id="customExpression" 
+              formControlName="customExpression" 
+              class="form-control" 
+              [class.is-invalid]="expenseForm.get('customExpression')?.invalid && expenseForm.get('customExpression')?.touched"
+              placeholder="e.g., 0 0 12 * * ?">
+            @if (expenseForm.get('customExpression')?.invalid && expenseForm.get('customExpression')?.touched) {
+              <div class="invalid-feedback">
+                Custom expression is required.
               </div>
             }
           </div>
