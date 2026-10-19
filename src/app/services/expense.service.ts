@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Expense, ExpenseRequest } from '../models/expense.model';
 import { environment } from '../../environments/environment';
@@ -12,9 +12,16 @@ export class ExpenseService {
 
     constructor(private http: HttpClient) { }
 
-    getAllExpenses(): Observable<Expense[]> {
-        return this.http.get<Expense[]>(this.apiUrl);
+    getAllExpenses(categoryIds?: (number | string)[]): Observable<Expense[]> {
+        let params = new HttpParams();
+        if (categoryIds && categoryIds.length > 0) {
+            categoryIds.forEach(id => {
+                params = params.append('categoryId', id.toString());
+            });
+        }
+        return this.http.get<Expense[]>(this.apiUrl, { params });
     }
+
 
     getExpenseById(id: number | string): Observable<Expense> {
         return this.http.get<Expense>(`${this.apiUrl}/${id}`);

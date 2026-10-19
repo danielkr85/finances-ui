@@ -9,6 +9,72 @@
         </button>
     </div>
 
+    <!-- Category Filter Pills -->
+    @if (!loadingCategories && categories.length > 0) {
+    <div class="card shadow-sm mb-4">
+        <div class="card-body py-3 px-3">
+            <!-- Filter Header Row -->
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-funnel text-secondary"></i>
+                    <span class="small fw-bold text-secondary text-uppercase" style="letter-spacing: 0.05em;">Filter by Category</span>
+                </div>
+                @if (hasActiveFilters) {
+                <button class="btn btn-sm btn-link text-decoration-none p-0 fw-semibold" (click)="clearFilters()">
+                    Clear filters
+                    <span class="badge text-bg-primary ms-1">{{ selectedCategoryIds.size }} active</span>
+                </button>
+                }
+            </div>
+
+            <!-- Filter Pills -->
+            <div class="d-flex flex-wrap gap-2">
+                <!-- "All" Pill -->
+                <button class="btn btn-sm d-flex align-items-center gap-1"
+                    [class]="!hasActiveFilters ? 'btn-primary' : 'btn-outline-secondary'"
+                    (click)="clearFilters()">
+                    @if (!hasActiveFilters) {
+                    <i class="bi bi-check2"></i>
+                    }
+                    All
+                    <span class="badge rounded-pill"
+                        [class]="!hasActiveFilters ? 'text-bg-light text-primary' : 'text-bg-secondary'">
+                        {{ expenses.length }}
+                    </span>
+                </button>
+
+                <!-- Category Pills -->
+                @for (cat of categories; track cat.id) {
+                <button class="btn btn-sm d-flex align-items-center gap-1"
+                    [class]="isSelected(cat.id) ? 'btn-primary' : 'btn-outline-secondary'"
+                    (click)="toggleCategory(cat.id)">
+                    @if (isSelected(cat.id)) {
+                    <i class="bi bi-check2"></i>
+                    }
+                    {{ cat.name }}
+                    <span class="badge rounded-pill"
+                        [class]="isSelected(cat.id) ? 'text-bg-light text-primary' : 'text-bg-secondary'">
+                        {{ getCategoryExpenseCount(cat.id) }}
+                    </span>
+                </button>
+                }
+            </div>
+
+            <!-- Filter Summary -->
+            @if (hasActiveFilters) {
+            <div class="mt-2 pt-2 border-top d-flex align-items-center gap-2 text-muted small">
+                <i class="bi bi-info-circle"></i>
+                <span>
+                    Showing <strong class="text-dark">{{ filteredExpenses.length }}</strong> of {{ expenses.length }} expenses
+                    &bull;
+                    Filtered Total: <strong class="text-dark font-monospace">${{ filteredTotalAmount | number }}</strong>
+                </span>
+            </div>
+            }
+        </div>
+    </div>
+    }
+
     <!-- Loading State -->
     @if (loading) {
     <div class="text-center my-5">
@@ -24,17 +90,26 @@
     </div>
     }
 
-    <!-- Empty State Banner -->
+    <!-- Empty State Banner (no expenses at all) -->
     @if (!loading && !error && expenses.length === 0) {
     <div class="alert alert-info text-center" role="alert">
         No expenses found. Click "Add New Expense" to create one.
     </div>
     }
 
+    <!-- Empty Filter Result Banner -->
+    @if (!loading && !error && expenses.length > 0 && filteredExpenses.length === 0) {
+    <div class="alert alert-warning text-center" role="alert">
+        <i class="bi bi-funnel me-1"></i>
+        No expenses match the selected categories.
+        <button class="btn btn-sm btn-link p-0 ms-2 fw-semibold" (click)="clearFilters()">Reset filters</button>
+    </div>
+    }
+
     <!-- Responsive Expenses Grid -->
-    @if (!loading && !error && expenses.length > 0) {
+    @if (!loading && !error && filteredExpenses.length > 0) {
     <div class="row g-4">
-        @for (expense of expenses; track expense.id) {
+        @for (expense of filteredExpenses; track expense.id) {
         <div class="col-12 col-md-6 col-lg-4">
             <div class="card h-100 shadow-sm">
                 <div class="card-body d-flex flex-column">
