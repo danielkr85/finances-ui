@@ -15,6 +15,7 @@ import {
   buildFrequencyPayload
 } from '../../models/frequency.model';
 import { Category } from '../../models/category.model';
+import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-expense-form',
@@ -47,7 +48,8 @@ export class ExpenseFormComponent implements OnInit {
     private expenseService: ExpenseService,
     private categoryService: CategoryService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private cdr: ChangeDetectorRef
   ) {
     this.expenseForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(2)]],
@@ -96,6 +98,7 @@ export class ExpenseFormComponent implements OnInit {
           }
         }
         this.loadingCategories = false;
+        this.cdr.detectChanges(); // Force change detection to update the view
       },
       error: (err) => {
         console.error('Failed to load categories from API, keeping defaults:', err);
@@ -159,6 +162,7 @@ export class ExpenseFormComponent implements OnInit {
         this.creatingCategory = false;
         this.showNewCategoryInput = false;
         this.newCategoryName = '';
+        this.cdr.detectChanges(); // Force change detection after adding new category
       },
       error: (err) => {
         console.error('Error creating category:', err);
