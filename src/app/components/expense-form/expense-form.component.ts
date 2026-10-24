@@ -14,7 +14,7 @@ import {
   updateFrequencyFieldRequirements,
   buildFrequencyPayload
 } from '../../models/frequency.model';
-import { Category, DEFAULT_CATEGORIES } from '../../models/category.model';
+import { Category } from '../../models/category.model';
 
 @Component({
   selector: 'app-expense-form',
@@ -33,7 +33,7 @@ export class ExpenseFormComponent implements OnInit {
   intervalUnits = INTERVAL_UNITS;
   daysOfWeek = DAYS_OF_WEEK;
   monthsOfYear = MONTHS_OF_YEAR;
-  categories: Category[] = [...DEFAULT_CATEGORIES];
+  categories: Category[] = [];
 
   showNewCategoryInput = false;
   newCategoryName = '';
