@@ -1,10 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ExpenseService } from '../../services/expense.service';
 import { CategoryService } from '../../services/category.service';
+import { AccountService } from '../../services/account.service';
 import { ExpenseRequest } from '../../models/expense.model';
+import { Account } from '../../models/account.model';
 import {
   IntervalUnit,
   INTERVAL_UNITS,
@@ -16,6 +18,15 @@ import {
 } from '../../models/frequency.model';
 import { Category } from '../../models/category.model';
 import { ChangeDetectorRef } from '@angular/core';
+
+function dateRangeValidator(control: AbstractControl): ValidationErrors | null {
+  const start = control.get('startDate')?.value;
+  const end = control.get('endDate')?.value;
+  if (start && end && end < start) {
+    return { endDateBeforeStartDate: true };
+  }
+  return null;
+}
 
 @Component({
   selector: 'app-expense-form',
@@ -35,18 +46,21 @@ export class ExpenseFormComponent implements OnInit {
   daysOfWeek = DAYS_OF_WEEK;
   monthsOfYear = MONTHS_OF_YEAR;
   categories: Category[] = [];
+  accounts: Account[] = [];
 
   showNewCategoryInput = false;
   newCategoryName = '';
   creatingCategory = false;
   categoryError: string | null = null;
   loadingCategories = false;
+  loadingAccounts = false;
   private previousCategoryId: number | null = null;
 
   constructor(
     private fb: FormBuilder,
     private expenseService: ExpenseService,
     private categoryService: CategoryService,
+    private accountService: AccountService,
     private router: Router,
     private route: ActivatedRoute,
     private cdr: ChangeDetectorRef
@@ -54,6 +68,9 @@ export class ExpenseFormComponent implements OnInit {
     this.expenseForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(2)]],
       amount: ['', [Validators.required, Validators.min(0)]],
+      accountId: [null, [Validators.required]],
+      startDate: ['', [Validators.required]],
+      endDate: [''],
       categoryId: [null],
       intervalUnit: ['MONTH', [Validators.required]],
       intervalCount: [1, [Validators.required, Validators.min(1)]],
@@ -61,7 +78,7 @@ export class ExpenseFormComponent implements OnInit {
       dayOfMonth: [1, [Validators.required, Validators.min(1), Validators.max(31)]],
       month: [''],
       customExpression: ['']
-    });
+    }, { validators: dateRangeValidator });
 
     this.expenseForm.get('intervalUnit')?.valueChanges.subscribe(() => {
       this.updateFieldRequirements();
@@ -74,6 +91,7 @@ export class ExpenseFormComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadCategories();
+    this.loadAccounts();
 
     const id = this.route.snapshot.paramMap.get('id');
     if (id && id !== 'new') {
@@ -81,8 +99,26 @@ export class ExpenseFormComponent implements OnInit {
       this.expenseId = id;
       this.loadExpenseForEdit();
     } else {
+      this.expenseForm.patchValue({
+        startDate: new Date().toISOString().split('T')[0]
+      });
       this.updateFieldRequirements();
     }
+  }
+
+  loadAccounts(): void {
+    this.loadingAccounts = true;
+    this.accountService.getAllAccounts().subscribe({
+      next: (data) => {
+        this.accounts = data || [];
+        this.loadingAccounts = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Failed to load accounts from API:', err);
+        this.loadingAccounts = false;
+      }
+    });
   }
 
   loadCategories(): void {
@@ -98,7 +134,7 @@ export class ExpenseFormComponent implements OnInit {
           }
         }
         this.loadingCategories = false;
-        this.cdr.detectChanges(); // Force change detection to update the view
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Failed to load categories from API, keeping defaults:', err);
@@ -162,7 +198,7 @@ export class ExpenseFormComponent implements OnInit {
         this.creatingCategory = false;
         this.showNewCategoryInput = false;
         this.newCategoryName = '';
-        this.cdr.detectChanges(); // Force change detection after adding new category
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Error creating category:', err);
@@ -200,9 +236,16 @@ export class ExpenseFormComponent implements OnInit {
           count = legacy.intervalCount;
         }
 
+        const accountId = expense.accountId != null 
+          ? Number(expense.accountId) 
+          : (expense.account?.id ? Number(expense.account.id) : null);
+
         this.expenseForm.patchValue({
           name: expense.name,
           amount: expense.amount,
+          accountId: accountId,
+          startDate: expense.startDate ? String(expense.startDate).split('T')[0] : '',
+          endDate: expense.endDate ? String(expense.endDate).split('T')[0] : '',
           categoryId: categoryId,
           intervalUnit: unit || 'MONTH',
           intervalCount: count,
@@ -239,6 +282,9 @@ export class ExpenseFormComponent implements OnInit {
       name: formVal.name.trim(),
       amount: Number(formVal.amount),
       frequency,
+      accountId: Number(formVal.accountId),
+      startDate: formVal.startDate,
+      endDate: formVal.endDate ? formVal.endDate : null,
       ...(selectedCategory ? { category: selectedCategory, categoryId: selectedCategory.id } : {})
     };
 

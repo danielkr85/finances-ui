@@ -140,6 +140,12 @@
                         }
                     </div>
 
+                    @if (expense.startDate) {
+                    <div class="text-muted small mb-1">
+                        <i class="bi bi-calendar-event me-1"></i>{{ expense.startDate }}@if (expense.endDate) { &ndash; {{ expense.endDate }} }
+                    </div>
+                    }
+
                     <!-- Card Amount Display -->
                     <div class="h2 font-monospace text-dark my-auto py-2">
                         ${{ expense.amount | number }}

@@ -66,6 +66,33 @@
           </div>
         </div>
 
+        <!-- Account Dropdown Selection -->
+        <div class="mb-3">
+          <label for="expenseAccount" class="form-label fw-bold">Account <span class="text-danger">*</span></label>
+          <div class="position-relative">
+            <select 
+              id="expenseAccount" 
+              formControlName="accountId" 
+              class="form-select"
+              [class.is-invalid]="expenseForm.get('accountId')?.invalid && expenseForm.get('accountId')?.touched">
+              <option [ngValue]="null" disabled>Select Account</option>
+              @for (account of accounts; track account.id) {
+                <option [ngValue]="account.id">{{ account.name }} ({{ account.type }})</option>
+              }
+            </select>
+            @if (loadingAccounts) {
+              <div class="position-absolute end-0 top-50 translate-middle-y me-4 pe-2">
+                <span class="spinner-border spinner-border-sm text-secondary" role="status"></span>
+              </div>
+            }
+          </div>
+          @if (expenseForm.get('accountId')?.invalid && expenseForm.get('accountId')?.touched) {
+            <div class="invalid-feedback d-block">
+              Please select an associated account.
+            </div>
+          }
+        </div>
+
         <!-- Category Dropdown Selection -->
         <div class="mb-3">
           <div class="d-flex justify-content-between align-items-center mb-1">
@@ -143,6 +170,39 @@
               </div>
             </div>
           }
+        </div>
+
+        <!-- Schedule: Start Date and Optional End Date -->
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <label for="startDate" class="form-label fw-bold">Start Date <span class="text-danger">*</span></label>
+            <input 
+              type="date" 
+              id="startDate" 
+              formControlName="startDate" 
+              class="form-control"
+              [class.is-invalid]="expenseForm.get('startDate')?.invalid && expenseForm.get('startDate')?.touched">
+            @if (expenseForm.get('startDate')?.invalid && expenseForm.get('startDate')?.touched) {
+              <div class="invalid-feedback">
+                Start date is required.
+              </div>
+            }
+          </div>
+
+          <div class="col-md-6">
+            <label for="endDate" class="form-label fw-bold">End Date <span class="text-muted fw-normal">(Optional)</span></label>
+            <input 
+              type="date" 
+              id="endDate" 
+              formControlName="endDate" 
+              class="form-control"
+              [class.is-invalid]="expenseForm.hasError('endDateBeforeStartDate') && expenseForm.get('endDate')?.touched">
+            @if (expenseForm.hasError('endDateBeforeStartDate') && expenseForm.get('endDate')?.touched) {
+              <div class="invalid-feedback d-block">
+                End date must be on or after start date.
+              </div>
+            }
+          </div>
         </div>
 
         <!-- Frequency and Repeat Interval -->
@@ -285,7 +345,7 @@
             Cancel
           </button>
           
-          <!-- Submit Action (Disabled if the validation fails completely) -->
+          <!-- Submit Action -->
           <button type="submit" class="btn btn-primary px-4" [disabled]="expenseForm.invalid || loading">
             @if (isEditing) { Save Changes } @else { Create Expense }
           </button>
