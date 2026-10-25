@@ -6,18 +6,29 @@ export const routes: Routes = [
     loadComponent: () => import('./components/dashboard/dashboard.component').then(m => m.DashboardComponent),
     pathMatch: 'full'
   },
-  // --- Balances ---
+  // --- Accounts ---
+  {
+    path: 'accounts',
+    loadComponent: () => import('./components/account-list/account-list.component').then(m => m.AccountListComponent)
+  },
+  {
+    path: 'accounts/new',
+    loadComponent: () => import('./components/account-form/account-form.component').then(m => m.AccountFormComponent)
+  },
+  {
+    path: 'accounts/:id/edit',
+    loadComponent: () => import('./components/account-form/account-form.component').then(m => m.AccountFormComponent)
+  },
+  // Legacy redirects
   {
     path: 'balances',
-    loadComponent: () => import('./components/balance-list/balance-list.component').then(m => m.BalanceListComponent)
+    redirectTo: 'accounts',
+    pathMatch: 'full'
   },
   {
     path: 'balances/new',
-    loadComponent: () => import('./components/balance-form/balance-form.component').then(m => m.BalanceFormComponent)
-  },
-  {
-    path: 'balances/:id/edit',
-    loadComponent: () => import('./components/balance-form/balance-form.component').then(m => m.BalanceFormComponent)
+    redirectTo: 'accounts/new',
+    pathMatch: 'full'
   },
   // --- Incomes ---
   {

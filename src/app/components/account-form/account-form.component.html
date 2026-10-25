@@ -19,25 +19,25 @@
       
       <!-- Dynamic Form Title Block -->
       <h2 class="h4 mb-4 text-capitalize">
-        @if (isEditing) { Edit Balance } @else { Add New Balance }
+        @if (isEditing) { Edit Account } @else { Add New Account }
       </h2>
       
-      <!-- Connected to your TypeScript balanceForm structure -->
-      <form [formGroup]="balanceForm" (ngSubmit)="onSubmit()">
+      <!-- Connected to your TypeScript accountForm structure -->
+      <form [formGroup]="accountForm" (ngSubmit)="onSubmit()">
         
         <!-- Name Input Field -->
         <div class="mb-3">
-          <label for="balanceName" class="form-label fw-bold">Name <span class="text-danger">*</span></label>
+          <label for="accountName" class="form-label fw-bold">Name <span class="text-danger">*</span></label>
           <input 
             type="text" 
-            id="balanceName" 
+            id="accountName" 
             formControlName="name"
             class="form-control" 
-            [class.is-invalid]="balanceForm.get('name')?.invalid && balanceForm.get('name')?.touched"
+            [class.is-invalid]="accountForm.get('name')?.invalid && accountForm.get('name')?.touched"
             placeholder="e.g., Main Checking">
           
           <!-- Validation Feedback message -->
-          @if (balanceForm.get('name')?.invalid && balanceForm.get('name')?.touched) {
+          @if (accountForm.get('name')?.invalid && accountForm.get('name')?.touched) {
             <div class="invalid-feedback">
               Please enter a name with at least 2 characters.
             </div>
@@ -46,18 +46,18 @@
 
         <!-- Amount Input Field -->
         <div class="mb-3">
-          <label for="balanceAmount" class="form-label fw-bold">Amount <span class="text-danger">*</span></label>
+          <label for="accountAmount" class="form-label fw-bold">Amount <span class="text-danger">*</span></label>
           <div class="input-group">
             <span class="input-group-text">$</span>
             <input 
               type="number" 
-              id="balanceAmount" 
+              id="accountAmount" 
               formControlName="amount"
               class="form-control" 
-              [class.is-invalid]="balanceForm.get('amount')?.invalid && balanceForm.get('amount')?.touched"
+              [class.is-invalid]="accountForm.get('amount')?.invalid && accountForm.get('amount')?.touched"
               placeholder="0.00">
             
-            @if (balanceForm.get('amount')?.invalid && balanceForm.get('amount')?.touched) {
+            @if (accountForm.get('amount')?.invalid && accountForm.get('amount')?.touched) {
               <div class="invalid-feedback">
                 Amount is required and cannot be negative.
               </div>
@@ -67,9 +67,9 @@
 
         <!-- Type Dropdown Selection -->
         <div class="mb-3">
-          <label for="balanceType" class="form-label fw-bold">Type <span class="text-danger">*</span></label>
-          <select id="balanceType" formControlName="type" class="form-select">
-            @for (type of balanceTypes; track type.value) {
+          <label for="accountType" class="form-label fw-bold">Type <span class="text-danger">*</span></label>
+          <select id="accountType" formControlName="type" class="form-select">
+            @for (type of accountTypes; track type.value) {
               <option [value]="type.value">{{ type.label }}</option>
             }
           </select>
@@ -77,8 +77,8 @@
 
         <!-- Checkbox Wrapper Component -->
         <div class="mb-4 form-check">
-          <input type="checkbox" id="mainBalance" formControlName="main" class="form-check-input">
-          <label class="form-check-label" for="mainBalance">Set as main balance</label>
+          <input type="checkbox" id="mainAccount" formControlName="main" class="form-check-input">
+          <label class="form-check-label" for="mainAccount">Set as main account</label>
         </div>
 
         <!-- Form Actions Layout Control -->
@@ -87,9 +87,9 @@
             Cancel
           </button>
           
-          <!-- Submit Action (Disabled if the validation validation fails completely) -->
-          <button type="submit" class="btn btn-primary px-4" [disabled]="balanceForm.invalid || loading">
-            @if (isEditing) { Save Changes } @else { Create Balance }
+          <!-- Submit Action (Disabled if validation fails) -->
+          <button type="submit" class="btn btn-primary px-4" [disabled]="accountForm.invalid || loading">
+            @if (isEditing) { Save Changes } @else { Create Account }
           </button>
         </div>
 
