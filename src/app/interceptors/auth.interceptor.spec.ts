@@ -22,8 +22,8 @@ describe('authInterceptor', () => {
       providers: [
         provideHttpClient(withInterceptors([authInterceptor])),
         provideHttpClientTesting(),
-        provideRouter([])
-      ]
+        provideRouter([]),
+      ],
     });
     client = TestBed.inject(HttpClient);
     http = TestBed.inject(HttpTestingController);
@@ -86,7 +86,7 @@ describe('authInterceptor', () => {
   it('sends the user to the login page when the refresh is rejected', async () => {
     await signIn('stale');
 
-    const result = firstValueFrom(client.get(`${API}/accounts`)).catch(err => err);
+    const result = firstValueFrom(client.get(`${API}/accounts`)).catch((err) => err);
     await flushMicrotasks();
     http.expectOne(`${API}/accounts`).flush({ status: 401 }, UNAUTHORIZED);
     await flushMicrotasks();
@@ -100,10 +100,14 @@ describe('authInterceptor', () => {
   it('does not retry other errors', async () => {
     await signIn('access-1');
 
-    const result = firstValueFrom(client.get(`${API}/accounts/7`)).catch(err => err);
+    const result = firstValueFrom(client.get(`${API}/accounts/7`)).catch((err) => err);
     await flushMicrotasks();
-    http.expectOne(`${API}/accounts/7`).flush({ status: 404, message: 'Account not found' },
-      { status: 404, statusText: 'Not Found' });
+    http
+      .expectOne(`${API}/accounts/7`)
+      .flush(
+        { status: 404, message: 'Account not found' },
+        { status: 404, statusText: 'Not Found' },
+      );
 
     expect((await result).status).toBe(404);
     expect(auth.isAuthenticated()).toBe(true);

@@ -17,14 +17,14 @@ interface PendingRemoval {
 export const ACCOUNT_TYPE_LABELS: Record<AccountType, string> = {
   CHECKING: 'Checking',
   SAVINGS: 'Savings',
-  CREDIT_CARD: 'Credit card'
+  CREDIT_CARD: 'Credit card',
 };
 
 @Component({
   selector: 'app-account-list',
   templateUrl: './account-list.component.html',
   styleUrls: ['./account-list.component.css'],
-  imports: [RouterLink, MoneyPipe]
+  imports: [RouterLink, MoneyPipe],
 })
 export class AccountListComponent implements OnInit {
   private readonly accountService = inject(AccountService);
@@ -39,7 +39,10 @@ export class AccountListComponent implements OnInit {
 
   /** Main account first, then by name. */
   readonly sortedAccounts = computed(() =>
-    [...this.accounts()].sort((a, b) => Number(b.main) - Number(a.main) || a.name.localeCompare(b.name)));
+    [...this.accounts()].sort(
+      (a, b) => Number(b.main) - Number(a.main) || a.name.localeCompare(b.name),
+    ),
+  );
 
   ngOnInit(): void {
     this.loadAccounts();
@@ -49,14 +52,14 @@ export class AccountListComponent implements OnInit {
     this.loading.set(true);
     this.error.set(null);
     this.accountService.getAllAccounts().subscribe({
-      next: accounts => {
+      next: (accounts) => {
         this.accounts.set(accounts);
         this.loading.set(false);
       },
-      error: err => {
+      error: (err) => {
         this.error.set(apiErrorMessage(err, 'Failed to load accounts.'));
         this.loading.set(false);
-      }
+      },
     });
   }
 
@@ -78,24 +81,33 @@ export class AccountListComponent implements OnInit {
     if (!pending || !me) {
       return;
     }
-    const request = pending.action === 'delete'
-      ? this.accountService.deleteAccount(pending.account.id)
-      : this.shareService.removeMember(pending.account.id, me.id);
+    const request =
+      pending.action === 'delete'
+        ? this.accountService.deleteAccount(pending.account.id)
+        : this.shareService.removeMember(pending.account.id, me.id);
 
     request.subscribe({
       next: () => {
         this.pending.set(null);
-        this.accounts.update(list => list.filter(a => a.id !== pending.account.id));
+        this.accounts.update((list) => list.filter((a) => a.id !== pending.account.id));
       },
-      error: err => {
+      error: (err) => {
         this.pending.set(null);
         if (pending.action === 'delete' && err instanceof HttpErrorResponse && err.status === 409) {
-          this.error.set(`"${pending.account.name}" still has planned transactions. Delete them first.`);
+          this.error.set(
+            `"${pending.account.name}" still has planned transactions. Delete them first.`,
+          );
         } else {
-          this.error.set(apiErrorMessage(err,
-            pending.action === 'delete' ? 'Failed to delete the account.' : 'Failed to leave the account.'));
+          this.error.set(
+            apiErrorMessage(
+              err,
+              pending.action === 'delete'
+                ? 'Failed to delete the account.'
+                : 'Failed to leave the account.',
+            ),
+          );
         }
-      }
+      },
     });
   }
 }

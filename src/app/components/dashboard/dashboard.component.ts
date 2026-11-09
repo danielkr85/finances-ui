@@ -10,13 +10,15 @@ import { ForecastComponent } from '../forecast/forecast.component';
 @Component({
   selector: 'app-dashboard',
   imports: [AccountListComponent, ForecastComponent, CycleBudgetCardComponent],
-  templateUrl: './dashboard.component.html'
+  templateUrl: './dashboard.component.html',
 })
 export class DashboardComponent {
   // The account list shows its own load errors; this only decides which budget cards to show.
   private readonly accounts = toSignal(
-    inject(AccountService).getAllAccounts().pipe(catchError(() => of([] as Account[]))),
-    { initialValue: [] as Account[] }
+    inject(AccountService)
+      .getAllAccounts()
+      .pipe(catchError(() => of([] as Account[]))),
+    { initialValue: [] as Account[] },
   );
 
   readonly budgetCards = computed(() => this.accounts().filter(hasCycleBudget));

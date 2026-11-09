@@ -7,7 +7,9 @@
     }
 
     @if (loading()) {
-      <div class="placeholder-glow"><span class="placeholder col-8"></span><span class="placeholder col-6"></span></div>
+      <div class="placeholder-glow">
+        <span class="placeholder col-8"></span><span class="placeholder col-6"></span>
+      </div>
     } @else {
       <ul class="list-group list-group-flush mb-3">
         @for (member of members(); track member.userId) {
@@ -25,20 +27,38 @@
             @if (member.role === 'OWNER') {
               <span class="badge text-bg-dark">Owner</span>
             } @else if (isOwner()) {
-              <select class="form-select form-select-sm w-auto" [attr.aria-label]="'Role for ' + member.displayName"
-                      [disabled]="busy()" (change)="changeRole(member, $any($event.target).value)">
+              <select
+                class="form-select form-select-sm w-auto"
+                [attr.aria-label]="'Role for ' + member.displayName"
+                [disabled]="busy()"
+                (change)="changeRole(member, $any($event.target).value)"
+              >
                 @for (role of roles; track role.value) {
-                  <option [value]="role.value" [selected]="role.value === member.role">{{ role.label }}</option>
+                  <option [value]="role.value" [selected]="role.value === member.role">
+                    {{ role.label }}
+                  </option>
                 }
               </select>
-              <button type="button" class="btn btn-sm btn-outline-danger" [disabled]="busy()" (click)="remove(member)"
-                      [attr.aria-label]="'Remove ' + member.displayName">
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-danger"
+                [disabled]="busy()"
+                (click)="remove(member)"
+                [attr.aria-label]="'Remove ' + member.displayName"
+              >
                 <i class="bi bi-x-lg"></i>
               </button>
             } @else {
-              <span class="badge text-bg-light border">{{ member.role === 'EDITOR' ? 'Editor' : 'Viewer' }}</span>
+              <span class="badge text-bg-light border">{{
+                member.role === 'EDITOR' ? 'Editor' : 'Viewer'
+              }}</span>
               @if (member.userId === myId()) {
-                <button type="button" class="btn btn-sm btn-outline-danger" [disabled]="busy()" (click)="remove(member)">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-danger"
+                  [disabled]="busy()"
+                  (click)="remove(member)"
+                >
                   Leave
                 </button>
               }
@@ -49,21 +69,31 @@
 
       @if (isOwner()) {
         <form [formGroup]="form" (ngSubmit)="add()" novalidate>
-          <label for="shareEmail" class="form-label fw-semibold small">Share with someone who has an account here</label>
+          <label for="shareEmail" class="form-label fw-semibold small"
+            >Share with someone who has an account here</label
+          >
           <div class="input-group has-validation">
-            <input type="email" id="shareEmail" class="form-control" formControlName="email" placeholder="email@example.com"
-                   [class.is-invalid]="form.controls.email.invalid && form.controls.email.touched">
+            <input
+              type="email"
+              id="shareEmail"
+              class="form-control"
+              formControlName="email"
+              placeholder="email@example.com"
+              [class.is-invalid]="form.controls.email.invalid && form.controls.email.touched"
+            />
             <select class="form-select flex-grow-0 w-auto" formControlName="role" aria-label="Role">
               @for (role of roles; track role.value) {
                 <option [value]="role.value">{{ role.label }}</option>
               }
             </select>
             <button type="submit" class="btn btn-primary" [disabled]="busy()">Share</button>
-            <div class="invalid-feedback">{{ serverError(form.controls.email) ?? 'Enter a valid email address.' }}</div>
+            <div class="invalid-feedback">
+              {{ serverError(form.controls.email) ?? 'Enter a valid email address.' }}
+            </div>
           </div>
           <div class="form-text">
-            Editors can change the balance and planned transactions; viewers can only look. Only you can rename,
-            delete or share this account.
+            Editors can change the balance and planned transactions; viewers can only look. Only you
+            can rename, delete or share this account.
           </div>
         </form>
       }

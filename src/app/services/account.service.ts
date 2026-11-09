@@ -18,7 +18,7 @@ export class AccountService {
   getAllAccounts(): Observable<Account[]> {
     this.inFlight ??= this.http.get<Account[]>(this.baseUrl).pipe(
       finalize(() => (this.inFlight = null)),
-      shareReplay({ bufferSize: 1, refCount: true })
+      shareReplay({ bufferSize: 1, refCount: true }),
     );
     return this.inFlight;
   }

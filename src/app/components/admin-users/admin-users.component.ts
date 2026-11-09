@@ -4,7 +4,12 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { apiErrorMessage } from '../../models/api-error.model';
 import {
-  CreateUserRequest, PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH, UpdateUserRequest, User, UserRole
+  CreateUserRequest,
+  PASSWORD_MAX_LENGTH,
+  PASSWORD_MIN_LENGTH,
+  UpdateUserRequest,
+  User,
+  UserRole,
 } from '../../models/user.model';
 import { AuthService } from '../../services/auth.service';
 import { AdminUserService } from '../../services/user.service';
@@ -16,7 +21,7 @@ type Mode = { kind: 'closed' } | { kind: 'create' } | { kind: 'edit'; user: User
 @Component({
   selector: 'app-admin-users',
   imports: [ReactiveFormsModule, DatePipe],
-  templateUrl: './admin-users.component.html'
+  templateUrl: './admin-users.component.html',
 })
 export class AdminUsersComponent implements OnInit {
   private readonly adminService = inject(AdminUserService);
@@ -43,19 +48,22 @@ export class AdminUsersComponent implements OnInit {
     role: ['USER' as UserRole, Validators.required],
     enabled: [true],
     // Optional: blank = Google-only (create) or unchanged (edit).
-    password: ['', [Validators.minLength(PASSWORD_MIN_LENGTH), Validators.maxLength(PASSWORD_MAX_LENGTH)]]
+    password: [
+      '',
+      [Validators.minLength(PASSWORD_MIN_LENGTH), Validators.maxLength(PASSWORD_MAX_LENGTH)],
+    ],
   });
 
   ngOnInit(): void {
     this.adminService.getUsers().subscribe({
-      next: users => {
+      next: (users) => {
         this.users.set(sortUsers(users));
         this.loading.set(false);
       },
-      error: err => {
+      error: (err) => {
         this.error.set(apiErrorMessage(err, 'Failed to load users.'));
         this.loading.set(false);
-      }
+      },
     });
   }
 
@@ -67,7 +75,13 @@ export class AdminUsersComponent implements OnInit {
   }
 
   openEdit(user: User): void {
-    this.form.reset({ email: user.email, displayName: user.displayName, role: user.role, enabled: user.enabled, password: '' });
+    this.form.reset({
+      email: user.email,
+      displayName: user.displayName,
+      role: user.role,
+      enabled: user.enabled,
+      password: '',
+    });
     this.form.enable();
     this.form.controls.email.disable(); // the email can't be changed
     if (user.id === this.myId()) {
@@ -90,44 +104,60 @@ export class AdminUsersComponent implements OnInit {
     const v = this.form.getRawValue();
     const password = v.password || undefined;
     const mode = this.mode();
-    const request = mode.kind === 'edit'
-      ? this.adminService.updateUser(mode.user.id,
-          { displayName: v.displayName.trim(), role: v.role, enabled: v.enabled, password } satisfies UpdateUserRequest)
-      : this.adminService.createUser(
-          { email: v.email.trim(), displayName: v.displayName.trim(), role: v.role, password } satisfies CreateUserRequest);
+    const request =
+      mode.kind === 'edit'
+        ? this.adminService.updateUser(mode.user.id, {
+            displayName: v.displayName.trim(),
+            role: v.role,
+            enabled: v.enabled,
+            password,
+          } satisfies UpdateUserRequest)
+        : this.adminService.createUser({
+            email: v.email.trim(),
+            displayName: v.displayName.trim(),
+            role: v.role,
+            password,
+          } satisfies CreateUserRequest);
 
     this.saving.set(true);
     this.formError.set(null);
     request.subscribe({
-      next: saved => {
-        this.users.update(list => sortUsers([...list.filter(u => u.id !== saved.id), saved]));
+      next: (saved) => {
+        this.users.update((list) => sortUsers([...list.filter((u) => u.id !== saved.id), saved]));
         this.auth.updateCurrentUser(saved);
         this.saving.set(false);
         this.close();
       },
-      error: err => {
+      error: (err) => {
         this.formError.set(applyServerErrors(this.form, err, 'Failed to save the user.'));
         this.saving.set(false);
-      }
+      },
     });
   }
 
   remove(user: User): void {
-    if (!confirm(`Delete ${user.displayName} (${user.email})? They won't be able to sign in any more.`)) {
+    if (
+      !confirm(
+        `Delete ${user.displayName} (${user.email})? They won't be able to sign in any more.`,
+      )
+    ) {
       return;
     }
     this.error.set(null);
     this.adminService.deleteUser(user.id).subscribe({
       next: () => {
-        this.users.update(list => list.filter(u => u.id !== user.id));
+        this.users.update((list) => list.filter((u) => u.id !== user.id));
         const m = this.mode();
         if (m.kind === 'edit' && m.user.id === user.id) {
           this.close();
         }
       },
-      error: err => this.error.set(err instanceof HttpErrorResponse && err.status === 409
-        ? `${user.displayName} still owns accounts or categories, so they can't be deleted. Disable them instead.`
-        : apiErrorMessage(err, 'Failed to delete the user.'))
+      error: (err) =>
+        this.error.set(
+          err instanceof HttpErrorResponse && err.status === 409
+            ? `${user.displayName} still owns accounts or categories, so they can't be deleted. Disable them instead.`
+            : apiErrorMessage(err, 'Failed to delete the user.'),
+        ),
     });
   }
 }

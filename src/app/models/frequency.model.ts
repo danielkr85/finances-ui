@@ -3,10 +3,28 @@ import { FormGroup, Validators } from '@angular/forms';
 /** CUSTOM exists on the server but is rejected (400), so the UI doesn't offer it. */
 export type IntervalUnit = 'DAY' | 'WEEK' | 'MONTH' | 'YEAR';
 
-export type DayOfWeek = 'MONDAY' | 'TUESDAY' | 'WEDNESDAY' | 'THURSDAY' | 'FRIDAY' | 'SATURDAY' | 'SUNDAY';
+export type DayOfWeek =
+  | 'MONDAY'
+  | 'TUESDAY'
+  | 'WEDNESDAY'
+  | 'THURSDAY'
+  | 'FRIDAY'
+  | 'SATURDAY'
+  | 'SUNDAY';
 
-export type Month = 'JANUARY' | 'FEBRUARY' | 'MARCH' | 'APRIL' | 'MAY' | 'JUNE'
-  | 'JULY' | 'AUGUST' | 'SEPTEMBER' | 'OCTOBER' | 'NOVEMBER' | 'DECEMBER';
+export type Month =
+  | 'JANUARY'
+  | 'FEBRUARY'
+  | 'MARCH'
+  | 'APRIL'
+  | 'MAY'
+  | 'JUNE'
+  | 'JULY'
+  | 'AUGUST'
+  | 'SEPTEMBER'
+  | 'OCTOBER'
+  | 'NOVEMBER'
+  | 'DECEMBER';
 
 /**
  * A recurrence schedule. Each unit takes exactly certain fields; sending any other is a 400:
@@ -44,7 +62,7 @@ export const INTERVAL_UNITS: Option<IntervalUnit>[] = [
   { value: 'DAY', label: 'Daily' },
   { value: 'WEEK', label: 'Weekly' },
   { value: 'MONTH', label: 'Monthly' },
-  { value: 'YEAR', label: 'Yearly' }
+  { value: 'YEAR', label: 'Yearly' },
 ];
 
 export const DAYS_OF_WEEK: Option<DayOfWeek>[] = [
@@ -54,7 +72,7 @@ export const DAYS_OF_WEEK: Option<DayOfWeek>[] = [
   { value: 'THURSDAY', label: 'Thursday' },
   { value: 'FRIDAY', label: 'Friday' },
   { value: 'SATURDAY', label: 'Saturday' },
-  { value: 'SUNDAY', label: 'Sunday' }
+  { value: 'SUNDAY', label: 'Sunday' },
 ];
 
 export const MONTHS_OF_YEAR: Option<Month>[] = [
@@ -69,7 +87,7 @@ export const MONTHS_OF_YEAR: Option<Month>[] = [
   { value: 'SEPTEMBER', label: 'September' },
   { value: 'OCTOBER', label: 'October' },
   { value: 'NOVEMBER', label: 'November' },
-  { value: 'DECEMBER', label: 'December' }
+  { value: 'DECEMBER', label: 'December' },
 ];
 
 /** Sets the form's frequency validators to match the server's rules for the selected unit and count. */

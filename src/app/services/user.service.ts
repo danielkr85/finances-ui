@@ -2,7 +2,12 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { ChangePasswordRequest, CreateUserRequest, UpdateUserRequest, User } from '../models/user.model';
+import {
+  ChangePasswordRequest,
+  CreateUserRequest,
+  UpdateUserRequest,
+  User,
+} from '../models/user.model';
 
 /** The signed-in user's own profile. */
 @Injectable({ providedIn: 'root' })

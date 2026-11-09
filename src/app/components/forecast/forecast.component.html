@@ -1,10 +1,15 @@
 <div class="d-flex flex-wrap align-items-center gap-3 mb-3">
   <h2 class="h3 mb-0">Forecast</h2>
   @if (accounts().length > 0) {
-    <select class="form-select w-auto" aria-label="Account"
-            (change)="selectAccount($any($event.target).value)">
+    <select
+      class="form-select w-auto"
+      aria-label="Account"
+      (change)="selectAccount($any($event.target).value)"
+    >
       @for (account of accounts(); track account.id) {
-        <option [value]="account.id" [selected]="account.id === accountId()">{{ account.name }}</option>
+        <option [value]="account.id" [selected]="account.id === accountId()">
+          {{ account.name }}
+        </option>
       }
     </select>
   }
@@ -14,19 +19,37 @@
   <div class="d-flex flex-wrap align-items-end gap-3 mb-4">
     <div class="btn-group btn-group-sm" role="group" aria-label="Range">
       @for (preset of presets; track preset.days) {
-        <button type="button" class="btn" [class]="isPreset(preset.days) ? 'btn-primary' : 'btn-outline-secondary'"
-                (click)="applyPreset(preset.days)">{{ preset.label }}</button>
+        <button
+          type="button"
+          class="btn"
+          [class]="isPreset(preset.days) ? 'btn-primary' : 'btn-outline-secondary'"
+          (click)="applyPreset(preset.days)"
+        >
+          {{ preset.label }}
+        </button>
       }
     </div>
     <div>
       <label for="from" class="form-label small mb-0">From</label>
-      <input type="date" id="from" class="form-control form-control-sm" [min]="today" [value]="from()"
-             (change)="setFrom($any($event.target).value)">
+      <input
+        type="date"
+        id="from"
+        class="form-control form-control-sm"
+        [min]="today"
+        [value]="from()"
+        (change)="setFrom($any($event.target).value)"
+      />
     </div>
     <div>
       <label for="to" class="form-label small mb-0">To</label>
-      <input type="date" id="to" class="form-control form-control-sm" [min]="from()" [value]="to()"
-             (change)="setTo($any($event.target).value)">
+      <input
+        type="date"
+        id="to"
+        class="form-control form-control-sm"
+        [min]="from()"
+        [value]="to()"
+        (change)="setTo($any($event.target).value)"
+      />
     </div>
   </div>
 }
@@ -52,7 +75,8 @@
     </div>
   } @else if (a.type === 'CREDIT_CARD' && a.myRole !== 'VIEWER') {
     <div class="alert alert-light border small">
-      <i class="bi bi-lightbulb me-1"></i>Fill in all four billing fields to see how much is left to spend this cycle.
+      <i class="bi bi-lightbulb me-1"></i>Fill in all four billing fields to see how much is left to
+      spend this cycle.
       <a [routerLink]="['/accounts', a.id, 'edit']">Edit {{ a.name }}</a>
     </div>
   }
@@ -62,27 +86,45 @@
   <div class="forecast" [class.opacity-50]="loading()">
     <div class="row g-3 mb-4">
       <div class="col-sm-4">
-        <div class="card h-100 shadow-sm"><div class="card-body">
-          <div class="small text-muted">{{ isCreditCard() ? 'Owed' : 'Balance' }} on {{ f.from | date: 'mediumDate' }}</div>
-          <div class="h4 font-monospace mb-0">{{ f.openingBalance | money }}</div>
-        </div></div>
+        <div class="card h-100 shadow-sm">
+          <div class="card-body">
+            <div class="small text-muted">
+              {{ isCreditCard() ? 'Owed' : 'Balance' }} on {{ f.from | date: 'mediumDate' }}
+            </div>
+            <div class="h4 font-monospace mb-0">{{ f.openingBalance | money }}</div>
+          </div>
+        </div>
       </div>
       <div class="col-sm-4">
-        <div class="card h-100 shadow-sm"><div class="card-body">
-          <div class="small text-muted">{{ isCreditCard() ? 'Owed' : 'Balance' }} on {{ f.to | date: 'mediumDate' }}</div>
-          <div class="h4 font-monospace mb-0" [class.text-danger]="!isCreditCard() && f.finalBalance < 0">
-            {{ f.finalBalance | money }}
+        <div class="card h-100 shadow-sm">
+          <div class="card-body">
+            <div class="small text-muted">
+              {{ isCreditCard() ? 'Owed' : 'Balance' }} on {{ f.to | date: 'mediumDate' }}
+            </div>
+            <div
+              class="h4 font-monospace mb-0"
+              [class.text-danger]="!isCreditCard() && f.finalBalance < 0"
+            >
+              {{ f.finalBalance | money }}
+            </div>
           </div>
-        </div></div>
+        </div>
       </div>
       @if (extreme(); as low) {
         <div class="col-sm-4">
-          <div class="card h-100 shadow-sm"><div class="card-body">
-            <div class="small text-muted">{{ isCreditCard() ? 'Most owed' : 'Lowest' }}, {{ low.date | date: 'mediumDate' }}</div>
-            <div class="h4 font-monospace mb-0" [class.text-danger]="!isCreditCard() && low.balance < 0">
-              {{ low.balance | money }}
+          <div class="card h-100 shadow-sm">
+            <div class="card-body">
+              <div class="small text-muted">
+                {{ isCreditCard() ? 'Most owed' : 'Lowest' }}, {{ low.date | date: 'mediumDate' }}
+              </div>
+              <div
+                class="h4 font-monospace mb-0"
+                [class.text-danger]="!isCreditCard() && low.balance < 0"
+              >
+                {{ low.balance | money }}
+              </div>
             </div>
-          </div></div>
+          </div>
         </div>
       }
     </div>
@@ -90,7 +132,9 @@
     @if (f.projections.length === 0) {
       <div class="alert alert-light border">
         Nothing planned for this account in this period.
-        <a [routerLink]="['/planned-transactions/new']" [queryParams]="{ accountId: f.accountId }">Plan something</a>.
+        <a [routerLink]="['/planned-transactions/new']" [queryParams]="{ accountId: f.accountId }"
+          >Plan something</a
+        >.
       </div>
     } @else {
       <div class="table-responsive">
@@ -113,22 +157,32 @@
                       <span>
                         {{ event.description }}
                         @if (event.category) {
-                          <span class="badge text-bg-light border ms-1">{{ event.category.name }}</span>
+                          <span class="badge text-bg-light border ms-1">{{
+                            event.category.name
+                          }}</span>
                         }
                       </span>
                       @if (row.events.length > 1) {
-                        <span class="font-monospace text-muted small">{{ signedAmount(event) | money: true }}</span>
+                        <span class="font-monospace text-muted small">{{
+                          signedAmount(event) | money: true
+                        }}</span>
                       }
                     </div>
                   }
                 </td>
-                <td class="text-end font-monospace text-nowrap"
-                    [class.text-success]="isCreditCard() ? row.amountChange < 0 : row.amountChange > 0"
-                    [class.text-danger]="isCreditCard() ? row.amountChange > 0 : row.amountChange < 0">
+                <td
+                  class="text-end font-monospace text-nowrap"
+                  [class.text-success]="
+                    isCreditCard() ? row.amountChange < 0 : row.amountChange > 0
+                  "
+                  [class.text-danger]="isCreditCard() ? row.amountChange > 0 : row.amountChange < 0"
+                >
                   {{ row.amountChange | money: true }}
                 </td>
-                <td class="text-end font-monospace text-nowrap"
-                    [class.text-danger]="!isCreditCard() && row.resultingBalance < 0">
+                <td
+                  class="text-end font-monospace text-nowrap"
+                  [class.text-danger]="!isCreditCard() && row.resultingBalance < 0"
+                >
                   {{ row.resultingBalance | money }}
                 </td>
               </tr>
@@ -137,7 +191,11 @@
         </table>
       </div>
       @if (embedded() && hiddenRows() > 0) {
-        <a class="btn btn-sm btn-outline-primary" routerLink="/forecast" [queryParams]="{ accountId: f.accountId }">
+        <a
+          class="btn btn-sm btn-outline-primary"
+          routerLink="/forecast"
+          [queryParams]="{ accountId: f.accountId }"
+        >
           See full forecast ({{ hiddenRows() }} more dates)
         </a>
       }

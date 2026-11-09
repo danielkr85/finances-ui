@@ -10,7 +10,7 @@ const API = environment.apiUrl;
 const ACCOUNTS = [
   account(1, 'Checking', { main: true }),
   account(2, 'Amex', { type: 'CREDIT_CARD' }),
-  account(3, 'Shared savings', { myRole: 'VIEWER', ownerId: 9, ownerEmail: 'pat@example.com' })
+  account(3, 'Shared savings', { myRole: 'VIEWER', ownerId: 9, ownerEmail: 'pat@example.com' }),
 ];
 
 describe('PlannedTransactionFormComponent', () => {
@@ -20,9 +20,19 @@ describe('PlannedTransactionFormComponent', () => {
     TestBed.configureTestingModule({
       imports: [PlannedTransactionFormComponent],
       providers: [
-        provideHttpClient(), provideHttpClientTesting(), provideRouter([]),
-        { provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap(params), queryParamMap: convertToParamMap(query) } } }
-      ]
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideRouter([]),
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              paramMap: convertToParamMap(params),
+              queryParamMap: convertToParamMap(query),
+            },
+          },
+        },
+      ],
     });
     http = TestBed.inject(HttpTestingController);
     vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
@@ -37,7 +47,7 @@ describe('PlannedTransactionFormComponent', () => {
 
   it('only offers accounts you can edit, starting on the main one', () => {
     const c = setup();
-    expect(c.editableAccounts().map(a => a.name)).toEqual(['Checking', 'Amex']);
+    expect(c.editableAccounts().map((a) => a.name)).toEqual(['Checking', 'Amex']);
     expect(c.form.controls.accountId.value).toBe(1);
   });
 
@@ -48,28 +58,56 @@ describe('PlannedTransactionFormComponent', () => {
 
   it('sends a one-time expense without frequency or end date', () => {
     const c = setup();
-    c.form.patchValue({ name: ' Concert ', amount: 120, recurring: false, startDate: '2026-12-20', endDate: '2027-01-01' });
+    c.form.patchValue({
+      name: ' Concert ',
+      amount: 120,
+      recurring: false,
+      startDate: '2026-12-20',
+      endDate: '2027-01-01',
+    });
     c.onSubmit();
 
     const req = http.expectOne(`${API}/planned-transactions`);
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual({
-      name: 'Concert', type: 'EXPENSE', amount: 120, frequency: null, accountId: 1, targetAccountId: null,
-      startDate: '2026-12-20', endDate: null, categoryId: null
+      name: 'Concert',
+      type: 'EXPENSE',
+      amount: 120,
+      frequency: null,
+      accountId: 1,
+      targetAccountId: null,
+      startDate: '2026-12-20',
+      endDate: null,
+      categoryId: null,
     });
   });
 
   it('sends a recurring transfer with exactly the frequency fields its unit takes', () => {
     const c = setup();
-    c.form.patchValue({ name: 'Card payment', type: 'TRANSFER', amount: 500, startDate: '2026-12-13' });
+    c.form.patchValue({
+      name: 'Card payment',
+      type: 'TRANSFER',
+      amount: 500,
+      startDate: '2026-12-13',
+    });
     c.form.controls.targetAccountId.setValue(2);
-    c.form.controls.frequency.patchValue({ intervalUnit: 'WEEK', intervalCount: 2, dayOfWeek: 'FRIDAY' });
+    c.form.controls.frequency.patchValue({
+      intervalUnit: 'WEEK',
+      intervalCount: 2,
+      dayOfWeek: 'FRIDAY',
+    });
     c.onSubmit();
 
     expect(http.expectOne(`${API}/planned-transactions`).request.body).toEqual({
-      name: 'Card payment', type: 'TRANSFER', amount: 500,
+      name: 'Card payment',
+      type: 'TRANSFER',
+      amount: 500,
       frequency: { intervalUnit: 'WEEK', intervalCount: 2, dayOfWeek: 'FRIDAY' },
-      accountId: 1, targetAccountId: 2, startDate: '2026-12-13', endDate: null, categoryId: null
+      accountId: 1,
+      targetAccountId: 2,
+      startDate: '2026-12-13',
+      endDate: null,
+      categoryId: null,
     });
   });
 
@@ -79,7 +117,7 @@ describe('PlannedTransactionFormComponent', () => {
     expect(c.form.controls.targetAccountId.hasError('required')).toBe(true);
     c.form.controls.targetAccountId.setValue(1);
     expect(c.form.hasError('sameAccount')).toBe(true);
-    expect(c.targetAccounts().map(a => a.id)).toEqual([2]);
+    expect(c.targetAccounts().map((a) => a.id)).toEqual([2]);
   });
 
   it('rejects an end date before the start', () => {
@@ -91,20 +129,46 @@ describe('PlannedTransactionFormComponent', () => {
   });
 
   it('loads a transaction for editing and keeps another member’s category as an option', () => {
-    const c = setupEdit(planned(4, {
-      type: 'INCOME', amount: 650, category: category(77, 'Dividends'),
-      frequency: { intervalUnit: 'MONTH', intervalCount: 3, dayOfWeek: null, dayOfMonth: 20, month: 'MARCH', description: 'Quarterly' }
-    }));
-    expect(c.form.getRawValue()).toMatchObject({ type: 'INCOME', amount: 650, categoryId: 77, recurring: true });
-    expect(c.form.controls.frequency.getRawValue()).toMatchObject({ intervalUnit: 'MONTH', intervalCount: 3, dayOfMonth: 20, month: 'MARCH' });
-    expect(c.categoryOptions().map(o => o.name)).toEqual(['Housing', 'Dividends (shared)']);
+    const c = setupEdit(
+      planned(4, {
+        type: 'INCOME',
+        amount: 650,
+        category: category(77, 'Dividends'),
+        frequency: {
+          intervalUnit: 'MONTH',
+          intervalCount: 3,
+          dayOfWeek: null,
+          dayOfMonth: 20,
+          month: 'MARCH',
+          description: 'Quarterly',
+        },
+      }),
+    );
+    expect(c.form.getRawValue()).toMatchObject({
+      type: 'INCOME',
+      amount: 650,
+      categoryId: 77,
+      recurring: true,
+    });
+    expect(c.form.controls.frequency.getRawValue()).toMatchObject({
+      intervalUnit: 'MONTH',
+      intervalCount: 3,
+      dayOfMonth: 20,
+      month: 'MARCH',
+    });
+    expect(c.categoryOptions().map((o) => o.name)).toEqual(['Housing', 'Dividends (shared)']);
     expect(c.needsAnchorMonth()).toBe(true);
     expect(c.readOnly()).toBe(false);
 
     c.onSubmit();
     const req = http.expectOne(`${API}/planned-transactions/4`);
     expect(req.request.method).toBe('PUT');
-    expect(req.request.body.frequency).toEqual({ intervalUnit: 'MONTH', intervalCount: 3, dayOfMonth: 20, month: 'MARCH' });
+    expect(req.request.body.frequency).toEqual({
+      intervalUnit: 'MONTH',
+      intervalCount: 3,
+      dayOfMonth: 20,
+      month: 'MARCH',
+    });
     expect(req.request.body.categoryId).toBe(77);
   });
 
@@ -122,9 +186,10 @@ describe('PlannedTransactionFormComponent', () => {
     http.expectOne(`${API}/planned-transactions`).flush(
       validationError([
         { field: 'amount', message: 'Amount must be positive' },
-        { field: 'frequency', message: 'MONTH (every 1) requires [DAY_OF_MONTH]' }
+        { field: 'frequency', message: 'MONTH (every 1) requires [DAY_OF_MONTH]' },
       ]),
-      { status: 400, statusText: 'Bad Request' });
+      { status: 400, statusText: 'Bad Request' },
+    );
 
     expect(c.form.controls.amount.errors?.['server']).toBe('Amount must be positive');
     expect(c.form.get('frequency.intervalUnit')?.errors?.['server']).toContain('requires');
@@ -136,9 +201,19 @@ describe('PlannedTransactionFormComponent', () => {
     TestBed.configureTestingModule({
       imports: [PlannedTransactionFormComponent],
       providers: [
-        provideHttpClient(), provideHttpClientTesting(), provideRouter([]),
-        { provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id: String(t.id) }), queryParamMap: convertToParamMap({}) } } }
-      ]
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideRouter([]),
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              paramMap: convertToParamMap({ id: String(t.id) }),
+              queryParamMap: convertToParamMap({}),
+            },
+          },
+        },
+      ],
     });
     http = TestBed.inject(HttpTestingController);
     const fixture = TestBed.createComponent(PlannedTransactionFormComponent);

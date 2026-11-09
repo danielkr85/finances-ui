@@ -16,75 +16,143 @@
     }
 
     <div class="card-body p-4">
-      <h2 class="h4 mb-4">{{ transactionId() ? 'Edit planned transaction' : 'New planned transaction' }}</h2>
+      <h2 class="h4 mb-4">
+        {{ transactionId() ? 'Edit planned transaction' : 'New planned transaction' }}
+      </h2>
 
       @if (!loading() && editableAccounts().length === 0 && !readOnly()) {
         <div class="alert alert-warning">
-          You need an account you can edit first. <a routerLink="/accounts/new">Create an account</a>.
+          You need an account you can edit first.
+          <a routerLink="/accounts/new">Create an account</a>.
         </div>
       }
 
       <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
-
         <div class="mb-3">
           <label class="form-label fw-bold d-block">Type <span class="text-danger">*</span></label>
           <div class="btn-group w-100" role="group" aria-label="Type">
-            <input type="radio" class="btn-check" formControlName="type" value="EXPENSE" id="typeExpense">
-            <label class="btn btn-outline-danger" for="typeExpense"><i class="bi bi-arrow-up-circle me-1"></i>Expense</label>
+            <input
+              type="radio"
+              class="btn-check"
+              formControlName="type"
+              value="EXPENSE"
+              id="typeExpense"
+            />
+            <label class="btn btn-outline-danger" for="typeExpense"
+              ><i class="bi bi-arrow-up-circle me-1"></i>Expense</label
+            >
 
-            <input type="radio" class="btn-check" formControlName="type" value="INCOME" id="typeIncome">
-            <label class="btn btn-outline-success" for="typeIncome"><i class="bi bi-arrow-down-circle me-1"></i>Income</label>
+            <input
+              type="radio"
+              class="btn-check"
+              formControlName="type"
+              value="INCOME"
+              id="typeIncome"
+            />
+            <label class="btn btn-outline-success" for="typeIncome"
+              ><i class="bi bi-arrow-down-circle me-1"></i>Income</label
+            >
 
-            <input type="radio" class="btn-check" formControlName="type" value="TRANSFER" id="typeTransfer">
-            <label class="btn btn-outline-primary" for="typeTransfer"><i class="bi bi-arrow-left-right me-1"></i>Transfer</label>
+            <input
+              type="radio"
+              class="btn-check"
+              formControlName="type"
+              value="TRANSFER"
+              id="typeTransfer"
+            />
+            <label class="btn btn-outline-primary" for="typeTransfer"
+              ><i class="bi bi-arrow-left-right me-1"></i>Transfer</label
+            >
           </div>
           @if (isTransfer()) {
-            <div class="form-text">A credit-card payment is a transfer from the bank account to the card.</div>
+            <div class="form-text">
+              A credit-card payment is a transfer from the bank account to the card.
+            </div>
           }
         </div>
 
         <div class="mb-3">
-          <label for="name" class="form-label fw-bold">Name <span class="text-danger">*</span></label>
-          <input type="text" id="name" formControlName="name" class="form-control"
-                 [class.is-invalid]="invalid('name')" placeholder="e.g., Rent, Paycheck">
-          <div class="invalid-feedback">{{ serverError(form.controls.name) ?? 'Enter a name.' }}</div>
+          <label for="name" class="form-label fw-bold"
+            >Name <span class="text-danger">*</span></label
+          >
+          <input
+            type="text"
+            id="name"
+            formControlName="name"
+            class="form-control"
+            [class.is-invalid]="invalid('name')"
+            placeholder="e.g., Rent, Paycheck"
+          />
+          <div class="invalid-feedback">
+            {{ serverError(form.controls.name) ?? 'Enter a name.' }}
+          </div>
         </div>
 
         <div class="mb-3">
-          <label for="amount" class="form-label fw-bold">Amount <span class="text-danger">*</span></label>
+          <label for="amount" class="form-label fw-bold"
+            >Amount <span class="text-danger">*</span></label
+          >
           <div class="input-group has-validation">
             <span class="input-group-text">$</span>
-            <input type="number" id="amount" formControlName="amount" class="form-control" min="1" step="1"
-                   [class.is-invalid]="invalid('amount')" placeholder="0">
+            <input
+              type="number"
+              id="amount"
+              formControlName="amount"
+              class="form-control"
+              min="1"
+              step="1"
+              [class.is-invalid]="invalid('amount')"
+              placeholder="0"
+            />
             <div class="invalid-feedback">
-              {{ serverError(form.controls.amount) ?? 'Enter a whole-dollar amount greater than 0.' }}
+              {{
+                serverError(form.controls.amount) ?? 'Enter a whole-dollar amount greater than 0.'
+              }}
             </div>
           </div>
         </div>
 
         <div class="row g-3 mb-3">
           <div [class]="isTransfer() ? 'col-md-6' : 'col-12'">
-            <label for="accountId" class="form-label fw-bold">{{ accountLabel() }} <span class="text-danger">*</span></label>
-            <select id="accountId" formControlName="accountId" class="form-select" [class.is-invalid]="invalid('accountId')">
+            <label for="accountId" class="form-label fw-bold"
+              >{{ accountLabel() }} <span class="text-danger">*</span></label
+            >
+            <select
+              id="accountId"
+              formControlName="accountId"
+              class="form-select"
+              [class.is-invalid]="invalid('accountId')"
+            >
               <option [ngValue]="null" disabled>Select an account</option>
-              @for (account of (readOnly() ? accounts() : editableAccounts()); track account.id) {
+              @for (account of readOnly() ? accounts() : editableAccounts(); track account.id) {
                 <option [ngValue]="account.id">{{ account.name }}</option>
               }
             </select>
-            <div class="invalid-feedback">{{ serverError(form.controls.accountId) ?? 'Select an account.' }}</div>
+            <div class="invalid-feedback">
+              {{ serverError(form.controls.accountId) ?? 'Select an account.' }}
+            </div>
           </div>
           @if (isTransfer()) {
             <div class="col-md-6">
-              <label for="targetAccountId" class="form-label fw-bold">To account <span class="text-danger">*</span></label>
-              <select id="targetAccountId" formControlName="targetAccountId" class="form-select"
-                      [class.is-invalid]="invalid('targetAccountId') || form.hasError('sameAccount')">
+              <label for="targetAccountId" class="form-label fw-bold"
+                >To account <span class="text-danger">*</span></label
+              >
+              <select
+                id="targetAccountId"
+                formControlName="targetAccountId"
+                class="form-select"
+                [class.is-invalid]="invalid('targetAccountId') || form.hasError('sameAccount')"
+              >
                 <option [ngValue]="null" disabled>Select an account</option>
-                @for (account of (readOnly() ? accounts() : targetAccounts()); track account.id) {
+                @for (account of readOnly() ? accounts() : targetAccounts(); track account.id) {
                   <option [ngValue]="account.id">{{ account.name }}</option>
                 }
               </select>
               <div class="invalid-feedback">
-                {{ serverError(form.controls.targetAccountId) ?? 'Select a different account to transfer to.' }}
+                {{
+                  serverError(form.controls.targetAccountId) ??
+                    'Select a different account to transfer to.'
+                }}
               </div>
             </div>
           }
@@ -94,7 +162,11 @@
           <div class="d-flex justify-content-between align-items-center mb-1">
             <label for="categoryId" class="form-label fw-bold mb-0">Category</label>
             @if (!showNewCategory() && !readOnly()) {
-              <button type="button" class="btn btn-sm btn-link p-0 text-decoration-none" (click)="toggleNewCategory()">
+              <button
+                type="button"
+                class="btn btn-sm btn-link p-0 text-decoration-none"
+                (click)="toggleNewCategory()"
+              >
                 + New category
               </button>
             }
@@ -102,18 +174,37 @@
 
           @if (showNewCategory()) {
             <div class="card card-body p-3 mb-2 bg-body-tertiary">
-              <label for="newCategory" class="form-label small fw-bold mb-1">New category name</label>
+              <label for="newCategory" class="form-label small fw-bold mb-1"
+                >New category name</label
+              >
               <div class="input-group input-group-sm">
-                <input type="text" id="newCategory" class="form-control" [(ngModel)]="newCategoryName"
-                       [ngModelOptions]="{ standalone: true }" (keydown.enter)="$event.preventDefault(); createCategory()">
-                <button type="button" class="btn btn-success" [disabled]="creatingCategory()" (click)="createCategory()">
+                <input
+                  type="text"
+                  id="newCategory"
+                  class="form-control"
+                  [(ngModel)]="newCategoryName"
+                  [ngModelOptions]="{ standalone: true }"
+                  (keydown.enter)="$event.preventDefault(); createCategory()"
+                />
+                <button
+                  type="button"
+                  class="btn btn-success"
+                  [disabled]="creatingCategory()"
+                  (click)="createCategory()"
+                >
                   @if (creatingCategory()) {
                     <span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
                   }
                   Save
                 </button>
-                <button type="button" class="btn btn-outline-secondary" [disabled]="creatingCategory()"
-                        (click)="toggleNewCategory()">Cancel</button>
+                <button
+                  type="button"
+                  class="btn btn-outline-secondary"
+                  [disabled]="creatingCategory()"
+                  (click)="toggleNewCategory()"
+                >
+                  Cancel
+                </button>
               </div>
               @if (categoryError()) {
                 <div class="text-danger small mt-1">{{ categoryError() }}</div>
@@ -121,7 +212,12 @@
             </div>
           }
 
-          <select id="categoryId" formControlName="categoryId" class="form-select" [class.is-invalid]="invalid('categoryId')">
+          <select
+            id="categoryId"
+            formControlName="categoryId"
+            class="form-select"
+            [class.is-invalid]="invalid('categoryId')"
+          >
             <option [ngValue]="null">No category</option>
             @for (category of categoryOptions(); track category.id) {
               <option [ngValue]="category.id">{{ category.name }}</option>
@@ -133,10 +229,24 @@
         <div class="mb-3">
           <label class="form-label fw-bold d-block">When</label>
           <div class="btn-group" role="group" aria-label="One-time or recurring">
-            <input type="radio" class="btn-check" formControlName="recurring" [value]="false" id="oneTime">
+            <input
+              type="radio"
+              class="btn-check"
+              formControlName="recurring"
+              [value]="false"
+              id="oneTime"
+            />
             <label class="btn btn-outline-secondary" for="oneTime">One-time</label>
-            <input type="radio" class="btn-check" formControlName="recurring" [value]="true" id="isRecurring">
-            <label class="btn btn-outline-secondary" for="isRecurring"><i class="bi bi-arrow-repeat me-1"></i>Recurring</label>
+            <input
+              type="radio"
+              class="btn-check"
+              formControlName="recurring"
+              [value]="true"
+              id="isRecurring"
+            />
+            <label class="btn btn-outline-secondary" for="isRecurring"
+              ><i class="bi bi-arrow-repeat me-1"></i>Recurring</label
+            >
           </div>
         </div>
 
@@ -145,15 +255,32 @@
             <label for="startDate" class="form-label fw-bold">
               {{ recurring() ? 'Starts' : 'Date' }} <span class="text-danger">*</span>
             </label>
-            <input type="date" id="startDate" formControlName="startDate" class="form-control"
-                   [class.is-invalid]="invalid('startDate')">
-            <div class="invalid-feedback">{{ serverError(form.controls.startDate) ?? 'Pick a date.' }}</div>
+            <input
+              type="date"
+              id="startDate"
+              formControlName="startDate"
+              class="form-control"
+              [class.is-invalid]="invalid('startDate')"
+            />
+            <div class="invalid-feedback">
+              {{ serverError(form.controls.startDate) ?? 'Pick a date.' }}
+            </div>
           </div>
           @if (recurring()) {
             <div class="col-md-6">
-              <label for="endDate" class="form-label fw-bold">Ends <span class="text-muted fw-normal">(optional)</span></label>
-              <input type="date" id="endDate" formControlName="endDate" class="form-control"
-                     [class.is-invalid]="invalid('endDate') || (form.hasError('endBeforeStart') && form.controls.endDate.touched)">
+              <label for="endDate" class="form-label fw-bold"
+                >Ends <span class="text-muted fw-normal">(optional)</span></label
+              >
+              <input
+                type="date"
+                id="endDate"
+                formControlName="endDate"
+                class="form-control"
+                [class.is-invalid]="
+                  invalid('endDate') ||
+                  (form.hasError('endBeforeStart') && form.controls.endDate.touched)
+                "
+              />
               <div class="invalid-feedback">
                 {{ serverError(form.controls.endDate) ?? "Can't be before the start date." }}
               </div>
@@ -170,20 +297,35 @@
             <div class="row g-3 mb-3">
               <div class="col-6">
                 <label for="intervalUnit" class="form-label">Unit</label>
-                <select id="intervalUnit" formControlName="intervalUnit" class="form-select"
-                        [class.is-invalid]="invalid('frequency.intervalUnit')">
+                <select
+                  id="intervalUnit"
+                  formControlName="intervalUnit"
+                  class="form-select"
+                  [class.is-invalid]="invalid('frequency.intervalUnit')"
+                >
                   @for (unit of intervalUnits; track unit.value) {
                     <option [value]="unit.value">{{ unit.label }}</option>
                   }
                 </select>
-                <div class="invalid-feedback">{{ serverError(form.get('frequency.intervalUnit')) }}</div>
+                <div class="invalid-feedback">
+                  {{ serverError(form.get('frequency.intervalUnit')) }}
+                </div>
               </div>
               <div class="col-6">
                 <label for="intervalCount" class="form-label">Every</label>
-                <input type="number" id="intervalCount" formControlName="intervalCount" class="form-control" min="1" step="1"
-                       [class.is-invalid]="invalid('frequency.intervalCount')">
+                <input
+                  type="number"
+                  id="intervalCount"
+                  formControlName="intervalCount"
+                  class="form-control"
+                  min="1"
+                  step="1"
+                  [class.is-invalid]="invalid('frequency.intervalCount')"
+                />
                 <div class="invalid-feedback">
-                  {{ serverError(form.get('frequency.intervalCount')) ?? 'A whole number, 1 or more.' }}
+                  {{
+                    serverError(form.get('frequency.intervalCount')) ?? 'A whole number, 1 or more.'
+                  }}
                 </div>
                 <div class="form-text">e.g. 2 with Weekly = every two weeks</div>
               </div>
@@ -192,14 +334,20 @@
             @if (unit() === 'WEEK') {
               <div class="mb-3">
                 <label for="dayOfWeek" class="form-label">On</label>
-                <select id="dayOfWeek" formControlName="dayOfWeek" class="form-select"
-                        [class.is-invalid]="invalid('frequency.dayOfWeek')">
+                <select
+                  id="dayOfWeek"
+                  formControlName="dayOfWeek"
+                  class="form-select"
+                  [class.is-invalid]="invalid('frequency.dayOfWeek')"
+                >
                   <option value="">Select a day</option>
                   @for (day of daysOfWeek; track day.value) {
                     <option [value]="day.value">{{ day.label }}</option>
                   }
                 </select>
-                <div class="invalid-feedback">{{ serverError(form.get('frequency.dayOfWeek')) ?? 'Select a day.' }}</div>
+                <div class="invalid-feedback">
+                  {{ serverError(form.get('frequency.dayOfWeek')) ?? 'Select a day.' }}
+                </div>
               </div>
             }
 
@@ -207,20 +355,37 @@
               <div class="row g-3">
                 @if (needsAnchorMonth()) {
                   <div class="col-6">
-                    <label for="month" class="form-label">{{ unit() === 'YEAR' ? 'Month' : 'Starting month' }}</label>
-                    <select id="month" formControlName="month" class="form-select" [class.is-invalid]="invalid('frequency.month')">
+                    <label for="month" class="form-label">{{
+                      unit() === 'YEAR' ? 'Month' : 'Starting month'
+                    }}</label>
+                    <select
+                      id="month"
+                      formControlName="month"
+                      class="form-select"
+                      [class.is-invalid]="invalid('frequency.month')"
+                    >
                       <option value="">Select a month</option>
                       @for (m of monthsOfYear; track m.value) {
                         <option [value]="m.value">{{ m.label }}</option>
                       }
                     </select>
-                    <div class="invalid-feedback">{{ serverError(form.get('frequency.month')) ?? 'Select a month.' }}</div>
+                    <div class="invalid-feedback">
+                      {{ serverError(form.get('frequency.month')) ?? 'Select a month.' }}
+                    </div>
                   </div>
                 }
                 <div class="col-6">
                   <label for="dayOfMonth" class="form-label">Day of month</label>
-                  <input type="number" id="dayOfMonth" formControlName="dayOfMonth" class="form-control" min="1" max="31"
-                         step="1" [class.is-invalid]="invalid('frequency.dayOfMonth')">
+                  <input
+                    type="number"
+                    id="dayOfMonth"
+                    formControlName="dayOfMonth"
+                    class="form-control"
+                    min="1"
+                    max="31"
+                    step="1"
+                    [class.is-invalid]="invalid('frequency.dayOfMonth')"
+                  />
                   <div class="invalid-feedback">
                     {{ serverError(form.get('frequency.dayOfMonth')) ?? 'Between 1 and 31.' }}
                   </div>
@@ -232,7 +397,9 @@
         }
 
         <div class="d-flex justify-content-end gap-2 pt-3 border-top">
-          <a class="btn btn-outline-secondary" routerLink="/planned-transactions">{{ readOnly() ? 'Back' : 'Cancel' }}</a>
+          <a class="btn btn-outline-secondary" routerLink="/planned-transactions">{{
+            readOnly() ? 'Back' : 'Cancel'
+          }}</a>
           @if (!readOnly()) {
             <button type="submit" class="btn btn-primary" [disabled]="saving() || loading()">
               @if (saving()) {

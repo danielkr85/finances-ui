@@ -6,7 +6,10 @@ export interface GoogleCredentialResponse {
 interface GoogleIdentity {
   accounts: {
     id: {
-      initialize(config: { client_id: string; callback: (response: GoogleCredentialResponse) => void }): void;
+      initialize(config: {
+        client_id: string;
+        callback: (response: GoogleCredentialResponse) => void;
+      }): void;
       renderButton(parent: HTMLElement, options: Record<string, unknown>): void;
     };
   };
@@ -31,7 +34,10 @@ export function loadGoogleIdentity(): Promise<GoogleIdentity> {
     script.src = SCRIPT_URL;
     script.async = true;
     script.defer = true;
-    script.onload = () => (window.google ? resolve(window.google) : reject(new Error('Google Identity Services unavailable')));
+    script.onload = () =>
+      window.google
+        ? resolve(window.google)
+        : reject(new Error('Google Identity Services unavailable'));
     script.onerror = () => {
       loading = null;
       reject(new Error('Failed to load Google Identity Services'));

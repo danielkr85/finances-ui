@@ -28,17 +28,19 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return auth.validAccessToken().pipe(
     catchError(endSessionAndRethrow),
-    switchMap(token => next(withBearer(req, token)).pipe(
-      catchError(err => {
-        if (!(err instanceof HttpErrorResponse) || err.status !== 401 || token === null) {
-          return throwError(() => err);
-        }
-        return auth.refresh().pipe(
-          catchError(endSessionAndRethrow),
-          switchMap(tokens => next(withBearer(req, tokens.accessToken)))
-        );
-      })
-    ))
+    switchMap((token) =>
+      next(withBearer(req, token)).pipe(
+        catchError((err) => {
+          if (!(err instanceof HttpErrorResponse) || err.status !== 401 || token === null) {
+            return throwError(() => err);
+          }
+          return auth.refresh().pipe(
+            catchError(endSessionAndRethrow),
+            switchMap((tokens) => next(withBearer(req, tokens.accessToken))),
+          );
+        }),
+      ),
+    ),
   );
 };
 

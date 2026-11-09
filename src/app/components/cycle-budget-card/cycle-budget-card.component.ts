@@ -18,7 +18,7 @@ type BudgetState =
   selector: 'app-cycle-budget-card',
   imports: [MoneyPipe, DatePipe],
   templateUrl: './cycle-budget-card.component.html',
-  styleUrls: ['./cycle-budget-card.component.css']
+  styleUrls: ['./cycle-budget-card.component.css'],
 })
 export class CycleBudgetCardComponent {
   private readonly forecastService = inject(ForecastService);
@@ -28,13 +28,20 @@ export class CycleBudgetCardComponent {
 
   readonly state = toSignal(
     toObservable(computed(() => this.account().id)).pipe(
-      switchMap(id => this.forecastService.getCycleBudget(id).pipe(
-        map((budget): BudgetState => ({ status: 'ok', budget })),
-        catchError(err => of<BudgetState>({ status: 'error', message: apiErrorMessage(err, 'Failed to load the cycle budget.') })),
-        startWith<BudgetState>({ status: 'loading' })
-      ))
+      switchMap((id) =>
+        this.forecastService.getCycleBudget(id).pipe(
+          map((budget): BudgetState => ({ status: 'ok', budget })),
+          catchError((err) =>
+            of<BudgetState>({
+              status: 'error',
+              message: apiErrorMessage(err, 'Failed to load the cycle budget.'),
+            }),
+          ),
+          startWith<BudgetState>({ status: 'loading' }),
+        ),
+      ),
     ),
-    { initialValue: { status: 'loading' } as BudgetState }
+    { initialValue: { status: 'loading' } as BudgetState },
   );
 
   readonly budget = computed(() => {
@@ -45,7 +52,9 @@ export class CycleBudgetCardComponent {
   /** Even spending allowance per remaining day (none when over budget). */
   readonly perDay = computed(() => {
     const b = this.budget();
-    return b && b.remaining > 0 && b.daysLeftInCycle > 0 ? Math.floor(b.remaining / b.daysLeftInCycle) : 0;
+    return b && b.remaining > 0 && b.daysLeftInCycle > 0
+      ? Math.floor(b.remaining / b.daysLeftInCycle)
+      : 0;
   });
 
   /** Bar widths as % of the target: spent, planned, then what's left. */

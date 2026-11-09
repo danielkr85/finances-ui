@@ -9,14 +9,14 @@ import { applyServerErrors, serverError } from '../../shared/form-errors';
 
 export const SHARE_ROLES: { value: ShareRole; label: string; hint: string }[] = [
   { value: 'EDITOR', label: 'Editor', hint: 'Can change the balance and planned transactions' },
-  { value: 'VIEWER', label: 'Viewer', hint: 'Can only look' }
+  { value: 'VIEWER', label: 'Viewer', hint: 'Can only look' },
 ];
 
 /** Who can see an account. The owner manages members; anyone else can see the list and leave. */
 @Component({
   selector: 'app-account-shares',
   imports: [ReactiveFormsModule],
-  templateUrl: './account-shares.component.html'
+  templateUrl: './account-shares.component.html',
 })
 export class AccountSharesComponent implements OnInit {
   private readonly shareService = inject(AccountShareService);
@@ -37,19 +37,19 @@ export class AccountSharesComponent implements OnInit {
 
   readonly form = inject(FormBuilder).nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
-    role: ['VIEWER' as ShareRole, Validators.required]
+    role: ['VIEWER' as ShareRole, Validators.required],
   });
 
   ngOnInit(): void {
     this.shareService.getMembers(this.account().id).subscribe({
-      next: members => {
+      next: (members) => {
         this.members.set(members);
         this.loading.set(false);
       },
-      error: err => {
+      error: (err) => {
         this.error.set(apiErrorMessage(err, 'Failed to load who has access.'));
         this.loading.set(false);
-      }
+      },
     });
   }
 
@@ -62,33 +62,37 @@ export class AccountSharesComponent implements OnInit {
     this.busy.set(true);
     this.error.set(null);
     this.shareService.addMember(this.account().id, { email: email.trim(), role }).subscribe({
-      next: member => {
-        this.members.update(list => [...list, member]);
+      next: (member) => {
+        this.members.update((list) => [...list, member]);
         this.form.reset({ email: '', role });
         this.busy.set(false);
       },
-      error: err => {
+      error: (err) => {
         // 404 "no user with that email" and 409 "already a member" come back as plain messages.
         this.error.set(applyServerErrors(this.form, err, 'Failed to share the account.'));
         this.busy.set(false);
-      }
+      },
     });
   }
 
   changeRole(member: AccountMember, role: string): void {
     this.busy.set(true);
     this.error.set(null);
-    this.shareService.updateMemberRole(this.account().id, member.userId, role as ShareRole).subscribe({
-      next: updated => {
-        this.members.update(list => list.map(m => (m.userId === updated.userId ? updated : m)));
-        this.busy.set(false);
-      },
-      error: err => {
-        this.error.set(apiErrorMessage(err, 'Failed to change the role.'));
-        this.members.update(list => [...list]); // re-render the select with the old role
-        this.busy.set(false);
-      }
-    });
+    this.shareService
+      .updateMemberRole(this.account().id, member.userId, role as ShareRole)
+      .subscribe({
+        next: (updated) => {
+          this.members.update((list) =>
+            list.map((m) => (m.userId === updated.userId ? updated : m)),
+          );
+          this.busy.set(false);
+        },
+        error: (err) => {
+          this.error.set(apiErrorMessage(err, 'Failed to change the role.'));
+          this.members.update((list) => [...list]); // re-render the select with the old role
+          this.busy.set(false);
+        },
+      });
   }
 
   remove(member: AccountMember): void {
@@ -107,13 +111,18 @@ export class AccountSharesComponent implements OnInit {
           this.router.navigate(['/accounts']);
           return;
         }
-        this.members.update(list => list.filter(m => m.userId !== member.userId));
+        this.members.update((list) => list.filter((m) => m.userId !== member.userId));
         this.busy.set(false);
       },
-      error: err => {
-        this.error.set(apiErrorMessage(err, leaving ? 'Failed to leave the account.' : 'Failed to remove the member.'));
+      error: (err) => {
+        this.error.set(
+          apiErrorMessage(
+            err,
+            leaving ? 'Failed to leave the account.' : 'Failed to remove the member.',
+          ),
+        );
         this.busy.set(false);
-      }
+      },
     });
   }
 }

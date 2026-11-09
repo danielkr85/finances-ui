@@ -1,6 +1,12 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormBuilder,
+  ReactiveFormsModule,
+  ValidationErrors,
+  Validators,
+} from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Account, AccountRequest, AccountType } from '../../models/account.model';
 import { apiErrorMessage } from '../../models/api-error.model';
@@ -13,8 +19,15 @@ const WHOLE_NUMBER = Validators.pattern(/^-?\d+$/);
 
 /** A credit card's unpaid statement is part of what's owed, so it can't exceed the amount. */
 function statementWithinAmount(group: AbstractControl): ValidationErrors | null {
-  const { type, amount, statementBalance } = group.value as { type: AccountType; amount: number | null; statementBalance: number | null };
-  return type === 'CREDIT_CARD' && amount !== null && statementBalance !== null && statementBalance > amount
+  const { type, amount, statementBalance } = group.value as {
+    type: AccountType;
+    amount: number | null;
+    statementBalance: number | null;
+  };
+  return type === 'CREDIT_CARD' &&
+    amount !== null &&
+    statementBalance !== null &&
+    statementBalance > amount
     ? { statementExceedsAmount: true }
     : null;
 }
@@ -23,7 +36,7 @@ function statementWithinAmount(group: AbstractControl): ValidationErrors | null 
   selector: 'app-account-form',
   imports: [ReactiveFormsModule, RouterLink, AccountSharesComponent],
   templateUrl: './account-form.component.html',
-  styleUrls: ['./account-form.component.css']
+  styleUrls: ['./account-form.component.css'],
 })
 export class AccountFormComponent implements OnInit {
   private readonly accountService = inject(AccountService);
@@ -31,8 +44,10 @@ export class AccountFormComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
 
   readonly serverError = serverError;
-  readonly accountTypes = (Object.keys(ACCOUNT_TYPE_LABELS) as AccountType[])
-    .map(value => ({ value, label: ACCOUNT_TYPE_LABELS[value] }));
+  readonly accountTypes = (Object.keys(ACCOUNT_TYPE_LABELS) as AccountType[]).map((value) => ({
+    value,
+    label: ACCOUNT_TYPE_LABELS[value],
+  }));
 
   readonly accountId = signal<number | null>(null);
   readonly account = signal<Account | null>(null);
@@ -43,18 +58,26 @@ export class AccountFormComponent implements OnInit {
   readonly isEditing = computed(() => this.accountId() !== null);
   readonly readOnly = computed(() => this.account()?.myRole === 'VIEWER');
 
-  readonly form = inject(FormBuilder).group({
-    name: ['', [Validators.required, Validators.maxLength(255)]],
-    amount: [null as number | null, [Validators.required, WHOLE_NUMBER]],
-    type: ['CHECKING' as AccountType, Validators.required],
-    main: [false],
-    paymentDueDay: [null as number | null, [Validators.min(1), Validators.max(31), WHOLE_NUMBER]],
-    closingDaysBeforeDue: [null as number | null, [Validators.min(1), Validators.max(28), WHOLE_NUMBER]],
-    statementBalance: [null as number | null, [Validators.min(0), WHOLE_NUMBER]],
-    monthlyTarget: [null as number | null, [Validators.min(0), WHOLE_NUMBER]]
-  }, { validators: statementWithinAmount });
+  readonly form = inject(FormBuilder).group(
+    {
+      name: ['', [Validators.required, Validators.maxLength(255)]],
+      amount: [null as number | null, [Validators.required, WHOLE_NUMBER]],
+      type: ['CHECKING' as AccountType, Validators.required],
+      main: [false],
+      paymentDueDay: [null as number | null, [Validators.min(1), Validators.max(31), WHOLE_NUMBER]],
+      closingDaysBeforeDue: [
+        null as number | null,
+        [Validators.min(1), Validators.max(28), WHOLE_NUMBER],
+      ],
+      statementBalance: [null as number | null, [Validators.min(0), WHOLE_NUMBER]],
+      monthlyTarget: [null as number | null, [Validators.min(0), WHOLE_NUMBER]],
+    },
+    { validators: statementWithinAmount },
+  );
 
-  private readonly type = toSignal(this.form.controls.type.valueChanges, { initialValue: this.form.controls.type.value });
+  private readonly type = toSignal(this.form.controls.type.valueChanges, {
+    initialValue: this.form.controls.type.value,
+  });
   readonly isCreditCard = computed(() => this.type() === 'CREDIT_CARD');
 
   ngOnInit(): void {
@@ -68,7 +91,7 @@ export class AccountFormComponent implements OnInit {
   private load(id: number): void {
     this.loading.set(true);
     this.accountService.getAccountById(id).subscribe({
-      next: account => {
+      next: (account) => {
         this.account.set(account);
         this.form.patchValue(account);
         if (account.myRole === 'VIEWER') {
@@ -78,10 +101,10 @@ export class AccountFormComponent implements OnInit {
         }
         this.loading.set(false);
       },
-      error: err => {
+      error: (err) => {
         this.error.set(apiErrorMessage(err, 'Failed to load the account.'));
         this.loading.set(false);
-      }
+      },
     });
   }
 
@@ -106,22 +129,23 @@ export class AccountFormComponent implements OnInit {
       paymentDueDay: creditCard ? v.paymentDueDay : null,
       closingDaysBeforeDue: creditCard ? v.closingDaysBeforeDue : null,
       statementBalance: creditCard ? v.statementBalance : null,
-      monthlyTarget: creditCard ? v.monthlyTarget : null
+      monthlyTarget: creditCard ? v.monthlyTarget : null,
     };
 
     const id = this.accountId();
-    const save = id === null
-      ? this.accountService.createAccount(request)
-      : this.accountService.updateAccount(id, request);
+    const save =
+      id === null
+        ? this.accountService.createAccount(request)
+        : this.accountService.updateAccount(id, request);
 
     this.saving.set(true);
     this.error.set(null);
     save.subscribe({
       next: () => this.router.navigate(['/accounts']),
-      error: err => {
+      error: (err) => {
         this.saving.set(false);
         this.error.set(applyServerErrors(this.form, err, 'Failed to save the account.'));
-      }
+      },
     });
   }
 }

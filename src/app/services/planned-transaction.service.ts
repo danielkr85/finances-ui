@@ -11,7 +11,8 @@ export class PlannedTransactionService {
 
   /** On every account you can see, or only those whose source is `accountId`. */
   getPlannedTransactions(accountId?: number): Observable<PlannedTransaction[]> {
-    const params = accountId === undefined ? undefined : new HttpParams().set('accountId', accountId);
+    const params =
+      accountId === undefined ? undefined : new HttpParams().set('accountId', accountId);
     return this.http.get<PlannedTransaction[]>(this.baseUrl, { params });
   }
 
@@ -24,7 +25,10 @@ export class PlannedTransactionService {
     return this.http.post<PlannedTransaction>(this.baseUrl, request);
   }
 
-  updatePlannedTransaction(id: number, request: PlannedTransactionRequest): Observable<PlannedTransaction> {
+  updatePlannedTransaction(
+    id: number,
+    request: PlannedTransactionRequest,
+  ): Observable<PlannedTransaction> {
     return this.http.put<PlannedTransaction>(`${this.baseUrl}/${id}`, request);
   }
 

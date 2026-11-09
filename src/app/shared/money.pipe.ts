@@ -3,7 +3,7 @@ import { Pipe, PipeTransform } from '@angular/core';
 const DOLLARS = new Intl.NumberFormat('en-US', {
   style: 'currency',
   currency: 'USD',
-  maximumFractionDigits: 0
+  maximumFractionDigits: 0,
 });
 
 /**

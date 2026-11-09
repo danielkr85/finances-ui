@@ -12,7 +12,7 @@ import { loadGoogleIdentity } from './google-identity';
   selector: 'app-login',
   imports: [ReactiveFormsModule],
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css']
+  styleUrls: ['./login.component.css'],
 })
 export class LoginComponent implements AfterViewInit {
   private readonly auth = inject(AuthService);
@@ -22,15 +22,16 @@ export class LoginComponent implements AfterViewInit {
   readonly googleEnabled = !!environment.googleClientId;
   private readonly googleButton = viewChild<ElementRef<HTMLElement>>('googleButton');
 
-  readonly notice = this.route.snapshot.queryParamMap.get('reason') === 'password-changed'
-    ? 'Your password was changed and you were signed out everywhere. Sign in with your new password.'
-    : null;
+  readonly notice =
+    this.route.snapshot.queryParamMap.get('reason') === 'password-changed'
+      ? 'Your password was changed and you were signed out everywhere. Sign in with your new password.'
+      : null;
   readonly submitting = signal(false);
   readonly error = signal<string | null>(null);
 
   readonly form = inject(FormBuilder).nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
-    password: ['', Validators.required]
+    password: ['', Validators.required],
   });
 
   ngAfterViewInit(): void {
@@ -39,14 +40,18 @@ export class LoginComponent implements AfterViewInit {
       return;
     }
     loadGoogleIdentity()
-      .then(google => {
+      .then((google) => {
         google.accounts.id.initialize({
           client_id: environment.googleClientId,
-          callback: response => this.signIn(this.auth.loginWithGoogle(response.credential))
+          callback: (response) => this.signIn(this.auth.loginWithGoogle(response.credential)),
         });
         google.accounts.id.renderButton(container, { theme: 'outline', size: 'large', width: 320 });
       })
-      .catch(() => this.error.set('Google sign-in is unavailable right now. You can still sign in with a password.'));
+      .catch(() =>
+        this.error.set(
+          'Google sign-in is unavailable right now. You can still sign in with a password.',
+        ),
+      );
   }
 
   onSubmit(): void {
@@ -62,10 +67,10 @@ export class LoginComponent implements AfterViewInit {
     this.error.set(null);
     request.subscribe({
       next: () => this.router.navigateByUrl(this.safeReturnUrl()),
-      error: err => {
+      error: (err) => {
         this.submitting.set(false);
         this.error.set(apiErrorMessage(err, 'Sign-in failed. Please try again.'));
-      }
+      },
     });
   }
 

@@ -1,15 +1,21 @@
 <div class="card h-100 shadow-sm">
   <div class="card-body">
     <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
-      <h3 class="h6 mb-0 text-truncate"><i class="bi bi-credit-card me-1"></i>{{ account().name }}</h3>
+      <h3 class="h6 mb-0 text-truncate">
+        <i class="bi bi-credit-card me-1"></i>{{ account().name }}
+      </h3>
       @if (budget(); as b) {
-        <span class="small text-muted text-nowrap">{{ b.daysLeftInCycle }} {{ b.daysLeftInCycle === 1 ? 'day' : 'days' }} left</span>
+        <span class="small text-muted text-nowrap"
+          >{{ b.daysLeftInCycle }} {{ b.daysLeftInCycle === 1 ? 'day' : 'days' }} left</span
+        >
       }
     </div>
 
     @switch (state().status) {
       @case ('loading') {
-        <div class="placeholder-glow"><span class="placeholder col-6"></span><span class="placeholder col-12 mt-2"></span></div>
+        <div class="placeholder-glow">
+          <span class="placeholder col-6"></span><span class="placeholder col-12 mt-2"></span>
+        </div>
       }
       @case ('error') {
         <div class="small text-danger">{{ $any(state()).message }}</div>
@@ -18,10 +24,18 @@
 
     @if (budget(); as b) {
       <div class="small text-muted">Left to spend this cycle</div>
-      <div class="h3 font-monospace mb-1" [class.text-danger]="b.remaining < 0" [class.text-success]="b.remaining > 0">
+      <div
+        class="h3 font-monospace mb-1"
+        [class.text-danger]="b.remaining < 0"
+        [class.text-success]="b.remaining > 0"
+      >
         {{ b.remaining | money }}
       </div>
-      <div class="small mb-3" [class.text-danger]="b.remaining < 0" [class.text-muted]="b.remaining >= 0">
+      <div
+        class="small mb-3"
+        [class.text-danger]="b.remaining < 0"
+        [class.text-muted]="b.remaining >= 0"
+      >
         @if (b.remaining < 0) {
           Over the {{ b.monthlyTarget | money }} target
         } @else if (perDay() > 0) {
@@ -32,29 +46,53 @@
       </div>
 
       @if (bar(); as bar) {
-        <div class="progress-stacked mb-1" role="img"
-             [attr.aria-label]="'Spent ' + (b.spentThisCycle | money) + ', planned ' + (b.plannedRemaining | money) + ' of ' + (b.monthlyTarget | money)">
-          <div class="progress" [style.width.%]="bar.spent"><div class="progress-bar bg-secondary"></div></div>
-          <div class="progress" [style.width.%]="bar.planned"><div class="progress-bar bg-warning"></div></div>
+        <div
+          class="progress-stacked mb-1"
+          role="img"
+          [attr.aria-label]="
+            'Spent ' +
+            (b.spentThisCycle | money) +
+            ', planned ' +
+            (b.plannedRemaining | money) +
+            ' of ' +
+            (b.monthlyTarget | money)
+          "
+        >
+          <div class="progress" [style.width.%]="bar.spent">
+            <div class="progress-bar bg-secondary"></div>
+          </div>
+          <div class="progress" [style.width.%]="bar.planned">
+            <div class="progress-bar bg-warning"></div>
+          </div>
         </div>
         <div class="d-flex flex-wrap justify-content-between small text-muted gap-2">
-          <span><i class="bi bi-square-fill text-secondary me-1"></i>Spent {{ b.spentThisCycle | money }}</span>
-          <span><i class="bi bi-square-fill text-warning me-1"></i>Planned {{ b.plannedRemaining | money }}</span>
+          <span
+            ><i class="bi bi-square-fill text-secondary me-1"></i>Spent
+            {{ b.spentThisCycle | money }}</span
+          >
+          <span
+            ><i class="bi bi-square-fill text-warning me-1"></i>Planned
+            {{ b.plannedRemaining | money }}</span
+          >
           <span>Target {{ b.monthlyTarget | money }}</span>
         </div>
       }
 
       <div class="small text-muted mt-3 pt-2 border-top">
-        Cycle {{ b.cycleStart | date: 'MMM d' }} – {{ b.cycleClose | date: 'MMM d' }}
-        &bull; payment due {{ b.paymentDueDate | date: 'MMM d' }}
+        Cycle {{ b.cycleStart | date: 'MMM d' }} – {{ b.cycleClose | date: 'MMM d' }} &bull; payment
+        due {{ b.paymentDueDate | date: 'MMM d' }}
         @if (b.statementBalance > 0) {
           &bull; last statement {{ b.statementBalance | money }} unpaid
         }
       </div>
 
       @if (b.plannedEvents.length > 0) {
-        <button type="button" class="btn btn-link btn-sm p-0 mt-2 text-decoration-none" (click)="showEvents.update(v => !v)"
-                [attr.aria-expanded]="showEvents()">
+        <button
+          type="button"
+          class="btn btn-link btn-sm p-0 mt-2 text-decoration-none"
+          (click)="showEvents.update((v) => !v)"
+          [attr.aria-expanded]="showEvents()"
+        >
           {{ showEvents() ? 'Hide' : 'Show' }} {{ b.plannedEvents.length }} planned
           {{ b.plannedEvents.length === 1 ? 'charge' : 'charges' }}
         </button>
@@ -63,7 +101,9 @@
             @for (e of b.plannedEvents; track $index) {
               <li class="d-flex justify-content-between gap-2">
                 <span>{{ e.eventDate | date: 'MMM d' }} &middot; {{ e.description }}</span>
-                <span class="font-monospace">{{ (e.direction === 'CREDIT' ? e.amount : -e.amount) | money: true }}</span>
+                <span class="font-monospace">{{
+                  (e.direction === 'CREDIT' ? e.amount : -e.amount) | money: true
+                }}</span>
               </li>
             }
           </ul>

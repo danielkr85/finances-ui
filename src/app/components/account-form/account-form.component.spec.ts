@@ -16,9 +16,16 @@ describe('AccountFormComponent', () => {
     TestBed.configureTestingModule({
       imports: [AccountFormComponent],
       providers: [
-        provideHttpClient(), provideHttpClientTesting(), provideRouter([]),
-        { provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap(existing ? { id: String(existing.id) } : {}) } } }
-      ]
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideRouter([]),
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: { paramMap: convertToParamMap(existing ? { id: String(existing.id) } : {}) },
+          },
+        },
+      ],
     });
     http = TestBed.inject(HttpTestingController);
     vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
@@ -34,25 +41,48 @@ describe('AccountFormComponent', () => {
 
   it('allows a negative balance and leaves out billing fields for non-cards', () => {
     const c = setup();
-    c.form.patchValue({ name: 'Overdrawn', amount: -40, type: 'CHECKING', paymentDueDay: 13, monthlyTarget: 500 });
+    c.form.patchValue({
+      name: 'Overdrawn',
+      amount: -40,
+      type: 'CHECKING',
+      paymentDueDay: 13,
+      monthlyTarget: 500,
+    });
     expect(c.form.valid).toBe(true);
     c.onSubmit();
 
     expect(http.expectOne(`${API}/accounts`).request.body).toEqual({
-      name: 'Overdrawn', amount: -40, type: 'CHECKING', main: false,
-      paymentDueDay: null, closingDaysBeforeDue: null, statementBalance: null, monthlyTarget: null
+      name: 'Overdrawn',
+      amount: -40,
+      type: 'CHECKING',
+      main: false,
+      paymentDueDay: null,
+      closingDaysBeforeDue: null,
+      statementBalance: null,
+      monthlyTarget: null,
     });
   });
 
   it('sends billing fields for credit cards', () => {
     const c = setup();
-    c.form.patchValue({ name: 'Amex', amount: 7472, type: 'CREDIT_CARD', paymentDueDay: 13, closingDaysBeforeDue: 25,
-      statementBalance: 5472, monthlyTarget: 5000 });
+    c.form.patchValue({
+      name: 'Amex',
+      amount: 7472,
+      type: 'CREDIT_CARD',
+      paymentDueDay: 13,
+      closingDaysBeforeDue: 25,
+      statementBalance: 5472,
+      monthlyTarget: 5000,
+    });
     expect(c.isCreditCard()).toBe(true);
     c.onSubmit();
 
     expect(http.expectOne(`${API}/accounts`).request.body).toMatchObject({
-      type: 'CREDIT_CARD', paymentDueDay: 13, closingDaysBeforeDue: 25, statementBalance: 5472, monthlyTarget: 5000
+      type: 'CREDIT_CARD',
+      paymentDueDay: 13,
+      closingDaysBeforeDue: 25,
+      statementBalance: 5472,
+      monthlyTarget: 5000,
     });
   });
 
@@ -92,8 +122,14 @@ describe('AccountFormComponent', () => {
     c.form.patchValue({ name: 'Checking', amount: 0 });
     c.onSubmit();
     http.expectOne(`${API}/accounts`).flush(
-      { status: 409, error: 'Conflict', message: "An account named 'Checking' already exists", path: '/api/v1/accounts' },
-      { status: 409, statusText: 'Conflict' });
+      {
+        status: 409,
+        error: 'Conflict',
+        message: "An account named 'Checking' already exists",
+        path: '/api/v1/accounts',
+      },
+      { status: 409, statusText: 'Conflict' },
+    );
     expect(c.error()).toBe("An account named 'Checking' already exists");
   });
 });

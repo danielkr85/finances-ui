@@ -14,7 +14,7 @@ export function applyServerErrors(
   form: AbstractControl,
   err: unknown,
   fallback: string,
-  aliases: Record<string, string> = {}
+  aliases: Record<string, string> = {},
 ): string {
   if (!(err instanceof HttpErrorResponse) || !isApiError(err.error) || !err.error.fields?.length) {
     return apiErrorMessage(err, fallback);

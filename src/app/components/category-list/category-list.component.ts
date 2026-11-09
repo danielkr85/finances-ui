@@ -12,7 +12,7 @@ const byName = (a: Category, b: Category) => a.name.localeCompare(b.name);
 @Component({
   selector: 'app-category-list',
   imports: [ReactiveFormsModule],
-  templateUrl: './category-list.component.html'
+  templateUrl: './category-list.component.html',
 })
 export class CategoryListComponent implements OnInit {
   private readonly categoryService = inject(CategoryService);
@@ -25,19 +25,23 @@ export class CategoryListComponent implements OnInit {
   readonly error = signal<string | null>(null);
   readonly editingId = signal<number | null>(null);
 
-  readonly addForm = this.fb.group({ name: ['', [Validators.required, Validators.maxLength(255)]] });
-  readonly editForm = this.fb.group({ name: ['', [Validators.required, Validators.maxLength(255)]] });
+  readonly addForm = this.fb.group({
+    name: ['', [Validators.required, Validators.maxLength(255)]],
+  });
+  readonly editForm = this.fb.group({
+    name: ['', [Validators.required, Validators.maxLength(255)]],
+  });
 
   ngOnInit(): void {
     this.categoryService.getCategories().subscribe({
-      next: categories => {
+      next: (categories) => {
         this.categories.set(categories);
         this.loading.set(false);
       },
-      error: err => {
+      error: (err) => {
         this.error.set(apiErrorMessage(err, 'Failed to load categories.'));
         this.loading.set(false);
-      }
+      },
     });
   }
 
@@ -48,17 +52,19 @@ export class CategoryListComponent implements OnInit {
     }
     this.busy.set(true);
     this.error.set(null);
-    this.categoryService.createCategory({ name: this.addForm.getRawValue().name.trim() }).subscribe({
-      next: created => {
-        this.categories.update(list => [...list, created].sort(byName));
-        this.addForm.reset();
-        this.busy.set(false);
-      },
-      error: err => {
-        this.error.set(applyServerErrors(this.addForm, err, 'Failed to add the category.'));
-        this.busy.set(false);
-      }
-    });
+    this.categoryService
+      .createCategory({ name: this.addForm.getRawValue().name.trim() })
+      .subscribe({
+        next: (created) => {
+          this.categories.update((list) => [...list, created].sort(byName));
+          this.addForm.reset();
+          this.busy.set(false);
+        },
+        error: (err) => {
+          this.error.set(applyServerErrors(this.addForm, err, 'Failed to add the category.'));
+          this.busy.set(false);
+        },
+      });
   }
 
   startEdit(category: Category): void {
@@ -84,15 +90,17 @@ export class CategoryListComponent implements OnInit {
     this.busy.set(true);
     this.error.set(null);
     this.categoryService.updateCategory(category.id, { name }).subscribe({
-      next: updated => {
-        this.categories.update(list => list.map(c => (c.id === updated.id ? updated : c)).sort(byName));
+      next: (updated) => {
+        this.categories.update((list) =>
+          list.map((c) => (c.id === updated.id ? updated : c)).sort(byName),
+        );
         this.editingId.set(null);
         this.busy.set(false);
       },
-      error: err => {
+      error: (err) => {
         this.error.set(applyServerErrors(this.editForm, err, 'Failed to rename the category.'));
         this.busy.set(false);
-      }
+      },
     });
   }
 
@@ -104,15 +112,17 @@ export class CategoryListComponent implements OnInit {
     this.error.set(null);
     this.categoryService.deleteCategory(category.id).subscribe({
       next: () => {
-        this.categories.update(list => list.filter(c => c.id !== category.id));
+        this.categories.update((list) => list.filter((c) => c.id !== category.id));
         this.busy.set(false);
       },
-      error: err => {
-        this.error.set(err instanceof HttpErrorResponse && err.status === 409
-          ? `"${category.name}" is used by planned transactions. Change or delete those first.`
-          : apiErrorMessage(err, 'Failed to delete the category.'));
+      error: (err) => {
+        this.error.set(
+          err instanceof HttpErrorResponse && err.status === 409
+            ? `"${category.name}" is used by planned transactions. Change or delete those first.`
+            : apiErrorMessage(err, 'Failed to delete the category.'),
+        );
         this.busy.set(false);
-      }
+      },
     });
   }
 }

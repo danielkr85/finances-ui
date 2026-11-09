@@ -26,7 +26,7 @@ let navigate: ReturnType<typeof vi.spyOn>;
 function configure(component: unknown) {
   TestBed.configureTestingModule({
     imports: [component as never],
-    providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])]
+    providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
   });
   http = TestBed.inject(HttpTestingController);
   configured = true;
@@ -34,7 +34,9 @@ function configure(component: unknown) {
 }
 
 async function signInAs(user: User) {
-  const done = firstValueFrom(TestBed.inject(AuthService).login({ email: user.email, password: 'x' }));
+  const done = firstValueFrom(
+    TestBed.inject(AuthService).login({ email: user.email, password: 'x' }),
+  );
   http.expectOne(`${API}/auth/login`).flush(tokens('t', 15 * 60_000, user));
   await done;
 }
@@ -47,8 +49,14 @@ afterEach(() => {
 });
 
 describe('hasCycleBudget', () => {
-  const card = account(2, 'Amex', { type: 'CREDIT_CARD', amount: 1000, paymentDueDay: 13, closingDaysBeforeDue: 25,
-    statementBalance: 400, monthlyTarget: 2000 });
+  const card = account(2, 'Amex', {
+    type: 'CREDIT_CARD',
+    amount: 1000,
+    paymentDueDay: 13,
+    closingDaysBeforeDue: 25,
+    statementBalance: 400,
+    monthlyTarget: 2000,
+  });
   it('needs a credit card with all four billing fields and a statement within the balance', () => {
     expect(hasCycleBudget(card)).toBe(true);
     expect(hasCycleBudget({ ...card, monthlyTarget: null })).toBe(false);
@@ -65,12 +73,24 @@ describe('CycleBudgetCardComponent', () => {
     fixture.detectChanges();
     const req = http.expectOne(`${API}/cycle-budgets?accountId=2`);
     if (budget === 'error') {
-      req.flush({ status: 400, message: 'Account 2 is missing billing settings' }, { status: 400, statusText: 'Bad Request' });
+      req.flush(
+        { status: 400, message: 'Account 2 is missing billing settings' },
+        { status: 400, statusText: 'Bad Request' },
+      );
     } else {
       req.flush({
-        accountId: 2, cycleStart: '2026-10-20', cycleClose: '2026-11-18', paymentDueDate: '2026-12-13',
-        daysLeftInCycle: 10, monthlyTarget: 5000, statementBalance: 0, spentThisCycle: 2000, plannedRemaining: 900,
-        remaining: 2100, plannedEvents: [], ...budget
+        accountId: 2,
+        cycleStart: '2026-10-20',
+        cycleClose: '2026-11-18',
+        paymentDueDate: '2026-12-13',
+        daysLeftInCycle: 10,
+        monthlyTarget: 5000,
+        statementBalance: 0,
+        spentThisCycle: 2000,
+        plannedRemaining: 900,
+        remaining: 2100,
+        plannedEvents: [],
+        ...budget,
       });
     }
     fixture.detectChanges();
@@ -118,16 +138,26 @@ describe('AccountSharesComponent', () => {
     c.add();
     const req = http.expectOne(`${API}/accounts/2/shares`);
     expect(req.request.body).toEqual({ email: 'nobody@example.com', role: 'EDITOR' });
-    req.flush({ status: 404, message: 'No user found with email nobody@example.com' }, { status: 404, statusText: 'Not Found' });
+    req.flush(
+      { status: 404, message: 'No user found with email nobody@example.com' },
+      { status: 404, statusText: 'Not Found' },
+    );
     expect(c.error()).toBe('No user found with email nobody@example.com');
   });
 
   it('lets a member leave and goes back to the account list', async () => {
     vi.spyOn(window, 'confirm').mockReturnValue(true);
-    const c = await render('EDITOR', { ...TEST_USER, id: 5, email: 'pat@example.com', displayName: 'Pat' });
+    const c = await render('EDITOR', {
+      ...TEST_USER,
+      id: 5,
+      email: 'pat@example.com',
+      displayName: 'Pat',
+    });
     expect(c.isOwner()).toBe(false);
     c.remove(PAT);
-    http.expectOne(`${API}/accounts/2/shares/5`).flush(null, { status: 204, statusText: 'No Content' });
+    http
+      .expectOne(`${API}/accounts/2/shares/5`)
+      .flush(null, { status: 204, statusText: 'No Content' });
     expect(navigate).toHaveBeenCalledWith(['/accounts']);
   });
 });
@@ -137,14 +167,23 @@ describe('ProfileComponent', () => {
     configure(ProfileComponent);
     await signInAs(TEST_USER);
     const c = TestBed.createComponent(ProfileComponent).componentInstance;
-    c.form.setValue({ currentPassword: 'old', newPassword: 'a-long-new-password', confirmPassword: 'a-long-new-password' });
+    c.form.setValue({
+      currentPassword: 'old',
+      newPassword: 'a-long-new-password',
+      confirmPassword: 'a-long-new-password',
+    });
     c.changePassword();
     const req = http.expectOne(`${API}/users/me/password`);
-    expect(req.request.body).toEqual({ currentPassword: 'old', newPassword: 'a-long-new-password' });
+    expect(req.request.body).toEqual({
+      currentPassword: 'old',
+      newPassword: 'a-long-new-password',
+    });
     req.flush(null, { status: 204, statusText: 'No Content' });
 
     expect(TestBed.inject(AuthService).isAuthenticated()).toBe(false);
-    expect(navigate).toHaveBeenCalledWith(['/login'], { queryParams: { reason: 'password-changed' } });
+    expect(navigate).toHaveBeenCalledWith(['/login'], {
+      queryParams: { reason: 'password-changed' },
+    });
   });
 
   it('checks the confirmation and minimum length before calling the server', async () => {
@@ -177,7 +216,11 @@ describe('AdminUsersComponent', () => {
     c.openCreate();
     c.form.patchValue({ email: 'sam@gmail.com', displayName: 'Sam' });
     c.save();
-    expect(http.expectOne(`${API}/admin/users`).request.body).toEqual({ email: 'sam@gmail.com', displayName: 'Sam', role: 'USER' });
+    expect(http.expectOne(`${API}/admin/users`).request.body).toEqual({
+      email: 'sam@gmail.com',
+      displayName: 'Sam',
+      role: 'USER',
+    });
   });
 
   it("won't let an admin demote or disable themselves", async () => {

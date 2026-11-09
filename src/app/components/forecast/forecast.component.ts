@@ -14,7 +14,7 @@ export const RANGE_PRESETS = [
   { label: '30 days', days: 30 },
   { label: '90 days', days: 90 },
   { label: '6 months', days: 182 },
-  { label: '1 year', days: 365 }
+  { label: '1 year', days: 365 },
 ];
 const DEFAULT_DAYS = 90;
 /** Rows shown on the dashboard before "See full forecast". */
@@ -33,7 +33,7 @@ export function signedAmount(event: FinancialEvent): number {
   selector: 'app-forecast',
   imports: [RouterLink, MoneyPipe, DatePipe, CycleBudgetCardComponent],
   templateUrl: './forecast.component.html',
-  styleUrls: ['./forecast.component.css']
+  styleUrls: ['./forecast.component.css'],
 })
 export class ForecastComponent implements OnInit {
   private readonly accountService = inject(AccountService);
@@ -58,7 +58,7 @@ export class ForecastComponent implements OnInit {
   readonly error = signal<string | null>(null);
   private requestSeq = 0;
 
-  readonly account = computed(() => this.accounts().find(a => a.id === this.accountId()) ?? null);
+  readonly account = computed(() => this.accounts().find((a) => a.id === this.accountId()) ?? null);
   readonly isCreditCard = computed(() => this.account()?.type === 'CREDIT_CARD');
 
   /** Each date with only this account's events (a transfer also lists the other account's side). */
@@ -67,10 +67,15 @@ export class ForecastComponent implements OnInit {
     if (!f) {
       return [];
     }
-    const rows = f.projections.map(p => ({ ...p, events: p.events.filter(e => e.accountId === f.accountId) }));
+    const rows = f.projections.map((p) => ({
+      ...p,
+      events: p.events.filter((e) => e.accountId === f.accountId),
+    }));
     return this.embedded() ? rows.slice(0, EMBEDDED_ROWS) : rows;
   });
-  readonly hiddenRows = computed(() => (this.forecast()?.projections.length ?? 0) - this.rows().length);
+  readonly hiddenRows = computed(
+    () => (this.forecast()?.projections.length ?? 0) - this.rows().length,
+  );
 
   /** The low point for a bank account, or the peak of what's owed on a card. */
   readonly extreme = computed(() => {
@@ -104,16 +109,19 @@ export class ForecastComponent implements OnInit {
     }
 
     this.accountService.getAllAccounts().subscribe({
-      next: accounts => {
+      next: (accounts) => {
         this.accounts.set(accounts);
-        const requested = this.embedded() ? NaN : Number(this.route.snapshot.queryParamMap.get('accountId'));
-        const initial = accounts.find(a => a.id === requested) ?? accounts.find(a => a.main) ?? accounts[0];
+        const requested = this.embedded()
+          ? NaN
+          : Number(this.route.snapshot.queryParamMap.get('accountId'));
+        const initial =
+          accounts.find((a) => a.id === requested) ?? accounts.find((a) => a.main) ?? accounts[0];
         if (initial) {
           this.accountId.set(initial.id);
           this.load();
         }
       },
-      error: err => this.error.set(apiErrorMessage(err, 'Failed to load accounts.'))
+      error: (err) => this.error.set(apiErrorMessage(err, 'Failed to load accounts.')),
     });
   }
 
@@ -155,7 +163,9 @@ export class ForecastComponent implements OnInit {
     }
     if (!this.embedded()) {
       this.router.navigate([], {
-        relativeTo: this.route, queryParams: { accountId, from, to }, replaceUrl: true
+        relativeTo: this.route,
+        queryParams: { accountId, from, to },
+        replaceUrl: true,
       });
     }
 
@@ -163,19 +173,20 @@ export class ForecastComponent implements OnInit {
     this.loading.set(true);
     this.error.set(null);
     this.forecastService.getForecast(accountId, from, to).subscribe({
-      next: forecast => {
-        if (request === this.requestSeq) { // ignore responses for a selection that has since changed
+      next: (forecast) => {
+        if (request === this.requestSeq) {
+          // ignore responses for a selection that has since changed
           this.forecast.set(forecast);
           this.loading.set(false);
         }
       },
-      error: err => {
+      error: (err) => {
         if (request === this.requestSeq) {
           this.forecast.set(null);
           this.error.set(apiErrorMessage(err, 'Failed to load the forecast.'));
           this.loading.set(false);
         }
-      }
+      },
     });
   }
 }

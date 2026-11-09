@@ -6,8 +6,8 @@ import { AuthService } from '../services/auth.service';
 
 /** Signed-in users only; others go to /login and come back afterwards. */
 export const authGuard: CanActivateFn = (_route, state) =>
-  inject(AuthService).isAuthenticated()
-    || inject(Router).createUrlTree(['/login'], { queryParams: { returnUrl: state.url } });
+  inject(AuthService).isAuthenticated() ||
+  inject(Router).createUrlTree(['/login'], { queryParams: { returnUrl: state.url } });
 
 /** Admins only. The server enforces this too (403); this just keeps others off the screens. */
 export const adminGuard: CanActivateFn = () =>

@@ -6,35 +6,53 @@ describe('buildFrequencyPayload', () => {
   const base = { intervalCount: 1, dayOfWeek: 'FRIDAY', dayOfMonth: 15, month: 'MARCH' } as const;
 
   it('DAY sends only the unit and count', () => {
-    expect(buildFrequencyPayload({ ...base, intervalUnit: 'DAY', intervalCount: '2' }))
-      .toEqual({ intervalUnit: 'DAY', intervalCount: 2 });
+    expect(buildFrequencyPayload({ ...base, intervalUnit: 'DAY', intervalCount: '2' })).toEqual({
+      intervalUnit: 'DAY',
+      intervalCount: 2,
+    });
   });
 
   it('WEEK sends the weekday', () => {
-    expect(buildFrequencyPayload({ ...base, intervalUnit: 'WEEK', intervalCount: 2 }))
-      .toEqual({ intervalUnit: 'WEEK', intervalCount: 2, dayOfWeek: 'FRIDAY' });
+    expect(buildFrequencyPayload({ ...base, intervalUnit: 'WEEK', intervalCount: 2 })).toEqual({
+      intervalUnit: 'WEEK',
+      intervalCount: 2,
+      dayOfWeek: 'FRIDAY',
+    });
   });
 
   it('monthly sends only the day of month', () => {
-    expect(buildFrequencyPayload({ ...base, intervalUnit: 'MONTH' }))
-      .toEqual({ intervalUnit: 'MONTH', intervalCount: 1, dayOfMonth: 15 });
+    expect(buildFrequencyPayload({ ...base, intervalUnit: 'MONTH' })).toEqual({
+      intervalUnit: 'MONTH',
+      intervalCount: 1,
+      dayOfMonth: 15,
+    });
   });
 
   it('every N months also sends the anchor month', () => {
-    expect(buildFrequencyPayload({ ...base, intervalUnit: 'MONTH', intervalCount: 3 }))
-      .toEqual({ intervalUnit: 'MONTH', intervalCount: 3, dayOfMonth: 15, month: 'MARCH' });
+    expect(buildFrequencyPayload({ ...base, intervalUnit: 'MONTH', intervalCount: 3 })).toEqual({
+      intervalUnit: 'MONTH',
+      intervalCount: 3,
+      dayOfMonth: 15,
+      month: 'MARCH',
+    });
   });
 
   it('YEAR sends month and day of month', () => {
-    expect(buildFrequencyPayload({ ...base, intervalUnit: 'YEAR', dayOfMonth: '30', month: 'APRIL' }))
-      .toEqual({ intervalUnit: 'YEAR', intervalCount: 1, dayOfMonth: 30, month: 'APRIL' });
+    expect(
+      buildFrequencyPayload({ ...base, intervalUnit: 'YEAR', dayOfMonth: '30', month: 'APRIL' }),
+    ).toEqual({ intervalUnit: 'YEAR', intervalCount: 1, dayOfMonth: 30, month: 'APRIL' });
   });
 });
 
 describe('updateFrequencyFieldRequirements', () => {
-  const form = () => new FormBuilder().group({
-    intervalUnit: ['MONTH'], intervalCount: [1], dayOfWeek: [''], dayOfMonth: [null as number | null], month: ['']
-  });
+  const form = () =>
+    new FormBuilder().group({
+      intervalUnit: ['MONTH'],
+      intervalCount: [1],
+      dayOfWeek: [''],
+      dayOfMonth: [null as number | null],
+      month: [''],
+    });
 
   it('requires the anchor month only for every N months', () => {
     const f = form();

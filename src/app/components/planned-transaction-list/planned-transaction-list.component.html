@@ -1,7 +1,11 @@
 <div class="d-flex align-items-center gap-3 mb-4">
   <h2 class="h3 mb-0">Planned Transactions</h2>
-  <a class="btn btn-primary rounded-circle d-flex justify-content-center align-items-center add-button"
-     routerLink="/planned-transactions/new" title="New planned transaction" aria-label="New planned transaction">
+  <a
+    class="btn btn-primary rounded-circle d-flex justify-content-center align-items-center add-button"
+    routerLink="/planned-transactions/new"
+    title="New planned transaction"
+    aria-label="New planned transaction"
+  >
     <i class="bi bi-plus-lg fs-5"></i>
   </a>
 </div>
@@ -11,26 +15,59 @@
     <div class="card-body py-3">
       <div class="d-flex flex-wrap gap-2 align-items-center">
         <div class="btn-group btn-group-sm" role="group" aria-label="Filter by type">
-          <button type="button" class="btn" [class]="typeFilter() === 'ALL' ? 'btn-primary' : 'btn-outline-secondary'"
-                  (click)="typeFilter.set('ALL')">All</button>
-          <button type="button" class="btn" [class]="typeFilter() === 'INCOME' ? 'btn-success' : 'btn-outline-success'"
-                  (click)="typeFilter.set('INCOME')">Income</button>
-          <button type="button" class="btn" [class]="typeFilter() === 'EXPENSE' ? 'btn-danger' : 'btn-outline-danger'"
-                  (click)="typeFilter.set('EXPENSE')">Expenses</button>
-          <button type="button" class="btn" [class]="typeFilter() === 'TRANSFER' ? 'btn-primary' : 'btn-outline-primary'"
-                  (click)="typeFilter.set('TRANSFER')">Transfers</button>
+          <button
+            type="button"
+            class="btn"
+            [class]="typeFilter() === 'ALL' ? 'btn-primary' : 'btn-outline-secondary'"
+            (click)="typeFilter.set('ALL')"
+          >
+            All
+          </button>
+          <button
+            type="button"
+            class="btn"
+            [class]="typeFilter() === 'INCOME' ? 'btn-success' : 'btn-outline-success'"
+            (click)="typeFilter.set('INCOME')"
+          >
+            Income
+          </button>
+          <button
+            type="button"
+            class="btn"
+            [class]="typeFilter() === 'EXPENSE' ? 'btn-danger' : 'btn-outline-danger'"
+            (click)="typeFilter.set('EXPENSE')"
+          >
+            Expenses
+          </button>
+          <button
+            type="button"
+            class="btn"
+            [class]="typeFilter() === 'TRANSFER' ? 'btn-primary' : 'btn-outline-primary'"
+            (click)="typeFilter.set('TRANSFER')"
+          >
+            Transfers
+          </button>
         </div>
 
-        <select class="form-select form-select-sm w-auto" aria-label="Filter by account"
-                (change)="setAccountFilter($any($event.target).value)">
+        <select
+          class="form-select form-select-sm w-auto"
+          aria-label="Filter by account"
+          (change)="setAccountFilter($any($event.target).value)"
+        >
           <option value="" [selected]="accountFilter() === null">All accounts</option>
           @for (account of accounts(); track account.id) {
-            <option [value]="account.id" [selected]="account.id === accountFilter()">{{ account.name }}</option>
+            <option [value]="account.id" [selected]="account.id === accountFilter()">
+              {{ account.name }}
+            </option>
           }
         </select>
 
         @if (hasActiveFilters()) {
-          <button type="button" class="btn btn-sm btn-link text-decoration-none ms-auto" (click)="clearFilters()">
+          <button
+            type="button"
+            class="btn btn-sm btn-link text-decoration-none ms-auto"
+            (click)="clearFilters()"
+          >
             Clear filters
           </button>
         }
@@ -39,9 +76,12 @@
       @if (categories().length > 0) {
         <div class="d-flex flex-wrap gap-2 pt-2 mt-2 border-top">
           @for (cat of categories(); track cat.id) {
-            <button type="button" class="btn btn-sm"
-                    [class]="categoryFilter().has(cat.id) ? 'btn-primary' : 'btn-outline-secondary'"
-                    (click)="toggleCategory(cat.id)">
+            <button
+              type="button"
+              class="btn btn-sm"
+              [class]="categoryFilter().has(cat.id) ? 'btn-primary' : 'btn-outline-secondary'"
+              (click)="toggleCategory(cat.id)"
+            >
               @if (categoryFilter().has(cat.id)) {
                 <i class="bi bi-check2"></i>
               }
@@ -52,7 +92,9 @@
       }
 
       @if (hasActiveFilters()) {
-        <div class="mt-2 small text-muted">Showing {{ filtered().length }} of {{ transactions().length }}</div>
+        <div class="mt-2 small text-muted">
+          Showing {{ filtered().length }} of {{ transactions().length }}
+        </div>
       }
     </div>
   </div>
@@ -78,7 +120,9 @@
 @if (!loading() && transactions().length > 0 && filtered().length === 0) {
   <div class="alert alert-warning text-center" role="alert">
     Nothing matches these filters.
-    <button type="button" class="btn btn-sm btn-link p-0 ms-2" (click)="clearFilters()">Reset filters</button>
+    <button type="button" class="btn btn-sm btn-link p-0 ms-2" (click)="clearFilters()">
+      Reset filters
+    </button>
   </div>
 }
 
@@ -88,14 +132,16 @@
       <div class="col-12 col-md-6 col-lg-4">
         <div class="card h-100 shadow-sm">
           <div class="card-body d-flex flex-column">
-
             <div class="d-flex justify-content-between align-items-start gap-2 mb-1">
               <h3 class="card-title h5 mb-0 text-truncate">{{ t.name }}</h3>
               <div class="d-flex gap-1 flex-shrink-0">
-                <span class="badge"
-                      [class.text-bg-success]="t.type === 'INCOME'"
-                      [class.text-bg-danger]="t.type === 'EXPENSE'"
-                      [class.text-bg-primary]="t.type === 'TRANSFER'">{{ t.type | titlecase }}</span>
+                <span
+                  class="badge"
+                  [class.text-bg-success]="t.type === 'INCOME'"
+                  [class.text-bg-danger]="t.type === 'EXPENSE'"
+                  [class.text-bg-primary]="t.type === 'TRANSFER'"
+                  >{{ t.type | titlecase }}</span
+                >
                 @if (t.category) {
                   <span class="badge text-bg-secondary">{{ t.category.name }}</span>
                 }
@@ -119,7 +165,8 @@
             <div class="text-muted small">
               <i class="bi bi-wallet2 me-1"></i>
               @if (t.type === 'TRANSFER') {
-                {{ accountName(t.accountId) }} <i class="bi bi-arrow-right"></i> {{ accountName(t.targetAccountId) }}
+                {{ accountName(t.accountId) }} <i class="bi bi-arrow-right"></i>
+                {{ accountName(t.targetAccountId) }}
               } @else if (t.type === 'INCOME') {
                 Into {{ accountName(t.accountId) }}
               } @else {
@@ -127,20 +174,35 @@
               }
             </div>
 
-            <div class="h2 font-monospace my-auto py-3"
-                 [class.text-success]="t.type === 'INCOME'"
-                 [class.text-primary]="t.type === 'TRANSFER'">
+            <div
+              class="h2 font-monospace my-auto py-3"
+              [class.text-success]="t.type === 'INCOME'"
+              [class.text-primary]="t.type === 'TRANSFER'"
+            >
               {{ t.amount | money }}
             </div>
 
             @if (canEdit(t)) {
               <div class="d-flex gap-2 pt-3 border-top">
-                <a class="btn btn-outline-secondary btn-sm w-50" [routerLink]="['/planned-transactions', t.id, 'edit']">Edit</a>
-                <button type="button" class="btn btn-outline-danger btn-sm w-50" data-bs-toggle="modal"
-                        data-bs-target="#deletePlannedModal" (click)="pendingDelete.set(t)">Delete</button>
+                <a
+                  class="btn btn-outline-secondary btn-sm w-50"
+                  [routerLink]="['/planned-transactions', t.id, 'edit']"
+                  >Edit</a
+                >
+                <button
+                  type="button"
+                  class="btn btn-outline-danger btn-sm w-50"
+                  data-bs-toggle="modal"
+                  data-bs-target="#deletePlannedModal"
+                  (click)="pendingDelete.set(t)"
+                >
+                  Delete
+                </button>
               </div>
             } @else {
-              <div class="pt-3 border-top small text-muted"><i class="bi bi-eye me-1"></i>View only</div>
+              <div class="pt-3 border-top small text-muted">
+                <i class="bi bi-eye me-1"></i>View only
+              </div>
             }
           </div>
         </div>
@@ -149,7 +211,13 @@
   </div>
 }
 
-<div class="modal fade" id="deletePlannedModal" tabindex="-1" aria-labelledby="deletePlannedModalLabel" aria-hidden="true">
+<div
+  class="modal fade"
+  id="deletePlannedModal"
+  tabindex="-1"
+  aria-labelledby="deletePlannedModalLabel"
+  aria-hidden="true"
+>
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content shadow">
       <div class="modal-header border-0 pb-0">
@@ -157,11 +225,19 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body py-3">
-        Delete <strong>{{ pendingDelete()?.name }}</strong>? It will disappear from forecasts. This can't be undone.
+        Delete <strong>{{ pendingDelete()?.name }}</strong
+        >? It will disappear from forecasts. This can't be undone.
       </div>
       <div class="modal-footer border-0 pt-0">
         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-danger" data-bs-dismiss="modal" (click)="confirmDelete()">Delete</button>
+        <button
+          type="button"
+          class="btn btn-danger"
+          data-bs-dismiss="modal"
+          (click)="confirmDelete()"
+        >
+          Delete
+        </button>
       </div>
     </div>
   </div>

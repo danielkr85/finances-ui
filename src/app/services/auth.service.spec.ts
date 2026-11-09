@@ -15,7 +15,11 @@ describe('AuthService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([{ path: 'login', children: [] }])]
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideRouter([{ path: 'login', children: [] }]),
+      ],
     });
     auth = TestBed.inject(AuthService);
     http = TestBed.inject(HttpTestingController);
@@ -77,10 +81,14 @@ describe('AuthService', () => {
   it('clears the session when the refresh token is rejected', async () => {
     await signIn();
 
-    const result = firstValueFrom(auth.refresh()).catch(err => err);
+    const result = firstValueFrom(auth.refresh()).catch((err) => err);
     await flushMicrotasks();
-    http.expectOne(`${AUTH}/refresh`).flush(
-      { status: 401, message: 'Invalid or expired refresh token' }, { status: 401, statusText: 'Unauthorized' });
+    http
+      .expectOne(`${AUTH}/refresh`)
+      .flush(
+        { status: 401, message: 'Invalid or expired refresh token' },
+        { status: 401, statusText: 'Unauthorized' },
+      );
 
     expect((await result).status).toBe(401);
     expect(auth.isAuthenticated()).toBe(false);
@@ -108,7 +116,9 @@ describe('AuthService', () => {
   it('starts signed out when there is no valid refresh cookie', async () => {
     const restored = auth.restoreSession();
     await flushMicrotasks();
-    http.expectOne(`${AUTH}/refresh`).flush({ status: 401 }, { status: 401, statusText: 'Unauthorized' });
+    http
+      .expectOne(`${AUTH}/refresh`)
+      .flush({ status: 401 }, { status: 401, statusText: 'Unauthorized' });
 
     expect(await restored).toBe(false);
     expect(auth.isAuthenticated()).toBe(false);

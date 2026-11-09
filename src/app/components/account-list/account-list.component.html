@@ -1,7 +1,11 @@
 <div class="d-flex align-items-center gap-3 mb-4">
   <h2 class="h3 mb-0">My Accounts</h2>
-  <a class="btn btn-primary rounded-circle d-flex justify-content-center align-items-center add-button"
-     routerLink="/accounts/new" title="Add new account" aria-label="Add new account">
+  <a
+    class="btn btn-primary rounded-circle d-flex justify-content-center align-items-center add-button"
+    routerLink="/accounts/new"
+    title="Add new account"
+    aria-label="Add new account"
+  >
     <i class="bi bi-plus-lg fs-5"></i>
   </a>
 </div>
@@ -29,7 +33,6 @@
       <div class="col-12 col-md-6 col-lg-4">
         <div class="card h-100 shadow-sm">
           <div class="card-body d-flex flex-column">
-
             <div class="d-flex justify-content-between align-items-start gap-2 mb-1">
               <h3 class="card-title h5 mb-0 text-truncate">
                 {{ account.name }}
@@ -43,7 +46,9 @@
             @if (!isOwner(account)) {
               <div class="text-muted small">
                 <i class="bi bi-people me-1"></i>Shared by {{ account.ownerEmail }}
-                <span class="badge text-bg-light border ms-1">{{ account.myRole === 'EDITOR' ? 'Editor' : 'Viewer' }}</span>
+                <span class="badge text-bg-light border ms-1">{{
+                  account.myRole === 'EDITOR' ? 'Editor' : 'Viewer'
+                }}</span>
               </div>
             }
 
@@ -51,7 +56,10 @@
               @if (account.type === 'CREDIT_CARD') {
                 <div class="small text-muted">Owed</div>
               }
-              <div class="h2 font-monospace mb-0" [class.text-danger]="account.type !== 'CREDIT_CARD' && account.amount < 0">
+              <div
+                class="h2 font-monospace mb-0"
+                [class.text-danger]="account.type !== 'CREDIT_CARD' && account.amount < 0"
+              >
                 {{ account.amount | money }}
               </div>
               @if (account.type === 'CREDIT_CARD' && account.paymentDueDay) {
@@ -65,14 +73,27 @@
             </div>
 
             <div class="d-flex gap-2 mt-3 pt-2 border-top">
-              <a class="btn btn-outline-primary btn-sm flex-fill" routerLink="/forecast" [queryParams]="{ accountId: account.id }">
+              <a
+                class="btn btn-outline-primary btn-sm flex-fill"
+                routerLink="/forecast"
+                [queryParams]="{ accountId: account.id }"
+              >
                 Forecast
               </a>
               @if (canEdit(account)) {
-                <a class="btn btn-outline-secondary btn-sm flex-fill" [routerLink]="['/accounts', account.id, 'edit']">Edit</a>
+                <a
+                  class="btn btn-outline-secondary btn-sm flex-fill"
+                  [routerLink]="['/accounts', account.id, 'edit']"
+                  >Edit</a
+                >
               }
-              <button type="button" class="btn btn-outline-danger btn-sm flex-fill"
-                      data-bs-toggle="modal" data-bs-target="#removeAccountModal" (click)="askToRemove(account)">
+              <button
+                type="button"
+                class="btn btn-outline-danger btn-sm flex-fill"
+                data-bs-toggle="modal"
+                data-bs-target="#removeAccountModal"
+                (click)="askToRemove(account)"
+              >
                 {{ isOwner(account) ? 'Delete' : 'Leave' }}
               </button>
             </div>
@@ -83,7 +104,13 @@
   </div>
 }
 
-<div class="modal fade" id="removeAccountModal" tabindex="-1" aria-labelledby="removeAccountModalLabel" aria-hidden="true">
+<div
+  class="modal fade"
+  id="removeAccountModal"
+  tabindex="-1"
+  aria-labelledby="removeAccountModalLabel"
+  aria-hidden="true"
+>
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content shadow">
       <div class="modal-header border-0 pb-0">
@@ -95,16 +122,23 @@
       <div class="modal-body py-3">
         @if (pending(); as p) {
           @if (p.action === 'delete') {
-            Delete <strong>{{ p.account.name }}</strong>? This can't be undone. An account that still has planned
-            transactions can't be deleted; remove those first.
+            Delete <strong>{{ p.account.name }}</strong
+            >? This can't be undone. An account that still has planned transactions can't be
+            deleted; remove those first.
           } @else {
-            Stop seeing <strong>{{ p.account.name }}</strong>? Its owner can share it with you again.
+            Stop seeing <strong>{{ p.account.name }}</strong
+            >? Its owner can share it with you again.
           }
         }
       </div>
       <div class="modal-footer border-0 pt-0">
         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-danger" data-bs-dismiss="modal" (click)="confirmRemoval()">
+        <button
+          type="button"
+          class="btn btn-danger"
+          data-bs-dismiss="modal"
+          (click)="confirmRemoval()"
+        >
           {{ pending()?.action === 'leave' ? 'Leave' : 'Delete' }}
         </button>
       </div>

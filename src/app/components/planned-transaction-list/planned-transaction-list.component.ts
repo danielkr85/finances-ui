@@ -13,8 +13,8 @@ import { MoneyPipe } from '../../shared/money.pipe';
 
 type TypeFilter = 'ALL' | EventType;
 
-const DAY_LABELS = new Map(DAYS_OF_WEEK.map(d => [d.value, d.label]));
-const MONTH_LABELS = new Map(MONTHS_OF_YEAR.map(m => [m.value, m.label]));
+const DAY_LABELS = new Map(DAYS_OF_WEEK.map((d) => [d.value, d.label]));
+const MONTH_LABELS = new Map(MONTHS_OF_YEAR.map((m) => [m.value, m.label]));
 
 /** "Monthly on day 1", "Bi-weekly on Friday", "Quarterly from March, day 20", "Yearly on April 30". */
 export function describeSchedule(t: PlannedTransaction): string {
@@ -40,7 +40,7 @@ export function describeSchedule(t: PlannedTransaction): string {
   selector: 'app-planned-transaction-list',
   imports: [RouterLink, MoneyPipe, DatePipe, TitleCasePipe],
   templateUrl: './planned-transaction-list.component.html',
-  styleUrls: ['./planned-transaction-list.component.css']
+  styleUrls: ['./planned-transaction-list.component.css'],
 })
 export class PlannedTransactionListComponent implements OnInit {
   private readonly plannedService = inject(PlannedTransactionService);
@@ -57,7 +57,7 @@ export class PlannedTransactionListComponent implements OnInit {
   readonly accountFilter = signal<number | null>(null);
   readonly categoryFilter = signal<ReadonlySet<number>>(new Set());
 
-  private readonly accountsById = computed(() => new Map(this.accounts().map(a => [a.id, a])));
+  private readonly accountsById = computed(() => new Map(this.accounts().map((a) => [a.id, a])));
 
   /**
    * Categories come from the transactions themselves: on shared accounts they can belong to other members and
@@ -78,14 +78,18 @@ export class PlannedTransactionListComponent implements OnInit {
     const account = this.accountFilter();
     const cats = this.categoryFilter();
     return this.transactions()
-      .filter(t => type === 'ALL' || t.type === type)
-      .filter(t => account === null || t.accountId === account || t.targetAccountId === account)
-      .filter(t => cats.size === 0 || (t.category !== null && cats.has(t.category.id)))
+      .filter((t) => type === 'ALL' || t.type === type)
+      .filter((t) => account === null || t.accountId === account || t.targetAccountId === account)
+      .filter((t) => cats.size === 0 || (t.category !== null && cats.has(t.category.id)))
       .sort((a, b) => a.name.localeCompare(b.name));
   });
 
-  readonly hasActiveFilters = computed(() =>
-    this.typeFilter() !== 'ALL' || this.accountFilter() !== null || this.categoryFilter().size > 0);
+  readonly hasActiveFilters = computed(
+    () =>
+      this.typeFilter() !== 'ALL' ||
+      this.accountFilter() !== null ||
+      this.categoryFilter().size > 0,
+  );
 
   ngOnInit(): void {
     this.load();
@@ -96,17 +100,17 @@ export class PlannedTransactionListComponent implements OnInit {
     this.error.set(null);
     forkJoin({
       transactions: this.plannedService.getPlannedTransactions(),
-      accounts: this.accountService.getAllAccounts()
+      accounts: this.accountService.getAllAccounts(),
     }).subscribe({
       next: ({ transactions, accounts }) => {
         this.transactions.set(transactions);
         this.accounts.set(accounts);
         this.loading.set(false);
       },
-      error: err => {
+      error: (err) => {
         this.error.set(apiErrorMessage(err, 'Failed to load planned transactions.'));
         this.loading.set(false);
-      }
+      },
     });
   }
 
@@ -127,7 +131,7 @@ export class PlannedTransactionListComponent implements OnInit {
   }
 
   toggleCategory(id: number): void {
-    this.categoryFilter.update(current => {
+    this.categoryFilter.update((current) => {
       const next = new Set(current);
       if (!next.delete(id)) {
         next.add(id);
@@ -150,12 +154,12 @@ export class PlannedTransactionListComponent implements OnInit {
     this.plannedService.deletePlannedTransaction(target.id).subscribe({
       next: () => {
         this.pendingDelete.set(null);
-        this.transactions.update(list => list.filter(t => t.id !== target.id));
+        this.transactions.update((list) => list.filter((t) => t.id !== target.id));
       },
-      error: err => {
+      error: (err) => {
         this.pendingDelete.set(null);
         this.error.set(apiErrorMessage(err, 'Failed to delete the planned transaction.'));
-      }
+      },
     });
   }
 }

@@ -1,7 +1,17 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { catchError, defer, finalize, firstValueFrom, map, Observable, of, shareReplay, tap } from 'rxjs';
+import {
+  catchError,
+  defer,
+  finalize,
+  firstValueFrom,
+  map,
+  Observable,
+  of,
+  shareReplay,
+  tap,
+} from 'rxjs';
 import { environment } from '../../environments/environment';
 import { AccessTokenResponse, LoginRequest, User } from '../models/auth.model';
 
@@ -38,13 +48,19 @@ export class AuthService {
   login(credentials: LoginRequest): Observable<User> {
     return this.http
       .post<AccessTokenResponse>(`${this.authUrl}/login`, credentials, { withCredentials: true })
-      .pipe(tap(tokens => this.session.set(tokens)), map(tokens => tokens.user));
+      .pipe(
+        tap((tokens) => this.session.set(tokens)),
+        map((tokens) => tokens.user),
+      );
   }
 
   loginWithGoogle(idToken: string): Observable<User> {
     return this.http
       .post<AccessTokenResponse>(`${this.authUrl}/google`, { idToken }, { withCredentials: true })
-      .pipe(tap(tokens => this.session.set(tokens)), map(tokens => tokens.user));
+      .pipe(
+        tap((tokens) => this.session.set(tokens)),
+        map((tokens) => tokens.user),
+      );
   }
 
   /**
@@ -53,19 +69,25 @@ export class AuthService {
    */
   refresh(): Observable<AccessTokenResponse> {
     if (!this.refreshInFlight) {
-      this.refreshInFlight = defer(() => withRefreshLock(() => firstValueFrom(
-        this.http.post<AccessTokenResponse>(`${this.authUrl}/refresh`, null, { withCredentials: true })
-      ))).pipe(
+      this.refreshInFlight = defer(() =>
+        withRefreshLock(() =>
+          firstValueFrom(
+            this.http.post<AccessTokenResponse>(`${this.authUrl}/refresh`, null, {
+              withCredentials: true,
+            }),
+          ),
+        ),
+      ).pipe(
         tap({
-          next: tokens => this.session.set(tokens),
-          error: err => {
+          next: (tokens) => this.session.set(tokens),
+          error: (err) => {
             if (err instanceof HttpErrorResponse && err.status === 401) {
               this.session.set(null);
             }
-          }
+          },
         }),
         finalize(() => (this.refreshInFlight = null)),
-        shareReplay({ bufferSize: 1, refCount: false })
+        shareReplay({ bufferSize: 1, refCount: false }),
       );
     }
     return this.refreshInFlight;
@@ -80,16 +102,22 @@ export class AuthService {
     if (Date.parse(current.expiresAt) - Date.now() > EXPIRY_MARGIN_MS) {
       return of(current.accessToken);
     }
-    return this.refresh().pipe(map(tokens => tokens.accessToken));
+    return this.refresh().pipe(map((tokens) => tokens.accessToken));
   }
 
   /** Called once at startup: the in-memory token is gone after a reload, but the refresh cookie may still be valid. */
   restoreSession(): Promise<boolean> {
-    return firstValueFrom(this.refresh().pipe(map(() => true), catchError(() => of(false))));
+    return firstValueFrom(
+      this.refresh().pipe(
+        map(() => true),
+        catchError(() => of(false)),
+      ),
+    );
   }
 
   logout(): void {
-    this.http.post<void>(`${this.authUrl}/logout`, null, { withCredentials: true })
+    this.http
+      .post<void>(`${this.authUrl}/logout`, null, { withCredentials: true })
       .pipe(catchError(() => of(undefined)))
       .subscribe(() => {
         this.session.set(null);
@@ -99,7 +127,7 @@ export class AuthService {
 
   /** Keeps the signed-in user's details current after they're changed (e.g. an admin renaming themselves). */
   updateCurrentUser(user: User): void {
-    this.session.update(s => (s && s.user.id === user.id ? { ...s, user } : s));
+    this.session.update((s) => (s && s.user.id === user.id ? { ...s, user } : s));
   }
 
   /**
@@ -116,7 +144,8 @@ export class AuthService {
     this.session.set(null);
     const returnUrl = this.router.url;
     this.router.navigate(['/login'], {
-      queryParams: returnUrl && returnUrl !== '/' && !returnUrl.startsWith('/login') ? { returnUrl } : {}
+      queryParams:
+        returnUrl && returnUrl !== '/' && !returnUrl.startsWith('/login') ? { returnUrl } : {},
     });
   }
 }

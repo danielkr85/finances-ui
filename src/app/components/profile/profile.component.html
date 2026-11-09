@@ -1,4 +1,4 @@
-<div class="mx-auto" style="max-width: 600px;">
+<div class="mx-auto" style="max-width: 600px">
   <h2 class="h3 mb-4">Profile</h2>
 
   @if (auth.user(); as user) {
@@ -13,10 +13,18 @@
           <dd class="col-sm-8">{{ user.role === 'ADMIN' ? 'Administrator' : 'User' }}</dd>
           <dt class="col-sm-4">Sign-in</dt>
           <dd class="col-sm-8">
-            @if (user.passwordLogin) { Password }
-            @if (user.passwordLogin && user.googleLinked) { and }
-            @if (user.googleLinked) { Google }
-            @if (!user.passwordLogin && !user.googleLinked) { Google (links on first sign-in) }
+            @if (user.passwordLogin) {
+              Password
+            }
+            @if (user.passwordLogin && user.googleLinked) {
+              and
+            }
+            @if (user.googleLinked) {
+              Google
+            }
+            @if (!user.passwordLogin && !user.googleLinked) {
+              Google (links on first sign-in)
+            }
           </dd>
           <dt class="col-sm-4">Member since</dt>
           <dd class="col-sm-8 mb-0">{{ user.createdAt | date: 'mediumDate' }}</dd>
@@ -36,20 +44,43 @@
           }
           <form [formGroup]="form" (ngSubmit)="changePassword()" novalidate>
             <!-- Lets password managers associate the new password with this account. -->
-            <input type="email" class="d-none" [value]="user.email" autocomplete="username" aria-hidden="true" tabindex="-1">
+            <input
+              type="email"
+              class="d-none"
+              [value]="user.email"
+              autocomplete="username"
+              aria-hidden="true"
+              tabindex="-1"
+            />
 
             <div class="mb-3">
               <label for="currentPassword" class="form-label">Current password</label>
-              <input type="password" id="currentPassword" class="form-control" formControlName="currentPassword"
-                     autocomplete="current-password"
-                     [class.is-invalid]="form.controls.currentPassword.invalid && form.controls.currentPassword.touched">
-              <div class="invalid-feedback">{{ serverError(form.controls.currentPassword) ?? 'Enter your current password.' }}</div>
+              <input
+                type="password"
+                id="currentPassword"
+                class="form-control"
+                formControlName="currentPassword"
+                autocomplete="current-password"
+                [class.is-invalid]="
+                  form.controls.currentPassword.invalid && form.controls.currentPassword.touched
+                "
+              />
+              <div class="invalid-feedback">
+                {{ serverError(form.controls.currentPassword) ?? 'Enter your current password.' }}
+              </div>
             </div>
             <div class="mb-3">
               <label for="newPassword" class="form-label">New password</label>
-              <input type="password" id="newPassword" class="form-control" formControlName="newPassword"
-                     autocomplete="new-password"
-                     [class.is-invalid]="form.controls.newPassword.invalid && form.controls.newPassword.touched">
+              <input
+                type="password"
+                id="newPassword"
+                class="form-control"
+                formControlName="newPassword"
+                autocomplete="new-password"
+                [class.is-invalid]="
+                  form.controls.newPassword.invalid && form.controls.newPassword.touched
+                "
+              />
               <div class="invalid-feedback">
                 {{ serverError(form.controls.newPassword) ?? 'Use 12 to 72 characters.' }}
               </div>
@@ -57,9 +88,17 @@
             </div>
             <div class="mb-3">
               <label for="confirmPassword" class="form-label">Confirm new password</label>
-              <input type="password" id="confirmPassword" class="form-control" formControlName="confirmPassword"
-                     autocomplete="new-password"
-                     [class.is-invalid]="(form.controls.confirmPassword.invalid || form.hasError('mismatch')) && form.controls.confirmPassword.touched">
+              <input
+                type="password"
+                id="confirmPassword"
+                class="form-control"
+                formControlName="confirmPassword"
+                autocomplete="new-password"
+                [class.is-invalid]="
+                  (form.controls.confirmPassword.invalid || form.hasError('mismatch')) &&
+                  form.controls.confirmPassword.touched
+                "
+              />
               <div class="invalid-feedback">The passwords don't match.</div>
             </div>
             <div class="d-flex align-items-center gap-3">

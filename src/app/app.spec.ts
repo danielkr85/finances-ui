@@ -12,7 +12,7 @@ describe('App', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [App],
-      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])]
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
     }).compileComponents();
   });
 
@@ -23,8 +23,12 @@ describe('App', () => {
   });
 
   it('shows the navbar with the user name once signed in', async () => {
-    const login = firstValueFrom(TestBed.inject(AuthService).login({ email: 'me@example.com', password: 'x' }));
-    TestBed.inject(HttpTestingController).expectOne(`${environment.apiUrl}/auth/login`).flush(tokens('a'));
+    const login = firstValueFrom(
+      TestBed.inject(AuthService).login({ email: 'me@example.com', password: 'x' }),
+    );
+    TestBed.inject(HttpTestingController)
+      .expectOne(`${environment.apiUrl}/auth/login`)
+      .flush(tokens('a'));
     await login;
 
     const fixture = TestBed.createComponent(App);
