@@ -311,25 +311,6 @@
               }
             </div>
           }
-
-          <!-- Custom Expression -->
-          @if (ruleForm.get('intervalUnit')?.value === 'CUSTOM') {
-            <div class="mb-3">
-              <label for="customExpression" class="form-label fw-semibold">Cron Expression <span class="text-danger">*</span></label>
-              <input
-                type="text"
-                id="customExpression"
-                formControlName="customExpression"
-                class="form-control"
-                placeholder="e.g., 0 0 12 1 * ?"
-                [class.is-invalid]="ruleForm.get('customExpression')?.invalid && ruleForm.get('customExpression')?.touched">
-              @if (ruleForm.get('customExpression')?.invalid && ruleForm.get('customExpression')?.touched) {
-                <div class="invalid-feedback">
-                  Custom frequency expression is required.
-                </div>
-              }
-            </div>
-          }
         </div>
 
         <!-- Form Buttons -->

@@ -4,7 +4,7 @@ import { FinancialEventService } from '../../services/financial-event.service';
 import { AccountService } from '../../services/account.service';
 import { CategoryService } from '../../services/category.service';
 import { FinancialEvent, FinancialEventStatus } from '../../models/financial-event.model';
-import { AccountResponse } from '../../models/account.model';
+import { Account } from '../../models/account.model';
 import { Category } from '../../models/category.model';
 
 @Component({
@@ -16,7 +16,7 @@ import { Category } from '../../models/category.model';
 })
 export class FinancialEventListComponent implements OnInit {
   financialEvents: FinancialEvent[] = [];
-  accounts: AccountResponse[] = [];
+  accounts: Account[] = [];
   categories: Category[] = [];
   loading = false;
   error: string | null = null;

@@ -6,14 +6,13 @@ import { RecurringRuleService } from '../../services/recurring-rule.service';
 import { CategoryService } from '../../services/category.service';
 import { AccountService } from '../../services/account.service';
 import { RecurringRuleRequest, RecurringRuleType } from '../../models/recurring-rule.model';
-import { AccountResponse } from '../../models/account.model';
+import { Account } from '../../models/account.model';
 import { Category } from '../../models/category.model';
 import {
   IntervalUnit,
   INTERVAL_UNITS,
   DAYS_OF_WEEK,
   MONTHS_OF_YEAR,
-  mapLegacyIntervalType,
   updateFrequencyFieldRequirements,
   buildFrequencyPayload
 } from '../../models/frequency.model';
@@ -45,7 +44,7 @@ export class RecurringRuleFormComponent implements OnInit {
   daysOfWeek = DAYS_OF_WEEK;
   monthsOfYear = MONTHS_OF_YEAR;
   categories: Category[] = [];
-  accounts: AccountResponse[] = [];
+  accounts: Account[] = [];
 
   showNewCategoryInput = false;
   newCategoryName = '';
@@ -75,8 +74,7 @@ export class RecurringRuleFormComponent implements OnInit {
       intervalCount: [1, [Validators.required, Validators.min(1)]],
       dayOfWeek: [''],
       dayOfMonth: [1, [Validators.required, Validators.min(1), Validators.max(31)]],
-      month: [''],
-      customExpression: ['']
+      month: ['']
     }, { validators: dateRangeValidator });
 
     this.ruleForm.get('intervalUnit')?.valueChanges.subscribe(() => {
@@ -140,14 +138,8 @@ export class RecurringRuleFormComponent implements OnInit {
     this.loading = true;
     this.recurringRuleService.getRecurringRuleById(this.ruleId).subscribe({
       next: (rule) => {
-        let intervalUnit = rule.frequency?.intervalUnit;
-        let intervalCount = rule.frequency?.intervalCount;
-
-        if (!intervalUnit && rule.frequency?.intervalType) {
-          const mapped = mapLegacyIntervalType(rule.frequency.intervalType);
-          intervalUnit = mapped.intervalUnit;
-          intervalCount = mapped.intervalCount;
-        }
+        const intervalUnit = rule.frequency?.intervalUnit;
+        const intervalCount = rule.frequency?.intervalCount;
 
         const categoryId = rule.categoryId || rule.category?.id || null;
         const accountId = rule.accountId || rule.account?.id || null;
@@ -164,8 +156,7 @@ export class RecurringRuleFormComponent implements OnInit {
           intervalCount: intervalCount || 1,
           dayOfWeek: rule.frequency?.dayOfWeek || '',
           dayOfMonth: rule.frequency?.dayOfMonth || 1,
-          month: rule.frequency?.month || '',
-          customExpression: rule.frequency?.customExpression || ''
+          month: rule.frequency?.month || ''
         });
 
         this.updateFieldRequirements();

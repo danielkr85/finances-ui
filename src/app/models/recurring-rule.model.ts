@@ -1,4 +1,4 @@
-import { Frequency } from './frequency.model';
+import { Frequency, FrequencyRequest } from './frequency.model';
 import { Category } from './category.model';
 import { Account } from './account.model';
 
@@ -24,7 +24,7 @@ export interface RecurringRuleRequest {
   name: string;
   defaultAmount: number;
   type: RecurringRuleType;
-  frequency: Frequency;
+  frequency: FrequencyRequest;
   accountId: number;
   categoryId: number;
   startDate: string;

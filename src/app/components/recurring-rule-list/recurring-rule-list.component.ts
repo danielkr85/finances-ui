@@ -6,7 +6,7 @@ import { CategoryService } from '../../services/category.service';
 import { AccountService } from '../../services/account.service';
 import { RecurringRule, RecurringRuleType } from '../../models/recurring-rule.model';
 import { Category } from '../../models/category.model';
-import { AccountResponse } from '../../models/account.model';
+import { Account } from '../../models/account.model';
 
 @Component({
   selector: 'app-recurring-rule-list',
@@ -18,7 +18,7 @@ import { AccountResponse } from '../../models/account.model';
 export class RecurringRuleListComponent implements OnInit {
   recurringRules: RecurringRule[] = [];
   categories: Category[] = [];
-  accounts: AccountResponse[] = [];
+  accounts: Account[] = [];
   loading = false;
   loadingCategories = false;
   error: string | null = null;

@@ -133,7 +133,7 @@
           <!-- Subtitle: Frequency as clean, readable text -->
           <div class="text-muted small mb-2">
             @if (rule.frequency) {
-              {{ rule.frequency.description || (rule.frequency.intervalUnit || rule.frequency.intervalType | titlecase) }}
+              {{ rule.frequency.description || (rule.frequency.intervalUnit | titlecase) }}
               @if (rule.frequency.dayOfWeek) {
               on {{ rule.frequency.dayOfWeek | titlecase }}
               }
