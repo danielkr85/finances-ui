@@ -1,6 +1,8 @@
 import { Routes } from '@angular/router';
+import { authGuard, guestGuard } from './guards/auth.guards';
 
-export const routes: Routes = [
+/** Everything behind sign-in. */
+const appRoutes: Routes = [
   {
     path: '',
     loadComponent: () => import('./components/dashboard/dashboard.component').then(m => m.DashboardComponent),
@@ -79,4 +81,18 @@ export const routes: Routes = [
     redirectTo: 'recurring-rules',
     pathMatch: 'full'
   }
+];
+
+export const routes: Routes = [
+  {
+    path: 'login',
+    canActivate: [guestGuard],
+    loadComponent: () => import('./components/login/login.component').then(m => m.LoginComponent)
+  },
+  {
+    path: '',
+    canActivateChild: [authGuard],
+    children: appRoutes
+  },
+  { path: '**', redirectTo: '' }
 ];

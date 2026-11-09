@@ -1,4 +1,29 @@
+@if (auth.user(); as user) {
+  <nav class="navbar navbar-expand bg-body-tertiary border-bottom">
+    <div class="container">
+      <a class="navbar-brand" routerLink="/">Finances</a>
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Dashboard</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/accounts" routerLinkActive="active">Accounts</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/recurring-rules" routerLinkActive="active">Recurring rules</a>
+        </li>
+      </ul>
+      <span class="navbar-text me-3 d-none d-sm-inline">
+        {{ user.displayName }}
+        @if (auth.isAdmin()) {
+          <span class="badge text-bg-secondary ms-1">Admin</span>
+        }
+      </span>
+      <button type="button" class="btn btn-outline-secondary btn-sm" (click)="auth.logout()">Sign out</button>
+    </div>
+  </nav>
+}
+
 <div class="container my-4">
-  <!-- This is the slot where Angular injects your components based on the URL -->
   <router-outlet></router-outlet>
 </div>
