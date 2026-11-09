@@ -21,9 +21,10 @@ the backend code disagree, the code wins. Before adding or changing a model fiel
 | `npm start` | Dev server on :4200 (needs the backend on :8080) |
 | `npx ng build` | Production build — must pass with no errors or warnings |
 | `npx ng test --watch=false` | All unit tests, once |
-| `npx prettier --write <files>` | Format files you changed |
+| `npm run format` / `npm run format:check` | Prettier over `src/` (write / verify) |
 
-After any change, run the build and the tests. Both must be clean before you call the work done.
+After any change, run `npm run format`, then the build and the tests. All three must be clean before you call the
+work done. Formatting-only commits go in `.git-blame-ignore-revs`.
 
 ## Structure
 ```
@@ -110,7 +111,7 @@ admin pages also need `adminGuard`.
 
 ## Coding Conventions
 - Prettier (`.prettierrc`): 100-char lines, single quotes, 2-space indent, LF line endings (`.gitattributes`,
-  `.editorconfig`). Format the files you touch.
+  `.editorconfig`). `src/` is fully formatted; keep it that way with `npm run format`.
 - File names `kebab-case.component.ts`; classes `PascalCase` with a `Component`/`Service`/`Pipe` suffix; constants
   `UPPER_SNAKE_CASE`.
 - User-facing text is sentence case and plain ("Add new account", "Can't be before the start date").
@@ -146,8 +147,6 @@ Unit tests only prove the payloads match what we *think* the server wants. To ch
 - `git config core.autocrlf` is `true` locally; `.gitattributes` forces LF, so ignore any leftover CRLF warnings.
 
 ## Known Gaps
-- Most of the existing code predates enforcing Prettier: `npx prettier --check "src/**/*.{ts,html,css}"` fails.
-  A one-time formatting commit is pending.
 - None of the screens have been checked visually in a browser by an agent; they're covered by unit tests and API
   contract checks only.
 - Backend: `targetAccountId` has no foreign key, so deleting a transfer's target account leaves transfers pointing
