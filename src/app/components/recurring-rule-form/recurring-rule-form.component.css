@@ -1,0 +1,8 @@
+/* Recurring rule form styles */
+.card {
+  border-radius: 0.5rem;
+}
+
+.btn-check:focus + .btn, .btn:focus {
+  box-shadow: none;
+}

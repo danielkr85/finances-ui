@@ -19,7 +19,7 @@ export const routes: Routes = [
     path: 'accounts/:id/edit',
     loadComponent: () => import('./components/account-form/account-form.component').then(m => m.AccountFormComponent)
   },
-  // Legacy redirects
+  // Legacy account redirects
   {
     path: 'balances',
     redirectTo: 'accounts',
@@ -30,30 +30,53 @@ export const routes: Routes = [
     redirectTo: 'accounts/new',
     pathMatch: 'full'
   },
-  // --- Incomes ---
+  // --- Recurring Rules ---
+  {
+    path: 'recurring-rules',
+    loadComponent: () => import('./components/recurring-rule-list/recurring-rule-list.component').then(m => m.RecurringRuleListComponent)
+  },
+  {
+    path: 'recurring-rules/new',
+    loadComponent: () => import('./components/recurring-rule-form/recurring-rule-form.component').then(m => m.RecurringRuleFormComponent)
+  },
+  {
+    path: 'recurring-rules/:id/edit',
+    loadComponent: () => import('./components/recurring-rule-form/recurring-rule-form.component').then(m => m.RecurringRuleFormComponent)
+  },
+  // --- Financial Events ---
+  {
+    path: 'financial-events',
+    loadComponent: () => import('./components/financial-event-list/financial-event-list.component').then(m => m.FinancialEventListComponent)
+  },
+  // Legacy income/expense redirects
   {
     path: 'incomes',
-    loadComponent: () => import('./components/income-list/income-list.component').then(m => m.IncomeListComponent)
+    redirectTo: 'recurring-rules',
+    pathMatch: 'full'
   },
   {
     path: 'incomes/new',
-    loadComponent: () => import('./components/income-form/income-form.component').then(m => m.IncomeFormComponent)
+    redirectTo: 'recurring-rules/new',
+    pathMatch: 'full'
   },
   {
     path: 'incomes/:id/edit',
-    loadComponent: () => import('./components/income-form/income-form.component').then(m => m.IncomeFormComponent)
+    redirectTo: 'recurring-rules',
+    pathMatch: 'full'
   },
-  // --- Expenses ---
   {
     path: 'expenses',
-    loadComponent: () => import('./components/expense-list/expense-list.component').then(m => m.ExpenseListComponent)
+    redirectTo: 'recurring-rules',
+    pathMatch: 'full'
   },
   {
     path: 'expenses/new',
-    loadComponent: () => import('./components/expense-form/expense-form.component').then(m => m.ExpenseFormComponent)
+    redirectTo: 'recurring-rules/new',
+    pathMatch: 'full'
   },
   {
     path: 'expenses/:id/edit',
-    loadComponent: () => import('./components/expense-form/expense-form.component').then(m => m.ExpenseFormComponent)
+    redirectTo: 'recurring-rules',
+    pathMatch: 'full'
   }
 ];
