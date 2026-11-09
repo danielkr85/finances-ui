@@ -41,18 +41,7 @@ const appRoutes: Routes = [
     path: 'admin/users',
     canActivate: [adminGuard],
     loadComponent: () => import('./components/admin-users/admin-users.component').then(m => m.AdminUsersComponent)
-  },
-
-  // Old URLs (bookmarks) → their replacements
-  { path: 'balances', redirectTo: 'accounts' },
-  { path: 'balances/new', redirectTo: 'accounts/new' },
-  { path: 'recurring-rules', redirectTo: 'planned-transactions' },
-  { path: 'recurring-rules/new', redirectTo: 'planned-transactions/new' },
-  { path: 'incomes', redirectTo: 'planned-transactions' },
-  { path: 'incomes/new', redirectTo: 'planned-transactions/new' },
-  { path: 'expenses', redirectTo: 'planned-transactions' },
-  { path: 'expenses/new', redirectTo: 'planned-transactions/new' },
-  { path: 'financial-events', redirectTo: 'forecast' }
+  }
 ];
 
 export const routes: Routes = [
