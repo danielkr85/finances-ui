@@ -5,6 +5,9 @@ import { catchError, defer, finalize, firstValueFrom, map, Observable, of, share
 import { environment } from '../../environments/environment';
 import { AccessTokenResponse, LoginRequest, User } from '../models/auth.model';
 
+/** Why the user was sent to the login page; shown there. */
+export type SignOutReason = 'password-changed';
+
 /** Refresh this long before the access token expires, so a request never goes out with a dying token. */
 const EXPIRY_MARGIN_MS = 30_000;
 /** Web Locks name shared by every tab, so only one tab rotates the refresh token at a time. */
@@ -92,6 +95,20 @@ export class AuthService {
         this.session.set(null);
         this.router.navigate(['/login']);
       });
+  }
+
+  /** Keeps the signed-in user's details current after they're changed (e.g. an admin renaming themselves). */
+  updateCurrentUser(user: User): void {
+    this.session.update(s => (s && s.user.id === user.id ? { ...s, user } : s));
+  }
+
+  /**
+   * The server already ended every session (e.g. after a password change): drop ours and go to the login page,
+   * which explains why.
+   */
+  endSession(reason: SignOutReason): void {
+    this.session.set(null);
+    this.router.navigate(['/login'], { queryParams: { reason } });
   }
 
   /** The session ended server-side (refresh rejected): drop it and send the user to sign in again. */

@@ -1,0 +1,52 @@
+<div class="mx-auto" style="max-width: 600px;">
+  <h2 class="h3 mb-1">Categories</h2>
+  <p class="text-muted small mb-4">
+    Your categories are private. On shared accounts you'll also see other members' categories on their
+    transactions, but you can't use them yourself.
+  </p>
+
+  @if (error()) {
+    <div class="alert alert-danger" role="alert">{{ error() }}</div>
+  }
+
+  <form [formGroup]="addForm" (ngSubmit)="add()" class="mb-4" novalidate>
+    <div class="input-group has-validation">
+      <input type="text" class="form-control" formControlName="name" placeholder="New category, e.g. Groceries"
+             aria-label="New category name"
+             [class.is-invalid]="addForm.controls.name.invalid && addForm.controls.name.touched">
+      <button type="submit" class="btn btn-primary" [disabled]="busy()"><i class="bi bi-plus-lg me-1"></i>Add</button>
+      <div class="invalid-feedback">{{ serverError(addForm.controls.name) ?? 'Enter a name.' }}</div>
+    </div>
+  </form>
+
+  @if (loading()) {
+    <div class="text-center my-4"><div class="spinner-border text-primary" role="status"></div></div>
+  } @else if (categories().length === 0) {
+    <div class="alert alert-info text-center">No categories yet.</div>
+  } @else {
+    <ul class="list-group shadow-sm">
+      @for (category of categories(); track category.id) {
+        <li class="list-group-item d-flex align-items-center gap-2">
+          @if (editingId() === category.id) {
+            <form [formGroup]="editForm" (ngSubmit)="saveEdit(category)" class="d-flex flex-grow-1 gap-2" novalidate>
+              <div class="flex-grow-1">
+                <input type="text" class="form-control form-control-sm" formControlName="name" aria-label="Category name"
+                       (keydown.escape)="cancelEdit()"
+                       [class.is-invalid]="editForm.controls.name.invalid && editForm.controls.name.touched">
+                <div class="invalid-feedback">{{ serverError(editForm.controls.name) ?? 'Enter a name.' }}</div>
+              </div>
+              <button type="submit" class="btn btn-sm btn-success" [disabled]="busy()">Save</button>
+              <button type="button" class="btn btn-sm btn-outline-secondary" (click)="cancelEdit()">Cancel</button>
+            </form>
+          } @else {
+            <span class="me-auto">{{ category.name }}</span>
+            <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="busy()" (click)="startEdit(category)"
+                    [attr.aria-label]="'Rename ' + category.name"><i class="bi bi-pencil"></i></button>
+            <button type="button" class="btn btn-sm btn-outline-danger" [disabled]="busy()" (click)="remove(category)"
+                    [attr.aria-label]="'Delete ' + category.name"><i class="bi bi-trash"></i></button>
+          }
+        </li>
+      }
+    </ul>
+  }
+</div>

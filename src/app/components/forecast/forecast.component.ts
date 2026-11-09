@@ -1,13 +1,14 @@
 import { Component, computed, inject, input, OnInit, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { Account } from '../../models/account.model';
+import { Account, hasCycleBudget } from '../../models/account.model';
 import { apiErrorMessage } from '../../models/api-error.model';
 import { FinancialEvent, Forecast } from '../../models/forecast.model';
 import { AccountService } from '../../services/account.service';
 import { ForecastService } from '../../services/forecast.service';
 import { addDaysIso, isIsoDate, todayIso } from '../../shared/dates';
 import { MoneyPipe } from '../../shared/money.pipe';
+import { CycleBudgetCardComponent } from '../cycle-budget-card/cycle-budget-card.component';
 
 export const RANGE_PRESETS = [
   { label: '30 days', days: 30 },
@@ -30,7 +31,7 @@ export function signedAmount(event: FinancialEvent): number {
  */
 @Component({
   selector: 'app-forecast',
-  imports: [RouterLink, MoneyPipe, DatePipe],
+  imports: [RouterLink, MoneyPipe, DatePipe, CycleBudgetCardComponent],
   templateUrl: './forecast.component.html',
   styleUrls: ['./forecast.component.css']
 })
@@ -45,6 +46,7 @@ export class ForecastComponent implements OnInit {
 
   readonly presets = RANGE_PRESETS;
   readonly signedAmount = signedAmount;
+  readonly hasCycleBudget = hasCycleBudget;
   readonly today = todayIso();
 
   readonly accounts = signal<Account[]>([]);

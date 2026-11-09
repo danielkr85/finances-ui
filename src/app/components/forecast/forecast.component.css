@@ -1,3 +1,7 @@
 .forecast {
   transition: opacity 0.15s ease-in-out;
 }
+
+.budget-card {
+  max-width: 480px;
+}

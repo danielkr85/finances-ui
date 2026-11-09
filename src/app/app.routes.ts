@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { authGuard, guestGuard } from './guards/auth.guards';
+import { adminGuard, authGuard, guestGuard } from './guards/auth.guards';
 
 const accountForm = () => import('./components/account-form/account-form.component').then(m => m.AccountFormComponent);
 const plannedForm = () =>
@@ -28,6 +28,19 @@ const appRoutes: Routes = [
   {
     path: 'forecast',
     loadComponent: () => import('./components/forecast/forecast.component').then(m => m.ForecastComponent)
+  },
+  {
+    path: 'categories',
+    loadComponent: () => import('./components/category-list/category-list.component').then(m => m.CategoryListComponent)
+  },
+  {
+    path: 'profile',
+    loadComponent: () => import('./components/profile/profile.component').then(m => m.ProfileComponent)
+  },
+  {
+    path: 'admin/users',
+    canActivate: [adminGuard],
+    loadComponent: () => import('./components/admin-users/admin-users.component').then(m => m.AdminUsersComponent)
   },
 
   // Old URLs (bookmarks) → their replacements

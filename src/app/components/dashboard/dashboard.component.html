@@ -4,6 +4,19 @@
   <app-account-list />
 </section>
 
+@if (budgetCards().length > 0) {
+  <section class="mb-5">
+    <h2 class="h3 mb-3">Credit Cards This Cycle</h2>
+    <div class="row g-4">
+      @for (card of budgetCards(); track card.id) {
+        <div class="col-12 col-md-6 col-lg-4">
+          <app-cycle-budget-card [account]="card" />
+        </div>
+      }
+    </div>
+  </section>
+}
+
 <section class="mb-5">
   <app-forecast [embedded]="true" />
 </section>

@@ -25,6 +25,14 @@ export interface CreditCardBilling {
   monthlyTarget?: number | null;
 }
 
+/** Whether the server can compute a cycle budget: a credit card with all four billing fields set. */
+export function hasCycleBudget(account: AccountRequest): boolean {
+  return account.type === 'CREDIT_CARD'
+    && account.paymentDueDay != null && account.closingDaysBeforeDue != null
+    && account.statementBalance != null && account.monthlyTarget != null
+    && account.statementBalance <= account.amount;
+}
+
 export interface AccountRequest extends CreditCardBilling {
   /** Unique among the owner's accounts (case-insensitive). */
   name: string;

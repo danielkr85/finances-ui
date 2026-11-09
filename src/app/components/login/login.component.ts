@@ -22,6 +22,9 @@ export class LoginComponent implements AfterViewInit {
   readonly googleEnabled = !!environment.googleClientId;
   private readonly googleButton = viewChild<ElementRef<HTMLElement>>('googleButton');
 
+  readonly notice = this.route.snapshot.queryParamMap.get('reason') === 'password-changed'
+    ? 'Your password was changed and you were signed out everywhere. Sign in with your new password.'
+    : null;
   readonly submitting = signal(false);
   readonly error = signal<string | null>(null);
 

@@ -135,4 +135,10 @@
       </form>
     </div>
   </div>
+
+  @if (account(); as a) {
+    <div class="mt-4">
+      <app-account-shares [account]="a" />
+    </div>
+  }
 </div>

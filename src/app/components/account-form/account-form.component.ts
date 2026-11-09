@@ -7,6 +7,7 @@ import { apiErrorMessage } from '../../models/api-error.model';
 import { AccountService } from '../../services/account.service';
 import { applyServerErrors, serverError } from '../../shared/form-errors';
 import { ACCOUNT_TYPE_LABELS } from '../account-list/account-list.component';
+import { AccountSharesComponent } from '../account-shares/account-shares.component';
 
 const WHOLE_NUMBER = Validators.pattern(/^-?\d+$/);
 
@@ -20,7 +21,7 @@ function statementWithinAmount(group: AbstractControl): ValidationErrors | null 
 
 @Component({
   selector: 'app-account-form',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, AccountSharesComponent],
   templateUrl: './account-form.component.html',
   styleUrls: ['./account-form.component.css']
 })

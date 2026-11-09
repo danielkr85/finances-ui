@@ -1,0 +1,4 @@
+.progress-stacked {
+  height: 0.6rem;
+  background-color: var(--bs-secondary-bg);
+}

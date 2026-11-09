@@ -1,28 +1,51 @@
 @if (auth.user(); as user) {
-  <nav class="navbar navbar-expand bg-body-tertiary border-bottom">
+  <nav class="navbar navbar-expand-lg bg-body-tertiary border-bottom">
     <div class="container">
-      <a class="navbar-brand" routerLink="/">Finances</a>
-      <ul class="navbar-nav me-auto">
-        <li class="nav-item">
-          <a class="nav-link" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Dashboard</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" routerLink="/accounts" routerLinkActive="active">Accounts</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" routerLink="/planned-transactions" routerLinkActive="active">Planned</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" routerLink="/forecast" routerLinkActive="active">Forecast</a>
-        </li>
-      </ul>
-      <span class="navbar-text me-3 d-none d-sm-inline">
-        {{ user.displayName }}
-        @if (auth.isAdmin()) {
-          <span class="badge text-bg-secondary ms-1">Admin</span>
-        }
-      </span>
-      <button type="button" class="btn btn-outline-secondary btn-sm" (click)="auth.logout()">Sign out</button>
+      <a class="navbar-brand" routerLink="/" (click)="menuOpen.set(false)">Finances</a>
+      <button class="navbar-toggler" type="button" aria-controls="mainNav" [attr.aria-expanded]="menuOpen()"
+              aria-label="Toggle navigation" (click)="menuOpen.update(open => !open)">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="mainNav" [class.show]="menuOpen()">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+               (click)="menuOpen.set(false)">Dashboard</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/accounts" routerLinkActive="active" (click)="menuOpen.set(false)">Accounts</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/planned-transactions" routerLinkActive="active" (click)="menuOpen.set(false)">Planned</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/forecast" routerLinkActive="active" (click)="menuOpen.set(false)">Forecast</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/categories" routerLinkActive="active" (click)="menuOpen.set(false)">Categories</a>
+          </li>
+        </ul>
+
+        <ul class="navbar-nav">
+          <li class="nav-item dropdown">
+            <button type="button" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-person-circle me-1"></i>{{ user.displayName }}
+              @if (auth.isAdmin()) {
+                <span class="badge text-bg-secondary ms-1">Admin</span>
+              }
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" routerLink="/profile" (click)="menuOpen.set(false)">Profile</a></li>
+              @if (auth.isAdmin()) {
+                <li><a class="dropdown-item" routerLink="/admin/users" (click)="menuOpen.set(false)">Manage users</a></li>
+              }
+              <li><hr class="dropdown-divider"></li>
+              <li><button type="button" class="dropdown-item" (click)="menuOpen.set(false); auth.logout()">Sign out</button></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
     </div>
   </nav>
 }

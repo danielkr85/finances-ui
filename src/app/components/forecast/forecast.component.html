@@ -45,6 +45,19 @@
   <div class="text-center my-5"><div class="spinner-border text-primary" role="status"></div></div>
 }
 
+@if (!embedded() && account(); as a) {
+  @if (hasCycleBudget(a)) {
+    <div class="mb-4 budget-card">
+      <app-cycle-budget-card [account]="a" />
+    </div>
+  } @else if (a.type === 'CREDIT_CARD' && a.myRole !== 'VIEWER') {
+    <div class="alert alert-light border small">
+      <i class="bi bi-lightbulb me-1"></i>Fill in all four billing fields to see how much is left to spend this cycle.
+      <a [routerLink]="['/accounts', a.id, 'edit']">Edit {{ a.name }}</a>
+    </div>
+  }
+}
+
 @if (forecast(); as f) {
   <div class="forecast" [class.opacity-50]="loading()">
     <div class="row g-3 mb-4">
