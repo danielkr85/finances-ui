@@ -1,59 +1,51 @@
-# Finances
+# Finances UI
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.12.
+Angular frontend for [finances-service](../finances-service): accounts (shareable between users), planned one-time
+and recurring transactions, cash-flow forecasts and a credit-card cycle budget.
 
-## Development server
+The API reference is `finances-service/API_DOCUMENTATION.md`; where it and the backend code disagree, the code wins.
 
-To start a local development server, run:
+## Running locally
 
-```bash
-ng serve
-```
+1. Start the backend (VS Code launch configuration **Finances Service (local, H2)**). It listens on
+   `http://localhost:8080` and allows browser calls from `http://localhost:4200`. The admin account comes from
+   `APP_ADMIN_EMAIL` / `APP_ADMIN_PASSWORD` in the service's `.env`.
+2. Install and start the frontend:
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+   ```bash
+   npm install
+   npm start
+   ```
 
-## Code scaffolding
+3. Open `http://localhost:4200` and sign in. There is no public sign-up: an admin adds people under
+   **Manage users**.
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+The API URL is set in `src/environments/environment*.ts` (`apiUrl`).
 
-```bash
-ng generate component component-name
-```
+### Google sign-in (optional)
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+Set `googleClientId` in `src/environments/environment*.ts` to the same OAuth Web client ID as the backend's
+`APP_GOOGLE_CLIENT_ID`. The button only appears when it's set. Setup steps are in
+`finances-service/docs/google-sign-in.md`.
 
-```bash
-ng generate --help
-```
+## How it fits together
 
-## Building
+- **Auth** (`services/auth.service.ts`, `interceptors/auth.interceptor.ts`): the access token is kept in memory only;
+  the refresh token is an HttpOnly cookie the browser sends to `/api/v1/auth/*`. The interceptor adds the bearer
+  token, refreshes once on a 401 and retries, and sends you to `/login` when the session is over. Refreshes are
+  shared within a tab and serialized across tabs (a refresh token works only once). On reload, the app restores the
+  session from the cookie before the first route loads.
+- **Roles**: on each account you're `OWNER`, `EDITOR` or `VIEWER` (`account.myRole`); the UI hides what you can't
+  do and the server enforces it. `ADMIN` users also get **Manage users**.
+- **Money** is whole dollars (the API sends integers). Use the `money` pipe to display amounts.
+- **Server validation errors** (`fields` in the error body) are shown under the matching form fields by
+  `shared/form-errors.ts`.
+- The app is zoneless: component state lives in signals.
 
-To build the project run:
+## Commands
 
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+| Command | What it does |
+|---|---|
+| `npm start` | Dev server on `http://localhost:4200` with live reload |
+| `npm run build` | Production build into `dist/` |
+| `npm test` | Unit tests (Vitest) |

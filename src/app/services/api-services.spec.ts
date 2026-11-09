@@ -44,6 +44,19 @@ describe('API services', () => {
     await expectCall(s.deleteAccount(2), 'DELETE', `${API}/accounts/2`);
   });
 
+  it('shares concurrent account-list requests but never serves stale results', async () => {
+    const s = TestBed.inject(AccountService);
+    const a = firstValueFrom(s.getAllAccounts());
+    const b = firstValueFrom(s.getAllAccounts());
+    http.expectOne(`${API}/accounts`).flush([{ id: 1 }]);
+    expect(await a).toEqual([{ id: 1 }]);
+    expect(await b).toEqual([{ id: 1 }]);
+
+    const later = firstValueFrom(s.getAllAccounts());
+    http.expectOne(`${API}/accounts`).flush([{ id: 1 }, { id: 2 }]);
+    expect(await later).toHaveLength(2);
+  });
+
   it('account sharing', async () => {
     const s = TestBed.inject(AccountShareService);
     await expectCall(s.getMembers(2), 'GET', `${API}/accounts/2/shares`);

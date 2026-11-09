@@ -1,0 +1,8 @@
+# Store text files with LF in the repository and check them out with LF (matches Prettier and .editorconfig).
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.ico binary
+*.woff binary
+*.woff2 binary

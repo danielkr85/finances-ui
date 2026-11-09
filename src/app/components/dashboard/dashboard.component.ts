@@ -10,8 +10,7 @@ import { ForecastComponent } from '../forecast/forecast.component';
 @Component({
   selector: 'app-dashboard',
   imports: [AccountListComponent, ForecastComponent, CycleBudgetCardComponent],
-  templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.css']
+  templateUrl: './dashboard.component.html'
 })
 export class DashboardComponent {
   // The account list shows its own load errors; this only decides which budget cards to show.

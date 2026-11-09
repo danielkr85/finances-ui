@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { finalize, Observable, shareReplay } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { Account, AccountRequest } from '../models/account.model';
 
@@ -9,9 +9,18 @@ export class AccountService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.apiUrl}/accounts`;
 
-  /** Accounts you own plus accounts shared with you. */
+  private inFlight: Observable<Account[]> | null = null;
+
+  /**
+   * Accounts you own plus accounts shared with you. Callers that ask at the same time (e.g. the dashboard's
+   * widgets) share one request; nothing is cached once it completes, so later calls always get fresh data.
+   */
   getAllAccounts(): Observable<Account[]> {
-    return this.http.get<Account[]>(this.baseUrl);
+    this.inFlight ??= this.http.get<Account[]>(this.baseUrl).pipe(
+      finalize(() => (this.inFlight = null)),
+      shareReplay({ bufferSize: 1, refCount: true })
+    );
+    return this.inFlight;
   }
 
   getAccountById(id: number): Observable<Account> {
