@@ -1,86 +1,45 @@
 import { Routes } from '@angular/router';
 import { authGuard, guestGuard } from './guards/auth.guards';
 
+const accountForm = () => import('./components/account-form/account-form.component').then(m => m.AccountFormComponent);
+const plannedForm = () =>
+  import('./components/planned-transaction-form/planned-transaction-form.component').then(m => m.PlannedTransactionFormComponent);
+
 /** Everything behind sign-in. */
 const appRoutes: Routes = [
   {
     path: '',
-    loadComponent: () => import('./components/dashboard/dashboard.component').then(m => m.DashboardComponent),
-    pathMatch: 'full'
+    pathMatch: 'full',
+    loadComponent: () => import('./components/dashboard/dashboard.component').then(m => m.DashboardComponent)
   },
-  // --- Accounts ---
   {
     path: 'accounts',
     loadComponent: () => import('./components/account-list/account-list.component').then(m => m.AccountListComponent)
   },
+  { path: 'accounts/new', loadComponent: accountForm },
+  { path: 'accounts/:id/edit', loadComponent: accountForm },
   {
-    path: 'accounts/new',
-    loadComponent: () => import('./components/account-form/account-form.component').then(m => m.AccountFormComponent)
+    path: 'planned-transactions',
+    loadComponent: () =>
+      import('./components/planned-transaction-list/planned-transaction-list.component').then(m => m.PlannedTransactionListComponent)
   },
+  { path: 'planned-transactions/new', loadComponent: plannedForm },
+  { path: 'planned-transactions/:id/edit', loadComponent: plannedForm },
   {
-    path: 'accounts/:id/edit',
-    loadComponent: () => import('./components/account-form/account-form.component').then(m => m.AccountFormComponent)
+    path: 'forecast',
+    loadComponent: () => import('./components/forecast/forecast.component').then(m => m.ForecastComponent)
   },
-  // Legacy account redirects
-  {
-    path: 'balances',
-    redirectTo: 'accounts',
-    pathMatch: 'full'
-  },
-  {
-    path: 'balances/new',
-    redirectTo: 'accounts/new',
-    pathMatch: 'full'
-  },
-  // --- Recurring Rules ---
-  {
-    path: 'recurring-rules',
-    loadComponent: () => import('./components/recurring-rule-list/recurring-rule-list.component').then(m => m.RecurringRuleListComponent)
-  },
-  {
-    path: 'recurring-rules/new',
-    loadComponent: () => import('./components/recurring-rule-form/recurring-rule-form.component').then(m => m.RecurringRuleFormComponent)
-  },
-  {
-    path: 'recurring-rules/:id/edit',
-    loadComponent: () => import('./components/recurring-rule-form/recurring-rule-form.component').then(m => m.RecurringRuleFormComponent)
-  },
-  // --- Financial Events ---
-  {
-    path: 'financial-events',
-    loadComponent: () => import('./components/financial-event-list/financial-event-list.component').then(m => m.FinancialEventListComponent)
-  },
-  // Legacy income/expense redirects
-  {
-    path: 'incomes',
-    redirectTo: 'recurring-rules',
-    pathMatch: 'full'
-  },
-  {
-    path: 'incomes/new',
-    redirectTo: 'recurring-rules/new',
-    pathMatch: 'full'
-  },
-  {
-    path: 'incomes/:id/edit',
-    redirectTo: 'recurring-rules',
-    pathMatch: 'full'
-  },
-  {
-    path: 'expenses',
-    redirectTo: 'recurring-rules',
-    pathMatch: 'full'
-  },
-  {
-    path: 'expenses/new',
-    redirectTo: 'recurring-rules/new',
-    pathMatch: 'full'
-  },
-  {
-    path: 'expenses/:id/edit',
-    redirectTo: 'recurring-rules',
-    pathMatch: 'full'
-  }
+
+  // Old URLs (bookmarks) → their replacements
+  { path: 'balances', redirectTo: 'accounts' },
+  { path: 'balances/new', redirectTo: 'accounts/new' },
+  { path: 'recurring-rules', redirectTo: 'planned-transactions' },
+  { path: 'recurring-rules/new', redirectTo: 'planned-transactions/new' },
+  { path: 'incomes', redirectTo: 'planned-transactions' },
+  { path: 'incomes/new', redirectTo: 'planned-transactions/new' },
+  { path: 'expenses', redirectTo: 'planned-transactions' },
+  { path: 'expenses/new', redirectTo: 'planned-transactions/new' },
+  { path: 'financial-events', redirectTo: 'forecast' }
 ];
 
 export const routes: Routes = [

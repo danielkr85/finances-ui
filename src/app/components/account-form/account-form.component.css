@@ -1,1 +1,10 @@
-/* Account form styles */
+.form-page {
+  max-width: 600px;
+}
+
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  background: rgba(var(--bs-body-bg-rgb), 0.75);
+}

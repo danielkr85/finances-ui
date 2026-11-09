@@ -1,11 +1,10 @@
 import { Component } from '@angular/core';
 import { AccountListComponent } from '../account-list/account-list.component';
-import { RecurringRuleListComponent } from '../recurring-rule-list/recurring-rule-list.component';
-import { FinancialEventListComponent } from '../financial-event-list/financial-event-list.component';
+import { ForecastComponent } from '../forecast/forecast.component';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [AccountListComponent, RecurringRuleListComponent, FinancialEventListComponent],
+  imports: [AccountListComponent, ForecastComponent],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })

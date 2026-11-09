@@ -1,0 +1,10 @@
+.form-page {
+  max-width: 650px;
+}
+
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  background: rgba(var(--bs-body-bg-rgb), 0.75);
+}

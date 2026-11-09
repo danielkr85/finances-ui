@@ -1,4 +1,9 @@
-/* Financial event list styles */
+.add-button {
+  width: 26px;
+  height: 26px;
+  padding: 0;
+}
+
 .card {
   transition: transform 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
