@@ -91,7 +91,7 @@
             <div class="small text-muted">
               {{ isCreditCard() ? 'Owed' : 'Balance' }} on {{ f.from | date: 'mediumDate' }}
             </div>
-            <div class="h4 font-monospace mb-0">{{ f.openingBalance | money }}</div>
+            <div class="h4 money mb-0">{{ f.openingBalance | money }}</div>
           </div>
         </div>
       </div>
@@ -101,10 +101,7 @@
             <div class="small text-muted">
               {{ isCreditCard() ? 'Owed' : 'Balance' }} on {{ f.to | date: 'mediumDate' }}
             </div>
-            <div
-              class="h4 font-monospace mb-0"
-              [class.text-danger]="!isCreditCard() && f.finalBalance < 0"
-            >
+            <div class="h4 money mb-0" [class.text-danger]="!isCreditCard() && f.finalBalance < 0">
               {{ f.finalBalance | money }}
             </div>
           </div>
@@ -117,10 +114,7 @@
               <div class="small text-muted">
                 {{ isCreditCard() ? 'Most owed' : 'Lowest' }}, {{ low.date | date: 'mediumDate' }}
               </div>
-              <div
-                class="h4 font-monospace mb-0"
-                [class.text-danger]="!isCreditCard() && low.balance < 0"
-              >
+              <div class="h4 money mb-0" [class.text-danger]="!isCreditCard() && low.balance < 0">
                 {{ low.balance | money }}
               </div>
             </div>
@@ -170,7 +164,7 @@
                 </td>
                 <td>
                   @for (event of row.events; track $index) {
-                    <div class="d-flex justify-content-between gap-3">
+                    <div class="d-flex flex-wrap align-items-baseline column-gap-2">
                       <span>
                         {{ event.description }}
                         @if (event.category) {
@@ -180,7 +174,7 @@
                         }
                       </span>
                       @if (row.events.length > 1) {
-                        <span class="font-monospace text-muted small d-none d-sm-inline">{{
+                        <span class="money text-muted small d-none d-sm-inline">{{
                           signedAmount(event) | money: true
                         }}</span>
                       }
@@ -188,7 +182,7 @@
                   }
                 </td>
                 <td
-                  class="text-end font-monospace text-nowrap"
+                  class="text-end money text-nowrap"
                   [class.text-success]="
                     isCreditCard() ? row.amountChange < 0 : row.amountChange > 0
                   "
@@ -197,7 +191,7 @@
                   {{ row.amountChange | money: true }}
                 </td>
                 <td
-                  class="text-end font-monospace text-nowrap"
+                  class="text-end money text-nowrap"
                   [class.text-danger]="!isCreditCard() && row.resultingBalance < 0"
                 >
                   {{ row.resultingBalance | money }}

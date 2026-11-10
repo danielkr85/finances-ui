@@ -111,6 +111,9 @@ admin pages also need `adminGuard`.
 - Bootstrap CSS and JS are loaded from `angular.json` (`styles`/`scripts`); `src/styles.css` only imports the icons.
   Modals and dropdowns use `data-bs-toggle`; the navbar collapse is signal-driven so it closes on navigation.
 - Keep the layout usable at phone width.
+- Shared classes in `src/styles.css`: `.money` on amounts (equal-width digits in the body font; never
+  `font-monospace`), and `.page-narrow` for forms and single-column pages (left-aligned, not centred).
+- Amount colours: money in is green with `+`, money out is red with `-`, and transfers and balances stay neutral.
 
 ### Charts
 - Chart.js 4 (`components/forecast-chart/`). Register only the controllers, elements and plugins a chart uses

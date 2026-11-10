@@ -1,5 +1,5 @@
 <div class="d-flex align-items-center gap-3 mb-4">
-  <h2 class="h3 mb-0">Planned Transactions</h2>
+  <h2 class="h3 mb-0">Planned transactions</h2>
   <a
     class="btn btn-primary rounded-circle d-flex justify-content-center align-items-center add-button"
     routerLink="/planned-transactions/new"
@@ -175,32 +175,38 @@
             </div>
 
             <div
-              class="h2 font-monospace my-auto py-3"
+              class="h2 money my-auto py-3"
               [class.text-success]="t.type === 'INCOME'"
-              [class.text-primary]="t.type === 'TRANSFER'"
+              [class.text-danger]="t.type === 'EXPENSE'"
             >
-              {{ t.amount | money }}
+              <!-- Same convention as the forecast: +green in, -red out; a transfer only moves money. -->
+              {{ (t.type === 'EXPENSE' ? -t.amount : t.amount) | money: t.type === 'INCOME' }}
             </div>
 
             @if (canEdit(t)) {
-              <div class="d-flex gap-2 pt-3 border-top">
+              <div class="d-flex justify-content-end gap-2 pt-2 border-top">
                 <a
-                  class="btn btn-outline-secondary btn-sm w-50"
+                  class="btn btn-sm btn-outline-secondary"
                   [routerLink]="['/planned-transactions', t.id, 'edit']"
-                  >Edit</a
+                  [attr.aria-label]="'Edit ' + t.name"
+                  title="Edit"
                 >
+                  <i class="bi bi-pencil"></i>
+                </a>
                 <button
                   type="button"
-                  class="btn btn-outline-danger btn-sm w-50"
+                  class="btn btn-sm btn-outline-danger"
                   data-bs-toggle="modal"
                   data-bs-target="#deletePlannedModal"
                   (click)="pendingDelete.set(t)"
+                  [attr.aria-label]="'Delete ' + t.name"
+                  title="Delete"
                 >
-                  Delete
+                  <i class="bi bi-trash"></i>
                 </button>
               </div>
             } @else {
-              <div class="pt-3 border-top small text-muted">
+              <div class="pt-2 border-top small text-muted">
                 <i class="bi bi-eye me-1"></i>View only
               </div>
             }

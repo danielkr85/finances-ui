@@ -16,7 +16,7 @@
 }
 
 @if (mode().kind !== 'closed') {
-  <div class="card shadow-sm mb-4" style="max-width: 640px">
+  <div class="card shadow-sm mb-4 page-narrow">
     <div class="card-body p-4">
       <h3 class="h5 mb-3">{{ mode().kind === 'create' ? 'Add user' : 'Edit user' }}</h3>
       @if (formError()) {

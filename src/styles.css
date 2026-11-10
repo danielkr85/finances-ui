@@ -1,2 +1,14 @@
 /* Global styles. Bootstrap itself is loaded via angular.json "styles". */
 @import 'bootstrap-icons/font/bootstrap-icons.css';
+
+/* Amounts: the body font with equal-width digits, so figures line up in columns without a typewriter look. */
+.money {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+/* Forms and single-column pages: narrower than the container but aligned to its left edge, like every other
+   page title. */
+.page-narrow {
+  max-width: 640px;
+}

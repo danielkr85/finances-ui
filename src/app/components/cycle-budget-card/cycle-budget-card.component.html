@@ -25,7 +25,7 @@
     @if (budget(); as b) {
       <div class="small text-muted">Left to spend this cycle</div>
       <div
-        class="h3 font-monospace mb-1"
+        class="h3 money mb-1"
         [class.text-danger]="b.remaining < 0"
         [class.text-success]="b.remaining > 0"
       >
@@ -101,7 +101,7 @@
             @for (e of b.plannedEvents; track $index) {
               <li class="d-flex justify-content-between gap-2">
                 <span>{{ e.eventDate | date: 'MMM d' }} &middot; {{ e.description }}</span>
-                <span class="font-monospace">{{
+                <span class="money">{{
                   (e.direction === 'CREDIT' ? e.amount : -e.amount) | money: true
                 }}</span>
               </li>

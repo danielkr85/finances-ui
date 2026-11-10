@@ -1,5 +1,5 @@
 <div class="d-flex align-items-center gap-3 mb-4">
-  <h2 class="h3 mb-0">My Accounts</h2>
+  <h2 class="h3 mb-0">My accounts</h2>
   <a
     class="btn btn-primary rounded-circle d-flex justify-content-center align-items-center add-button"
     routerLink="/accounts/new"
@@ -52,12 +52,13 @@
               </div>
             }
 
-            <div class="my-auto py-3">
-              @if (account.type === 'CREDIT_CARD') {
-                <div class="small text-muted">Owed</div>
-              }
+            <div class="py-3">
+              <!-- Every card has a label so the amounts line up across the row. -->
+              <div class="small text-muted">
+                {{ account.type === 'CREDIT_CARD' ? 'Owed' : 'Balance' }}
+              </div>
               <div
-                class="h2 font-monospace mb-0"
+                class="h2 money mb-0"
                 [class.text-danger]="account.type !== 'CREDIT_CARD' && account.amount < 0"
               >
                 {{ account.amount | money }}
@@ -72,29 +73,35 @@
               }
             </div>
 
-            <div class="d-flex gap-2 mt-3 pt-2 border-top">
+            <!-- Small icon buttons, as on the categories page, so the actions don't outweigh the balance. -->
+            <div class="d-flex align-items-center gap-2 mt-auto pt-2 border-top">
               <a
-                class="btn btn-outline-primary btn-sm flex-fill"
+                class="link-primary small text-decoration-none me-auto"
                 routerLink="/forecast"
                 [queryParams]="{ accountId: account.id }"
               >
-                Forecast
+                <i class="bi bi-graph-up me-1"></i>Forecast
               </a>
               @if (canEdit(account)) {
                 <a
-                  class="btn btn-outline-secondary btn-sm flex-fill"
+                  class="btn btn-sm btn-outline-secondary"
                   [routerLink]="['/accounts', account.id, 'edit']"
-                  >Edit</a
+                  [attr.aria-label]="'Edit ' + account.name"
+                  title="Edit"
                 >
+                  <i class="bi bi-pencil"></i>
+                </a>
               }
               <button
                 type="button"
-                class="btn btn-outline-danger btn-sm flex-fill"
+                class="btn btn-sm btn-outline-danger"
                 data-bs-toggle="modal"
                 data-bs-target="#removeAccountModal"
                 (click)="askToRemove(account)"
+                [attr.aria-label]="(isOwner(account) ? 'Delete ' : 'Leave ') + account.name"
+                [title]="isOwner(account) ? 'Delete' : 'Leave'"
               >
-                {{ isOwner(account) ? 'Delete' : 'Leave' }}
+                <i class="bi" [class]="isOwner(account) ? 'bi-trash' : 'bi-box-arrow-right'"></i>
               </button>
             </div>
           </div>
