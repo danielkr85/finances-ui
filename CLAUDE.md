@@ -84,6 +84,8 @@ admin pages also need `adminGuard`.
   them with `buildFrequencyPayload`. CUSTOM is not offered (the server rejects it).
 - Send `null` (not omitted, not `''`) for empty optional fields the backend models as nullable (`endDate`,
   `categoryId`, `targetAccountId`, credit-card billing fields on non-card accounts).
+- There is no combined-forecast endpoint: the "All accounts" view fetches each account's forecast and merges them
+  with `combineForecasts` (`models/combined-forecast.ts`): cash minus card debt, internal transfers dropped.
 - A transfer has two forecast events, one per account. Show only the event whose `accountId` matches the account
   being viewed. A credit card's balance is debt: `CREDIT` raises what's owed.
 

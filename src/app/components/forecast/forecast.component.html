@@ -6,8 +6,11 @@
       aria-label="Account"
       (change)="selectAccount($any($event.target).value)"
     >
+      @if (canCombine()) {
+        <option value="all" [selected]="combined()">All accounts (combined)</option>
+      }
       @for (account of accounts(); track account.id) {
-        <option [value]="account.id" [selected]="account.id === accountId()">
+        <option [value]="account.id" [selected]="!combined() && account.id === accountId()">
           {{ account.name }}
         </option>
       }
@@ -54,6 +57,41 @@
   </div>
 }
 
+@if (combined() && !embedded()) {
+  <div class="mb-4">
+    <div
+      class="d-flex flex-wrap align-items-center gap-2"
+      role="group"
+      aria-label="Included accounts"
+    >
+      <span class="small text-muted me-1">Included:</span>
+      @for (a of accounts(); track a.id) {
+        <button
+          type="button"
+          class="btn btn-sm"
+          [class]="excludedIds().has(a.id) ? 'btn-outline-secondary' : 'btn-secondary'"
+          [attr.aria-pressed]="!excludedIds().has(a.id)"
+          (click)="toggleIncluded(a.id)"
+        >
+          <i
+            class="bi me-1"
+            [class]="excludedIds().has(a.id) ? 'bi-circle' : 'bi-check-circle-fill'"
+          ></i
+          >{{ a.name }}
+        </button>
+      }
+    </div>
+    <div class="small text-muted mt-2">
+      Net is what's in your bank accounts minus what you owe on cards. Transfers between included
+      accounts cancel out, so they aren't listed.
+    </div>
+  </div>
+}
+
+@if (combined() && includedAccounts().length === 0) {
+  <div class="alert alert-info">Include at least one account to see a combined forecast.</div>
+}
+
 @if (error()) {
   <div class="alert alert-danger" role="alert">{{ error() }}</div>
 }
@@ -89,7 +127,7 @@
         <div class="card h-100 shadow-sm">
           <div class="card-body">
             <div class="small text-muted">
-              {{ isCreditCard() ? 'Owed' : 'Balance' }} on {{ f.from | date: 'mediumDate' }}
+              {{ balanceLabel() }} on {{ f.from | date: 'mediumDate' }}
             </div>
             <div class="h4 money mb-0">{{ f.openingBalance | money }}</div>
           </div>
@@ -99,7 +137,7 @@
         <div class="card h-100 shadow-sm">
           <div class="card-body">
             <div class="small text-muted">
-              {{ isCreditCard() ? 'Owed' : 'Balance' }} on {{ f.to | date: 'mediumDate' }}
+              {{ balanceLabel() }} on {{ f.to | date: 'mediumDate' }}
             </div>
             <div class="h4 money mb-0" [class.text-danger]="!isCreditCard() && f.finalBalance < 0">
               {{ f.finalBalance | money }}
@@ -129,7 +167,7 @@
           <app-forecast-chart
             [forecast]="f"
             [isCreditCard]="isCreditCard()"
-            [accountName]="account()?.name ?? ''"
+            [accountName]="combined() ? 'all accounts combined' : (account()?.name ?? '')"
             [compact]="embedded()"
           />
         </div>
@@ -138,8 +176,10 @@
 
     @if (f.projections.length === 0) {
       <div class="alert alert-light border">
-        Nothing planned for this account in this period.
-        <a [routerLink]="['/planned-transactions/new']" [queryParams]="{ accountId: f.accountId }"
+        Nothing planned for {{ combined() ? 'these accounts' : 'this account' }} in this period.
+        <a
+          [routerLink]="['/planned-transactions/new']"
+          [queryParams]="combined() ? {} : { accountId: f.accountId }"
           >Plan something</a
         >.
       </div>
@@ -151,7 +191,7 @@
               <th scope="col">Date</th>
               <th scope="col">What</th>
               <th scope="col" class="text-end">Change</th>
-              <th scope="col" class="text-end">{{ isCreditCard() ? 'Owed' : 'Balance' }}</th>
+              <th scope="col" class="text-end">{{ balanceLabel() }}</th>
             </tr>
           </thead>
           <tbody>
@@ -167,6 +207,9 @@
                     <div class="d-flex flex-wrap align-items-baseline column-gap-2">
                       <span>
                         {{ event.description }}
+                        @if (sourceAccountName(event); as source) {
+                          <span class="text-muted small ms-1 d-none d-sm-inline">{{ source }}</span>
+                        }
                         @if (event.category) {
                           <span
                             class="badge bg-body-tertiary text-body border ms-1 d-none d-sm-inline-block"
@@ -206,7 +249,7 @@
         <a
           class="btn btn-sm btn-outline-primary"
           routerLink="/forecast"
-          [queryParams]="{ accountId: f.accountId }"
+          [queryParams]="{ accountId: selectionParam() }"
         >
           See full forecast ({{ hiddenRows() }} more dates)
         </a>

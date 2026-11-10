@@ -1,9 +1,16 @@
 import { Component, computed, inject, input, OnInit, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { forkJoin, map } from 'rxjs';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Account, hasCycleBudget } from '../../models/account.model';
 import { apiErrorMessage } from '../../models/api-error.model';
-import { Forecast, forecastExtreme, signedAmount } from '../../models/forecast.model';
+import { combineForecasts, isCombinedEvent } from '../../models/combined-forecast';
+import {
+  FinancialEvent,
+  Forecast,
+  forecastExtreme,
+  signedAmount,
+} from '../../models/forecast.model';
 import { AccountService } from '../../services/account.service';
 import { ForecastService } from '../../services/forecast.service';
 import { addDaysIso, isIsoDate, todayIso } from '../../shared/dates';
@@ -18,12 +25,15 @@ export const RANGE_PRESETS = [
   { label: '1 year', days: 365 },
 ];
 const DEFAULT_DAYS = 90;
+/** `accountId` in the URL for the combined view. */
+export const ALL_ACCOUNTS = 'all';
 /** Rows shown on the dashboard before "See full forecast". */
 const EMBEDDED_ROWS = 8;
 
 /**
- * Day-by-day projection of an account's balance from its planned transactions. Routed at /forecast (state in the
- * query string: accountId, from, to) or embedded on the dashboard with `embedded`.
+ * Day-by-day projection of an account's balance from its planned transactions, or of all accounts combined (cash
+ * minus card debt). Routed at /forecast (state in the query string: accountId, which may be "all", from, to) or
+ * embedded on the dashboard with `embedded`.
  */
 @Component({
   selector: 'app-forecast',
@@ -47,6 +57,10 @@ export class ForecastComponent implements OnInit {
 
   readonly accounts = signal<Account[]>([]);
   readonly accountId = signal<number | null>(null);
+  /** Showing all accounts added together instead of `accountId`. */
+  readonly combined = signal(false);
+  /** Accounts left out of the combined view (it starts with everything). */
+  readonly excludedIds = signal<ReadonlySet<number>>(new Set());
   readonly from = signal(this.today);
   readonly to = signal(addDaysIso(this.today, DEFAULT_DAYS));
   readonly forecast = signal<Forecast | null>(null);
@@ -54,8 +68,20 @@ export class ForecastComponent implements OnInit {
   readonly error = signal<string | null>(null);
   private requestSeq = 0;
 
-  readonly account = computed(() => this.accounts().find((a) => a.id === this.accountId()) ?? null);
+  readonly account = computed(() =>
+    this.combined() ? null : (this.accounts().find((a) => a.id === this.accountId()) ?? null),
+  );
   readonly isCreditCard = computed(() => this.account()?.type === 'CREDIT_CARD');
+  readonly includedAccounts = computed(() =>
+    this.accounts().filter((a) => !this.excludedIds().has(a.id)),
+  );
+  /** Combining needs at least two accounts to mean anything. */
+  readonly canCombine = computed(() => this.accounts().length > 1);
+  readonly balanceLabel = computed(() =>
+    this.combined() ? 'Net' : this.isCreditCard() ? 'Owed' : 'Balance',
+  );
+  /** For "See full forecast" and the URL. */
+  readonly selectionParam = computed(() => (this.combined() ? ALL_ACCOUNTS : this.accountId()));
 
   /** Each date with only this account's events (a transfer also lists the other account's side). */
   readonly rows = computed(() => {
@@ -97,13 +123,13 @@ export class ForecastComponent implements OnInit {
     this.accountService.getAllAccounts().subscribe({
       next: (accounts) => {
         this.accounts.set(accounts);
-        const requested = this.embedded()
-          ? NaN
-          : Number(this.route.snapshot.queryParamMap.get('accountId'));
+        const param = this.embedded() ? null : this.route.snapshot.queryParamMap.get('accountId');
+        const requested = Number(param);
         const initial =
           accounts.find((a) => a.id === requested) ?? accounts.find((a) => a.main) ?? accounts[0];
         if (initial) {
           this.accountId.set(initial.id);
+          this.combined.set(param === ALL_ACCOUNTS && accounts.length > 1);
           this.load();
         }
       },
@@ -112,8 +138,30 @@ export class ForecastComponent implements OnInit {
   }
 
   selectAccount(value: string): void {
-    this.accountId.set(Number(value));
+    if (value === ALL_ACCOUNTS) {
+      this.combined.set(true);
+    } else {
+      this.combined.set(false);
+      this.accountId.set(Number(value));
+    }
     this.load();
+  }
+
+  toggleIncluded(accountId: number): void {
+    const next = new Set(this.excludedIds());
+    if (!next.delete(accountId)) {
+      next.add(accountId);
+    }
+    this.excludedIds.set(next);
+    this.load();
+  }
+
+  /** The account a combined-view event happens on. */
+  sourceAccountName(event: FinancialEvent): string | null {
+    if (!isCombinedEvent(event)) {
+      return null;
+    }
+    return this.accounts().find((a) => a.id === event.sourceAccountId)?.name ?? null;
   }
 
   setFrom(value: string): void {
@@ -150,15 +198,30 @@ export class ForecastComponent implements OnInit {
     if (!this.embedded()) {
       this.router.navigate([], {
         relativeTo: this.route,
-        queryParams: { accountId, from, to },
+        queryParams: { accountId: this.selectionParam(), from, to },
         replaceUrl: true,
       });
     }
 
     const request = ++this.requestSeq;
-    this.loading.set(true);
     this.error.set(null);
-    this.forecastService.getForecast(accountId, from, to).subscribe({
+    if (this.combined() && this.includedAccounts().length === 0) {
+      this.forecast.set(null);
+      this.loading.set(false);
+      return;
+    }
+    this.loading.set(true);
+    // No combined endpoint exists: fetch each included account's forecast and add them up.
+    const forecast$ = this.combined()
+      ? forkJoin(
+          this.includedAccounts().map((account) =>
+            this.forecastService
+              .getForecast(account.id, from, to)
+              .pipe(map((forecast) => ({ account, forecast }))),
+          ),
+        ).pipe(map(combineForecasts))
+      : this.forecastService.getForecast(accountId, from, to);
+    forecast$.subscribe({
       next: (forecast) => {
         if (request === this.requestSeq) {
           // ignore responses for a selection that has since changed
