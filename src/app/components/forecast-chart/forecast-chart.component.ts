@@ -106,8 +106,10 @@ export class ForecastChartComponent {
     );
 
     if (this.chart) {
-      // Update in place: the previous render stays on screen while new data arrives (no flash).
+      // Update in place: the previous render stays on screen while new data arrives (no flash). The x range
+      // must follow the new length, or a longer forecast would be cut off at the old end date.
       this.chart.data.datasets[0].data = points;
+      this.chart.options.scales!['x']!.max = points.length - 1;
       this.chart.$extremeIndex = extremeIndex;
       this.chart.$creditCard = creditCard;
       this.chart.update('none');
@@ -195,8 +197,10 @@ export class ForecastChartComponent {
               maxRotation: 0,
               autoSkipPadding: 24,
               maxTicksLimit: this.compact() ? 5 : 8,
-              callback: (value) => {
-                const point = points[Number(value)];
+              // Reads the chart's current data, not `points`: the chart outlives the data it was built with.
+              callback(value) {
+                const data = this.chart.data.datasets[0].data as DailyBalance[];
+                const point = data[Number(value)];
                 return point ? DAY_LABEL.format(toDate(point.date)) : '';
               },
             },
