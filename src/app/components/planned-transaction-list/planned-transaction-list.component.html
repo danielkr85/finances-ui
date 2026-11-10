@@ -100,6 +100,80 @@
   </div>
 }
 
+@if (!loading() && filtered().length > 0 && summary().recurringCount > 0) {
+  @let s = summary();
+  <section class="mb-4" aria-labelledby="plannedSummaryHeading">
+    <h3 id="plannedSummaryHeading" class="visually-hidden">Monthly averages</h3>
+    <div class="row g-3">
+      <div class="col-6 col-lg-3">
+        <div class="card h-100 shadow-sm summary-card">
+          <div class="card-body">
+            <div class="small text-muted">
+              <i class="bi bi-arrow-down-left me-1"></i>Income / month
+            </div>
+            <div class="h4 money mb-0" [class.text-success]="s.income > 0">
+              {{ s.income | money: true }}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="card h-100 shadow-sm summary-card">
+          <div class="card-body">
+            <div class="small text-muted">
+              <i class="bi bi-arrow-up-right me-1"></i>Expenses / month
+            </div>
+            <div class="h4 money mb-0" [class.text-danger]="s.expenses > 0">
+              {{ -s.expenses | money }}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="card h-100 shadow-sm summary-card">
+          <div class="card-body">
+            <div class="small text-muted">
+              <i class="bi bi-arrow-left-right me-1"></i>Transfers / month
+            </div>
+            @if (accountFilter() === null) {
+              <!-- Across all accounts a transfer only moves money, so it's neither in nor out. -->
+              <div class="h4 money mb-0">{{ s.transfersMoved | money }}</div>
+              <div class="small text-muted">Moved between accounts</div>
+            } @else {
+              <div class="h4 money mb-0">{{ s.transfersIn - s.transfersOut | money: true }}</div>
+              <div class="small text-muted money">
+                In {{ s.transfersIn | money }} · out {{ s.transfersOut | money }}
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="card h-100 shadow-sm summary-card">
+          <div class="card-body">
+            <div class="small text-muted"><i class="bi bi-calculator me-1"></i>Net / month</div>
+            <div
+              class="h4 money mb-0"
+              [class.text-success]="s.net > 0"
+              [class.text-danger]="s.net < 0"
+            >
+              {{ s.net | money: true }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="small text-muted mt-2 mb-0">
+      Average per month of {{ s.recurringCount }} recurring
+      {{ s.recurringCount === 1 ? 'transaction' : 'transactions' }}
+      @if (hasActiveFilters()) {
+        matching the filters
+      }
+      (one-time ones aren’t included).
+    </p>
+  </section>
+}
+
 @if (loading()) {
   <div class="text-center my-5">
     <div class="spinner-border text-primary" role="status"></div>

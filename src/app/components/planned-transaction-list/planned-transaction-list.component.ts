@@ -6,9 +6,11 @@ import { Account, hasRole } from '../../models/account.model';
 import { apiErrorMessage } from '../../models/api-error.model';
 import { Category } from '../../models/category.model';
 import { DAYS_OF_WEEK, MONTHS_OF_YEAR } from '../../models/frequency.model';
+import { summarizePlanned } from '../../models/planned-summary';
 import { EventType, PlannedTransaction } from '../../models/planned-transaction.model';
 import { AccountService } from '../../services/account.service';
 import { PlannedTransactionService } from '../../services/planned-transaction.service';
+import { todayIso } from '../../shared/dates';
 import { MoneyPipe } from '../../shared/money.pipe';
 
 type TypeFilter = 'ALL' | EventType;
@@ -83,6 +85,11 @@ export class PlannedTransactionListComponent implements OnInit {
       .filter((t) => cats.size === 0 || (t.category !== null && cats.has(t.category.id)))
       .sort((a, b) => a.name.localeCompare(b.name));
   });
+
+  /** Follows the filters, so picking a category or account shows what it costs per month. */
+  readonly summary = computed(() =>
+    summarizePlanned(this.filtered(), this.accountFilter(), todayIso()),
+  );
 
   readonly hasActiveFilters = computed(
     () =>
