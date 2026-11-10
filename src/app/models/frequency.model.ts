@@ -4,13 +4,7 @@ import { FormGroup, Validators } from '@angular/forms';
 export type IntervalUnit = 'DAY' | 'WEEK' | 'MONTH' | 'YEAR';
 
 export type DayOfWeek =
-  | 'MONDAY'
-  | 'TUESDAY'
-  | 'WEDNESDAY'
-  | 'THURSDAY'
-  | 'FRIDAY'
-  | 'SATURDAY'
-  | 'SUNDAY';
+  'MONDAY' | 'TUESDAY' | 'WEDNESDAY' | 'THURSDAY' | 'FRIDAY' | 'SATURDAY' | 'SUNDAY';
 
 export type Month =
   | 'JANUARY'
