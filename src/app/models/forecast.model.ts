@@ -38,3 +38,25 @@ export interface Forecast {
   projections: Projection[];
   finalBalance: number;
 }
+
+/**
+ * The forecast's low point for a bank account, or its peak for a credit card (where the balance is what's owed).
+ * Ties keep the earliest date; the opening balance on `from` counts.
+ */
+export function forecastExtreme(
+  forecast: Forecast,
+  isCreditCard: boolean,
+): { balance: number; date: string } {
+  let best = { balance: forecast.openingBalance, date: forecast.from };
+  for (const p of forecast.projections) {
+    if (isCreditCard ? p.resultingBalance > best.balance : p.resultingBalance < best.balance) {
+      best = { balance: p.resultingBalance, date: p.date };
+    }
+  }
+  return best;
+}
+
+/** Signed effect of an event on its own account: CREDIT raises the balance (for a card: what's owed). */
+export function signedAmount(event: FinancialEvent): number {
+  return event.direction === 'CREDIT' ? event.amount : -event.amount;
+}

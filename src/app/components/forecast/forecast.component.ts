@@ -3,12 +3,13 @@ import { DatePipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Account, hasCycleBudget } from '../../models/account.model';
 import { apiErrorMessage } from '../../models/api-error.model';
-import { FinancialEvent, Forecast } from '../../models/forecast.model';
+import { Forecast, forecastExtreme, signedAmount } from '../../models/forecast.model';
 import { AccountService } from '../../services/account.service';
 import { ForecastService } from '../../services/forecast.service';
 import { addDaysIso, isIsoDate, todayIso } from '../../shared/dates';
 import { MoneyPipe } from '../../shared/money.pipe';
 import { CycleBudgetCardComponent } from '../cycle-budget-card/cycle-budget-card.component';
+import { ForecastChartComponent } from '../forecast-chart/forecast-chart.component';
 
 export const RANGE_PRESETS = [
   { label: '30 days', days: 30 },
@@ -20,18 +21,13 @@ const DEFAULT_DAYS = 90;
 /** Rows shown on the dashboard before "See full forecast". */
 const EMBEDDED_ROWS = 8;
 
-/** Signed effect of an event on its own account: CREDIT raises the balance (for a card: what's owed). */
-export function signedAmount(event: FinancialEvent): number {
-  return event.direction === 'CREDIT' ? event.amount : -event.amount;
-}
-
 /**
  * Day-by-day projection of an account's balance from its planned transactions. Routed at /forecast (state in the
  * query string: accountId, from, to) or embedded on the dashboard with `embedded`.
  */
 @Component({
   selector: 'app-forecast',
-  imports: [RouterLink, MoneyPipe, DatePipe, CycleBudgetCardComponent],
+  imports: [RouterLink, MoneyPipe, DatePipe, CycleBudgetCardComponent, ForecastChartComponent],
   templateUrl: './forecast.component.html',
   styleUrls: ['./forecast.component.css'],
 })
@@ -80,17 +76,7 @@ export class ForecastComponent implements OnInit {
   /** The low point for a bank account, or the peak of what's owed on a card. */
   readonly extreme = computed(() => {
     const f = this.forecast();
-    if (!f) {
-      return null;
-    }
-    const pickHigher = this.isCreditCard();
-    let best = { balance: f.openingBalance, date: f.from };
-    for (const p of f.projections) {
-      if (pickHigher ? p.resultingBalance > best.balance : p.resultingBalance < best.balance) {
-        best = { balance: p.resultingBalance, date: p.date };
-      }
-    }
-    return best;
+    return f ? forecastExtreme(f, this.isCreditCard()) : null;
   });
 
   ngOnInit(): void {

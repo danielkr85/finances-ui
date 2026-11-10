@@ -23,6 +23,9 @@ the backend code disagree, the code wins. Before adding or changing a model fiel
 | `npx ng test --watch=false` | All unit tests, once |
 | `npm run format` / `npm run format:check` | Prettier over `src/` (write / verify) |
 
+After installing or removing a dependency, restart `ng serve` and hard-refresh the browser. A running dev server
+keeps its old pre-bundled dependencies, and because every route is lazy-loaded, all pages then fail to load.
+
 After any change, run `npm run format`, then the build and the tests. All three must be clean before you call the
 work done. Formatting-only commits go in `.git-blame-ignore-revs`.
 
@@ -109,6 +112,20 @@ admin pages also need `adminGuard`.
   Modals and dropdowns use `data-bs-toggle`; the navbar collapse is signal-driven so it closes on navigation.
 - Keep the layout usable at phone width.
 
+### Charts
+- Chart.js 4 (`components/forecast-chart/`). Register only the controllers, elements and plugins a chart uses
+  (`Chart.register(...)`), so the rest is tree-shaken. Charts live in lazy routes; keep them out of the initial
+  bundle.
+- Colours come from CSS custom properties in the component's `.css` (`--chart-*`, with dark-mode values), read
+  once with `getComputedStyle`. Check any new series colour against both surfaces with a palette validator.
+- One series means no legend. Use thin lines, a hairline grid, a stronger line at $0, and a tooltip on hover.
+  Don't put a number on every point.
+- `animation: false`. Update an existing chart in place with `update('none')` rather than recreating it.
+  `destroy()` it in `DestroyRef`.
+- The canvas has `role="img"` and an `aria-label` summary, and a table always shows the same data.
+- Skip drawing when `getContext('2d')` is null (jsdom), and test the data shaping (`forecast-series.ts`) as pure
+  functions.
+
 ## Coding Conventions
 - Prettier (`.prettierrc`): 100-char lines, single quotes, 2-space indent, LF line endings (`.gitattributes`,
   `.editorconfig`). `src/` is fully formatted; keep it that way with `npm run format`.
@@ -141,14 +158,25 @@ Unit tests only prove the payloads match what we *think* the server wants. To ch
    `APP_ADMIN_PASSWORD` and `APP_JWT_SECRET`. Check that `target/classes` is newer than `src/main` first.
 3. Replay the payloads with a Node script (`fetch`), then stop the instance.
 
+### Checking in a browser (for visual changes)
+Run a second dev server (`npx ng serve --port 4201`) and the throwaway backend from above, with
+`APP_CORS_ALLOWED_ORIGINS=http://localhost:4201`. Seed it over the API, then drive headless Edge
+(`msedge --headless=new --remote-debugging-port=9333`) from a Node script over the DevTools protocol.
+- Rewrite `http://localhost:8080` to `:8081` inside that browser only, with
+  `Page.addScriptToEvaluateOnNewDocument` wrapping `XMLHttpRequest.prototype.open`.
+- Sign in through the login form, then take screenshots at 1280px and 390px wide.
+- Record console errors and failed requests too.
+
+Stop all three processes afterwards. Never touch the user's :4200 or :8080.
+
 ## Environment
 - Windows 11; Git Bash and PowerShell are both available. **Python and jq are not installed**: use Node, sed or
   PowerShell for scripting.
 - `git config core.autocrlf` is `true` locally; `.gitattributes` forces LF, so ignore any leftover CRLF warnings.
 
 ## Known Gaps
-- None of the screens have been checked visually in a browser by an agent; they're covered by unit tests and API
-  contract checks only.
+- Only the dashboard, forecast, categories, account form and planned-transaction form have been checked in a
+  browser by an agent. The other screens are covered by unit tests and API contract checks only.
 - Backend: `targetAccountId` has no foreign key, so deleting a transfer's target account leaves transfers pointing
   at it. The planned-transaction list shows "an account you can't see" for ids it doesn't know.
 - The dashboard's budget cards don't refresh after an account is deleted from the embedded account list (each

@@ -18,3 +18,12 @@ export function addDaysIso(isoDate: string, days: number): string {
 export function isIsoDate(value: unknown): value is string {
   return typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value);
 }
+
+/** Whole calendar days from `fromIso` to `toIso` (negative if earlier); unaffected by daylight-saving shifts. */
+export function daysBetween(fromIso: string, toIso: string): number {
+  const utc = (iso: string) => {
+    const [y, m, d] = iso.split('-').map(Number);
+    return Date.UTC(y, m - 1, d);
+  };
+  return Math.round((utc(toIso) - utc(fromIso)) / 86_400_000);
+}

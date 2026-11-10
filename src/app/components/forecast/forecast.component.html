@@ -129,6 +129,19 @@
       }
     </div>
 
+    @if (f.projections.length > 0) {
+      <div class="card shadow-sm mb-4">
+        <div class="card-body">
+          <app-forecast-chart
+            [forecast]="f"
+            [isCreditCard]="isCreditCard()"
+            [accountName]="account()?.name ?? ''"
+            [compact]="embedded()"
+          />
+        </div>
+      </div>
+    }
+
     @if (f.projections.length === 0) {
       <div class="alert alert-light border">
         Nothing planned for this account in this period.
@@ -150,20 +163,24 @@
           <tbody>
             @for (row of rows(); track row.date) {
               <tr>
-                <td class="text-nowrap">{{ row.date | date: 'EEE, MMM d' }}</td>
+                <!-- Phones get "Nov 13" with no badges or per-event amounts, so the table fits without scrolling. -->
+                <td class="text-nowrap">
+                  <span class="d-none d-sm-inline">{{ row.date | date: 'EEE, ' }}</span
+                  >{{ row.date | date: 'MMM d' }}
+                </td>
                 <td>
                   @for (event of row.events; track $index) {
                     <div class="d-flex justify-content-between gap-3">
                       <span>
                         {{ event.description }}
                         @if (event.category) {
-                          <span class="badge text-bg-light border ms-1">{{
+                          <span class="badge text-bg-light border ms-1 d-none d-sm-inline-block">{{
                             event.category.name
                           }}</span>
                         }
                       </span>
                       @if (row.events.length > 1) {
-                        <span class="font-monospace text-muted small">{{
+                        <span class="font-monospace text-muted small d-none d-sm-inline">{{
                           signedAmount(event) | money: true
                         }}</span>
                       }

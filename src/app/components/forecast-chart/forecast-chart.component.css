@@ -1,0 +1,29 @@
+/*
+ * Chart colours by role. The series blue is the validated categorical slot 1 (≥3:1 on the card surface in both
+ * modes); everything else follows Bootstrap's tokens so the chart matches the app's chrome.
+ */
+:host {
+  display: block;
+  --chart-series: #2a78d6;
+  --chart-surface: var(--bs-body-bg);
+  --chart-grid: var(--bs-border-color-translucent);
+  --chart-baseline: #adb5bd;
+  --chart-text: var(--bs-body-color);
+  --chart-muted: var(--bs-secondary-color);
+  --chart-border: var(--bs-border-color);
+}
+
+:host-context([data-bs-theme='dark']) {
+  --chart-series: #3987e5;
+  --chart-baseline: #6c757d;
+}
+
+/* The box includes the x-axis band, so axis labels never get clipped or cause a nested scroll. */
+.chart-box {
+  position: relative;
+  height: 280px;
+}
+
+.chart-box.compact {
+  height: 200px;
+}
