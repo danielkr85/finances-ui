@@ -21,3 +21,15 @@
 [data-bs-theme='dark'] .text-danger {
   color: var(--bs-danger-text-emphasis) !important;
 }
+
+/* Light mode: Bootstrap's defaults barely differ from white (the navbar is #f8f9fa, borders #dee2e6), so the
+   banner, card edges, table rules and chart grid nearly vanish. One step darker gives about the separation dark
+   mode has. Only the light theme is touched (the attribute is always set; see index.html). */
+[data-bs-theme='light'] {
+  --bs-tertiary-bg: #eceff2;
+  --bs-tertiary-bg-rgb: 236, 239, 242;
+  --bs-secondary-bg: #e1e5e9;
+  --bs-secondary-bg-rgb: 225, 229, 233;
+  --bs-border-color: #ced4da;
+  --bs-border-color-translucent: rgba(0, 0, 0, 0.22);
+}
