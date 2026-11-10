@@ -151,10 +151,10 @@
             <td>{{ user.role === 'ADMIN' ? 'Admin' : 'User' }}</td>
             <td class="small">
               @if (user.passwordLogin) {
-                <span class="badge text-bg-light border me-1">Password</span>
+                <span class="badge bg-body-tertiary text-body border me-1">Password</span>
               }
               @if (user.googleLinked) {
-                <span class="badge text-bg-light border">Google</span>
+                <span class="badge bg-body-tertiary text-body border">Google</span>
               } @else if (!user.passwordLogin) {
                 <span class="text-muted">Google, not signed in yet</span>
               }

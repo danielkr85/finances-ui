@@ -46,7 +46,7 @@
             @if (!isOwner(account)) {
               <div class="text-muted small">
                 <i class="bi bi-people me-1"></i>Shared by {{ account.ownerEmail }}
-                <span class="badge text-bg-light border ms-1">{{
+                <span class="badge bg-body-tertiary text-body border ms-1">{{
                   account.myRole === 'EDITOR' ? 'Editor' : 'Viewer'
                 }}</span>
               </div>
@@ -139,7 +139,9 @@
         }
       </div>
       <div class="modal-footer border-0 pt-0">
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          Cancel
+        </button>
         <button
           type="button"
           class="btn btn-danger"

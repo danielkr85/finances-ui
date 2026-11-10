@@ -22,6 +22,7 @@ import {
   Tooltip,
 } from 'chart.js';
 import { Forecast, forecastExtreme, signedAmount } from '../../models/forecast.model';
+import { ThemeService } from '../../services/theme.service';
 import { MoneyPipe } from '../../shared/money.pipe';
 import { axisMoney, DailyBalance, dailyBalances } from './forecast-series';
 
@@ -69,8 +70,10 @@ export class ForecastChartComponent {
   readonly accountName = input('');
   readonly compact = input(false);
 
+  private readonly themes = inject(ThemeService);
   private readonly rendered = signal(false);
   private chart: Chart<'line', DailyBalance[]> | null = null;
+  private chartTheme: string | null = null;
 
   readonly points = computed(() => dailyBalances(this.forecast()));
   readonly extreme = computed(() => forecastExtreme(this.forecast(), this.isCreditCard()));
@@ -92,9 +95,17 @@ export class ForecastChartComponent {
   constructor() {
     afterNextRender(() => this.rendered.set(true));
     effect(() => {
-      if (this.rendered()) {
-        this.draw(this.points(), this.extreme().date, this.isCreditCard());
+      const theme = this.themes.theme();
+      if (!this.rendered()) {
+        return;
       }
+      // Colours are read from CSS once, when the chart is built, so a theme switch rebuilds it.
+      if (this.chart && theme !== this.chartTheme) {
+        this.chart.destroy();
+        this.chart = null;
+      }
+      this.chartTheme = theme;
+      this.draw(this.points(), this.extreme().date, this.isCreditCard());
     });
     inject(DestroyRef).onDestroy(() => this.chart?.destroy());
   }

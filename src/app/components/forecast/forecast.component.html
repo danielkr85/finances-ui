@@ -168,9 +168,10 @@
                       <span>
                         {{ event.description }}
                         @if (event.category) {
-                          <span class="badge text-bg-light border ms-1 d-none d-sm-inline-block">{{
-                            event.category.name
-                          }}</span>
+                          <span
+                            class="badge bg-body-tertiary text-body border ms-1 d-none d-sm-inline-block"
+                            >{{ event.category.name }}</span
+                          >
                         }
                       </span>
                       @if (row.events.length > 1) {

@@ -12,3 +12,12 @@
 .page-narrow {
   max-width: 640px;
 }
+
+/* Bootstrap keeps the light-mode green and red for text in dark mode, where they're dim on the dark surface. Its
+   lighter "emphasis" tones are made for dark backgrounds. */
+[data-bs-theme='dark'] .text-success {
+  color: var(--bs-success-text-emphasis) !important;
+}
+[data-bs-theme='dark'] .text-danger {
+  color: var(--bs-danger-text-emphasis) !important;
+}

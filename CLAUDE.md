@@ -33,7 +33,8 @@ work done. Formatting-only commits go in `.git-blame-ignore-revs`.
 ```
 src/app/
 ├── components/<name>/   one folder per component: .ts + .html (+ .css only if it has styles, + .spec.ts)
-├── services/            all HTTP calls; one service per backend resource (AdminUserService lives in user.service.ts)
+├── services/            all HTTP calls; one service per backend resource (AdminUserService lives in user.service.ts),
+│                        plus ThemeService
 ├── models/              TS types mirroring backend DTOs, plus small pure helpers (hasRole, hasCycleBudget,
 │                        buildFrequencyPayload, apiErrorMessage)
 ├── interceptors/        auth.interceptor.ts (bearer token, refresh-and-retry, credentials on /auth)
@@ -114,6 +115,11 @@ admin pages also need `adminGuard`.
 - Shared classes in `src/styles.css`: `.money` on amounts (equal-width digits in the body font; never
   `font-monospace`), and `.page-narrow` for forms and single-column pages (left-aligned, not centred).
 - Amount colours: money in is green with `+`, money out is red with `-`, and transfers and balances stay neutral.
+- **Light and dark themes** (`ThemeService` sets `data-bs-theme` on `<html>`; an inline script in `index.html` applies
+  the saved choice before boot). Everything must work in both. Never use classes with fixed light colours
+  (`text-bg-light`, `btn-light`, `bg-light`, `bg-white`, `text-dark`); use `bg-body-tertiary text-body`,
+  `btn-outline-secondary` and the other `--bs-body-*` tokens. Theme-dependent component CSS goes under
+  `:host-context([data-bs-theme='dark'])`, not `prefers-color-scheme`. Check visual changes in both themes.
 
 ### Charts
 - Chart.js 4 (`components/forecast-chart/`). Register only the controllers, elements and plugins a chart uses

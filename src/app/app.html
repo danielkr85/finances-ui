@@ -70,6 +70,37 @@
               class="nav-link dropdown-toggle"
               data-bs-toggle="dropdown"
               aria-expanded="false"
+              aria-label="Theme"
+              title="Theme"
+            >
+              <i class="bi" [class]="themeIcon()"></i>
+              <span class="d-lg-none ms-2">Theme</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              @for (option of themeOptions; track option.value) {
+                <li>
+                  <button
+                    type="button"
+                    class="dropdown-item d-flex align-items-center gap-2"
+                    [class.active]="themes.preference() === option.value"
+                    [attr.aria-pressed]="themes.preference() === option.value"
+                    (click)="themes.setPreference(option.value)"
+                  >
+                    <i class="bi" [class]="option.icon"></i>{{ option.label }}
+                    @if (themes.preference() === option.value) {
+                      <i class="bi bi-check2 ms-auto"></i>
+                    }
+                  </button>
+                </li>
+              }
+            </ul>
+          </li>
+          <li class="nav-item dropdown">
+            <button
+              type="button"
+              class="nav-link dropdown-toggle"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
             >
               <i class="bi bi-person-circle me-1"></i>{{ user.displayName }}
               @if (auth.isAdmin()) {
