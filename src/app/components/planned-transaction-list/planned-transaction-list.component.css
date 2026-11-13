@@ -14,3 +14,17 @@
   transform: translateY(-2px);
   box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1) !important;
 }
+
+/* The four summary cards: 2×2 beside the pie, filling its height (a gutter row can't, its negative margin
+   shifts it), or one row of four on wide screens when there's no pie. */
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+@media (min-width: 992px) {
+  .summary-grid.wide {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}

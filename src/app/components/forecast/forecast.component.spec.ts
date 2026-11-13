@@ -3,7 +3,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter, Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
-import { Forecast } from '../../models/forecast.model';
+import { AmountBasis, Forecast } from '../../models/forecast.model';
 import { addDaysIso, todayIso } from '../../shared/dates';
 import { account } from '../../testing/api-fixtures';
 import { ForecastComponent } from './forecast.component';
@@ -34,7 +34,7 @@ describe('ForecastComponent', () => {
     http
       .expectOne(`${API}/accounts`)
       .flush([account(1, 'Checking', { main: true }), account(2, 'Amex', { type: 'CREDIT_CARD' })]);
-    return { c: fixture.componentInstance, navigate };
+    return { c: fixture.componentInstance, fixture, navigate };
   }
 
   afterEach(() => http.verify());
@@ -84,6 +84,35 @@ describe('ForecastComponent', () => {
 
     expect(c.rows()[0].events.map((e) => e.accountId)).toEqual([1]);
     expect(c.extreme()).toEqual({ balance: 500, date: '2030-01-01' });
+  });
+
+  it('labels a card payment the server sized from the statement', async () => {
+    const { c, fixture } = setup();
+    http
+      .expectOne((r) => r.url === `${API}/forecasts`)
+      .flush(
+        forecast(1, [
+          {
+            date: '2030-01-01',
+            amountChange: -1840,
+            resultingBalance: -840,
+            events: [
+              {
+                ...event(1, 'Card payment', 1840, 'DEBIT', 'TRANSFER'),
+                amountBasis: 'LAST_STATEMENT',
+              },
+              event(1, 'Gym', 45, 'DEBIT', 'EXPENSE'),
+            ],
+          },
+        ]),
+      );
+    await fixture.whenStable();
+    const lines = [...fixture.nativeElement.querySelectorAll('tbody td > div')].map(
+      (line: Element) => line.textContent!.replace(/\s+/g, ' '),
+    );
+    expect(lines.some((t) => t.includes('Card payment Last statement'))).toBe(true);
+    expect(lines.some((t) => t.includes('Gym') && t.includes('statement'))).toBe(false);
+    expect(c.amountBasisLabel(c.rows()[0].events[1])).toBeNull();
   });
 
   it('tracks the most owed for a credit card', () => {
@@ -195,6 +224,7 @@ describe('ForecastComponent', () => {
       accountId,
       category: null,
       plannedTransactionId: 1,
+      amountBasis: null as AmountBasis | null,
     };
   }
 });

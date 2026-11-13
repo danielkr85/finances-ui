@@ -6,11 +6,13 @@ import { Account, hasRole } from '../../models/account.model';
 import { apiErrorMessage } from '../../models/api-error.model';
 import { Category } from '../../models/category.model';
 import { DAYS_OF_WEEK, MONTHS_OF_YEAR } from '../../models/frequency.model';
+import { categoryColorSlots, expensesByCategory } from '../../models/expense-categories';
 import { summarizePlanned } from '../../models/planned-summary';
 import { EventType, PlannedTransaction } from '../../models/planned-transaction.model';
 import { AccountService } from '../../services/account.service';
 import { PlannedTransactionService } from '../../services/planned-transaction.service';
 import { todayIso } from '../../shared/dates';
+import { ExpenseCategoryChartComponent } from '../expense-category-chart/expense-category-chart.component';
 import { MoneyPipe } from '../../shared/money.pipe';
 
 type TypeFilter = 'ALL' | EventType;
@@ -40,7 +42,7 @@ export function describeSchedule(t: PlannedTransaction): string {
 
 @Component({
   selector: 'app-planned-transaction-list',
-  imports: [RouterLink, MoneyPipe, DatePipe, TitleCasePipe],
+  imports: [RouterLink, MoneyPipe, DatePipe, TitleCasePipe, ExpenseCategoryChartComponent],
   templateUrl: './planned-transaction-list.component.html',
   styleUrls: ['./planned-transaction-list.component.css'],
 })
@@ -89,6 +91,15 @@ export class PlannedTransactionListComponent implements OnInit {
   /** Follows the filters, so picking a category or account shows what it costs per month. */
   readonly summary = computed(() =>
     summarizePlanned(this.filtered(), this.accountFilter(), todayIso()),
+  );
+
+  /** From the unfiltered list, so a category keeps its colour while the filters change. */
+  private readonly categoryColors = computed(() =>
+    categoryColorSlots(this.transactions(), todayIso()),
+  );
+
+  readonly expenseSlices = computed(() =>
+    expensesByCategory(this.filtered(), this.categoryColors(), todayIso()),
   );
 
   readonly hasActiveFilters = computed(

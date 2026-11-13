@@ -1,0 +1,28 @@
+<div class="d-flex flex-column flex-sm-row align-items-center gap-3">
+  <div class="pie-box flex-shrink-0">
+    <canvas #canvas role="img" [attr.aria-label]="summary()"></canvas>
+  </div>
+  <table class="table table-sm table-borderless small mb-0 align-middle">
+    <caption class="visually-hidden">
+      Monthly expenses by category
+    </caption>
+    <thead class="visually-hidden">
+      <tr>
+        <th scope="col">Category</th>
+        <th scope="col">Per month</th>
+        <th scope="col">Share</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (s of slices(); track s.key) {
+        <tr>
+          <th scope="row" class="fw-normal text-truncate category-name">
+            <span class="swatch me-2" [style.background-color]="swatch(s.color)"></span>{{ s.name }}
+          </th>
+          <td class="text-end money text-nowrap">{{ s.amount | money }}</td>
+          <td class="text-end money text-muted text-nowrap">{{ s.share | percent }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

@@ -124,5 +124,6 @@ function ev(
     accountId,
     category: null,
     plannedTransactionId,
+    amountBasis: null,
   };
 }

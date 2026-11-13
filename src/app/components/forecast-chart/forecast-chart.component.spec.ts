@@ -18,6 +18,7 @@ const event = (
   accountId,
   category: null,
   plannedTransactionId: 1,
+  amountBasis: null,
 });
 
 const FORECAST: Forecast = {

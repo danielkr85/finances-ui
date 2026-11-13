@@ -6,6 +6,7 @@ import { Account, hasCycleBudget } from '../../models/account.model';
 import { apiErrorMessage } from '../../models/api-error.model';
 import { combineForecasts, isCombinedEvent } from '../../models/combined-forecast';
 import {
+  amountBasisLabel,
   FinancialEvent,
   Forecast,
   forecastExtreme,
@@ -52,6 +53,7 @@ export class ForecastComponent implements OnInit {
 
   readonly presets = RANGE_PRESETS;
   readonly signedAmount = signedAmount;
+  readonly amountBasisLabel = amountBasisLabel;
   readonly hasCycleBudget = hasCycleBudget;
   readonly today = todayIso();
 

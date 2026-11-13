@@ -21,7 +21,12 @@ import {
   PointElement,
   Tooltip,
 } from 'chart.js';
-import { Forecast, forecastExtreme, signedAmount } from '../../models/forecast.model';
+import {
+  amountBasisLabel,
+  Forecast,
+  forecastExtreme,
+  signedAmount,
+} from '../../models/forecast.model';
 import { ThemeService } from '../../services/theme.service';
 import { MoneyPipe } from '../../shared/money.pipe';
 import { axisMoney, DailyBalance, dailyBalances } from './forecast-series';
@@ -262,9 +267,11 @@ export class ForecastChartComponent {
                 const p = item.raw as DailyBalance;
                 return [
                   LONG_DAY.format(toDate(p.date)),
-                  ...p.events.map(
-                    (e) => `${money.transform(signedAmount(e), true)}  ${e.description}`,
-                  ),
+                  ...p.events.map((e) => {
+                    const basis = amountBasisLabel(e);
+                    const text = `${money.transform(signedAmount(e), true)}  ${e.description}`;
+                    return basis ? `${text} (${basis.toLowerCase()})` : text;
+                  }),
                 ];
               },
             },

@@ -18,6 +18,24 @@ export interface FinancialEvent {
   accountId: number;
   category: Category | null;
   plannedTransactionId: number;
+  /**
+   * Set when the server sized `amount` from a credit card's statement instead of the planned amount: the next two
+   * payments from checking into a card with billing details. Null when the planned amount was used.
+   */
+  amountBasis: AmountBasis | null;
+}
+
+export type AmountBasis = 'LAST_STATEMENT' | 'PROJECTED_STATEMENT' | 'MONTHLY_TARGET';
+
+const AMOUNT_BASIS_LABELS: Record<AmountBasis, string> = {
+  LAST_STATEMENT: 'Last statement',
+  PROJECTED_STATEMENT: 'Projected statement',
+  MONTHLY_TARGET: 'Monthly target',
+};
+
+/** "Last statement" etc., or null for an event that uses its planned amount. */
+export function amountBasisLabel(event: FinancialEvent): string | null {
+  return event.amountBasis ? AMOUNT_BASIS_LABELS[event.amountBasis] : null;
 }
 
 export interface Projection {

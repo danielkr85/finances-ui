@@ -20,6 +20,14 @@ export function occurrencesPerMonth(f: Frequency): number {
   }
 }
 
+/** A recurring transaction's average amount per month (unrounded), or null if it's one-time or has ended. */
+export function monthlyAmount(t: PlannedTransaction, today: string): number | null {
+  if (!t.frequency || (t.endDate !== null && t.endDate < today)) {
+    return null;
+  }
+  return t.amount * occurrencesPerMonth(t.frequency);
+}
+
 export interface PlannedSummary {
   income: number;
   expenses: number;
@@ -54,11 +62,11 @@ export function summarizePlanned(
   let recurringCount = 0;
 
   for (const t of transactions) {
-    if (!t.frequency || (t.endDate !== null && t.endDate < today)) {
+    const monthly = monthlyAmount(t, today);
+    if (monthly === null) {
       continue;
     }
     recurringCount++;
-    const monthly = t.amount * occurrencesPerMonth(t.frequency);
     if (t.type === 'INCOME') {
       income += monthly;
     } else if (t.type === 'EXPENSE') {

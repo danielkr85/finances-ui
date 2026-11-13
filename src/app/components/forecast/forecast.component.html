@@ -207,6 +207,14 @@
                     <div class="d-flex flex-wrap align-items-baseline column-gap-2">
                       <span>
                         {{ event.description }}
+                        <!-- Shown on phones too: it explains why the amount isn't the planned one. -->
+                        @if (amountBasisLabel(event); as basis) {
+                          <span
+                            class="text-muted small ms-1"
+                            title="Amount taken from the card's statement, not the planned amount"
+                            ><i class="bi bi-receipt me-1" aria-hidden="true"></i>{{ basis }}</span
+                          >
+                        }
                         @if (sourceAccountName(event); as source) {
                           <span class="text-muted small ms-1 d-none d-sm-inline">{{ source }}</span>
                         }
