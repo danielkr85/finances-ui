@@ -20,7 +20,8 @@ The API reference is `finances-service/API_DOCUMENTATION.md`; where it and the b
 3. Open `http://localhost:4200` and sign in. There is no public sign-up: an admin adds people under
    **Manage users**.
 
-The API URL is set in `src/environments/environment*.ts` (`apiUrl`).
+The API URL is set in `src/environments/environment*.ts` (`apiUrl`): `http://localhost:8080/api/v1` in development,
+`/api/v1` in production, where the UI and API share one origin behind a reverse proxy.
 
 ### Google sign-in (optional)
 
@@ -49,3 +50,10 @@ Set `googleClientId` in `src/environments/environment*.ts` to the same OAuth Web
 | `npm start` | Dev server on `http://localhost:4200` with live reload |
 | `npm run build` | Production build into `dist/` |
 | `npm test` | Unit tests (Vitest) |
+
+## Deployment
+
+`docker build -t finances-ui .` produces a Caddy image that serves the production bundle on port 80 with a
+single-page-app fallback (`docker/Caddyfile`). TLS, security headers (including a strict Content-Security-Policy,
+so `index.html` must not contain inline scripts) and routing of `/api/*` to the backend are handled by the edge
+proxy in the `finances-deploy` repository.

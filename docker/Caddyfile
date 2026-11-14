@@ -1,0 +1,22 @@
+# Internal static server for the built SPA. Plain HTTP on :80; only the edge proxy talks to it.
+{
+	admin off
+	auto_https off
+}
+
+:80 {
+	root * /srv
+	encode zstd gzip
+
+	# Hashed bundles (chunk-*.js, main-*.js, styles-*.css) never change: cache forever.
+	@hashed path_regexp \-[A-Z0-9]{8}\.(js|css)$
+	header @hashed Cache-Control "public, max-age=31536000, immutable"
+
+	# index.html and other unhashed files must be revalidated so a deploy is picked up immediately.
+	@unhashed not path_regexp \-[A-Z0-9]{8}\.(js|css)$
+	header @unhashed Cache-Control "no-cache"
+
+	# Client-side routes (/accounts/1/edit, ...) fall back to index.html.
+	try_files {path} /index.html
+	file_server
+}

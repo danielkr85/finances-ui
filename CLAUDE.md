@@ -12,8 +12,11 @@ the backend code disagree, the code wins. Before adding or changing a model fiel
 ## Identity
 - **Tech**: Angular 21 (standalone, **zoneless**, signals) · TypeScript 5.9 strict + strict templates · RxJS 7.8 ·
   Bootstrap 5.3 + Bootstrap Icons · Vitest (via `@angular/build:unit-test`) · Prettier
-- **API**: `environment.apiUrl` (`http://localhost:8080/api/v1` in both environments). The backend's CORS allows
-  `http://localhost:4200` with credentials.
+- **API**: `environment.apiUrl` — `/api/v1` in production (same origin: the edge proxy in `finances-deploy` routes
+  `/api/*` to the backend), `http://localhost:8080/api/v1` in development (backend CORS allows `:4200`).
+- **Deployment**: `Dockerfile` builds the bundle and serves it with Caddy on :80 (`docker/Caddyfile`: SPA fallback,
+  `no-cache` on `index.html`, immutable hashed bundles). The edge proxy sets a strict CSP (`script-src 'self'`):
+  **no inline scripts or event handlers** in `index.html`; critical-CSS inlining is off for that reason.
 
 ## Commands
 | Command | Use |
@@ -117,8 +120,8 @@ admin pages also need `adminGuard`.
 - Shared classes in `src/styles.css`: `.money` on amounts (equal-width digits in the body font; never
   `font-monospace`), and `.page-narrow` for forms and single-column pages (left-aligned, not centred).
 - Amount colours: money in is green with `+`, money out is red with `-`, and transfers and balances stay neutral.
-- **Light and dark themes** (`ThemeService` sets `data-bs-theme` on `<html>`; an inline script in `index.html` applies
-  the saved choice before boot). Everything must work in both. Never use classes with fixed light colours
+- **Light and dark themes** (`ThemeService` sets `data-bs-theme` on `<html>`; `public/theme-init.js`, loaded by
+  `index.html`, applies the saved choice before boot). Everything must work in both. Never use classes with fixed light colours
   (`text-bg-light`, `btn-light`, `bg-light`, `bg-white`, `text-dark`); use `bg-body-tertiary text-body`,
   `btn-outline-secondary` and the other `--bs-body-*` tokens. Theme-dependent component CSS goes under
   `:host-context([data-bs-theme='dark'])`, not `prefers-color-scheme`. Check visual changes in both themes.
