@@ -76,12 +76,46 @@
           </div>
           <div class="form-text">
             @if (isCreditCard()) {
-              Everything owed on the card today, including an unpaid closed statement.
+              What's owed on the card today, including an unpaid closed statement.
             } @else {
               The balance as of today, in whole dollars.
             }
           </div>
         </div>
+
+        @if (isCreditCard() && !readOnly()) {
+          <div class="mb-3">
+            <label for="pendingAmount" class="form-label fw-bold">Pending charges</label>
+            <div class="input-group has-validation">
+              <span class="input-group-text">$</span>
+              <input
+                type="number"
+                id="pendingAmount"
+                formControlName="pendingAmount"
+                class="form-control"
+                min="0"
+                step="1"
+                [class.is-invalid]="invalid('pendingAmount')"
+                placeholder="0"
+                aria-describedby="pendingAmountHelp"
+              />
+              <div class="invalid-feedback">Zero or more, in whole dollars.</div>
+            </div>
+            <div class="form-text" id="pendingAmountHelp">
+              Charges that haven't posted yet, added to the amount owed when you save.
+              @if (isEditing()) {
+                The amount owed may already include pending charges from your last save, so update
+                it to the posted balance first.
+              }
+            </div>
+            @if (totalWithPending() !== null) {
+              <div class="mt-2" aria-live="polite">
+                Total owed to be saved:
+                <strong class="money">{{ totalWithPending() | money }}</strong>
+              </div>
+            }
+          </div>
+        }
 
         <div class="mb-3 form-check">
           <input type="checkbox" id="mainAccount" formControlName="main" class="form-check-input" />
@@ -149,7 +183,7 @@
                   />
                   <div class="invalid-feedback">
                     @if (form.hasError('statementExceedsAmount')) {
-                      Can't be more than the amount owed.
+                      Can't be more than the total owed.
                     } @else {
                       {{
                         serverError(form.controls.statementBalance) ??

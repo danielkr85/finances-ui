@@ -11,30 +11,41 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Account, AccountRequest, AccountType } from '../../models/account.model';
 import { apiErrorMessage } from '../../models/api-error.model';
 import { AccountService } from '../../services/account.service';
+import { MoneyPipe } from '../../shared/money.pipe';
 import { applyServerErrors, serverError } from '../../shared/form-errors';
 import { ACCOUNT_TYPE_LABELS } from '../account-list/account-list.component';
 import { AccountSharesComponent } from '../account-shares/account-shares.component';
 
 const WHOLE_NUMBER = Validators.pattern(/^-?\d+$/);
 
-/** A credit card's unpaid statement is part of what's owed, so it can't exceed the amount. */
+/** The amount to save. The backend keeps one balance, so a card's pending charges are added to it. */
+function totalAmount(
+  type: AccountType | null,
+  amount: number | null,
+  pendingAmount: number | null,
+): number {
+  return Number(amount) + (type === 'CREDIT_CARD' ? Number(pendingAmount) : 0);
+}
+
+/** A credit card's unpaid statement is part of what's owed, so it can't exceed the total amount. */
 function statementWithinAmount(group: AbstractControl): ValidationErrors | null {
-  const { type, amount, statementBalance } = group.value as {
+  const { type, amount, pendingAmount, statementBalance } = group.value as {
     type: AccountType;
     amount: number | null;
+    pendingAmount: number | null;
     statementBalance: number | null;
   };
   return type === 'CREDIT_CARD' &&
     amount !== null &&
     statementBalance !== null &&
-    statementBalance > amount
+    statementBalance > totalAmount(type, amount, pendingAmount)
     ? { statementExceedsAmount: true }
     : null;
 }
 
 @Component({
   selector: 'app-account-form',
-  imports: [ReactiveFormsModule, RouterLink, AccountSharesComponent],
+  imports: [ReactiveFormsModule, RouterLink, AccountSharesComponent, MoneyPipe],
   templateUrl: './account-form.component.html',
   styleUrls: ['./account-form.component.css'],
 })
@@ -62,6 +73,7 @@ export class AccountFormComponent implements OnInit {
     {
       name: ['', [Validators.required, Validators.maxLength(255)]],
       amount: [null as number | null, [Validators.required, WHOLE_NUMBER]],
+      pendingAmount: [null as number | null, [Validators.min(0), WHOLE_NUMBER]],
       type: ['CHECKING' as AccountType, Validators.required],
       main: [false],
       paymentDueDay: [null as number | null, [Validators.min(1), Validators.max(31), WHOLE_NUMBER]],
@@ -79,6 +91,19 @@ export class AccountFormComponent implements OnInit {
     initialValue: this.form.controls.type.value,
   });
   readonly isCreditCard = computed(() => this.type() === 'CREDIT_CARD');
+
+  private readonly amount = toSignal(this.form.controls.amount.valueChanges, {
+    initialValue: this.form.controls.amount.value,
+  });
+  private readonly pendingAmount = toSignal(this.form.controls.pendingAmount.valueChanges, {
+    initialValue: this.form.controls.pendingAmount.value,
+  });
+  /** The balance that will be saved; null when there are no pending charges to add. */
+  readonly totalWithPending = computed(() =>
+    this.isCreditCard() && this.amount() !== null && this.pendingAmount()
+      ? totalAmount(this.type(), this.amount(), this.pendingAmount())
+      : null,
+  );
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
@@ -122,7 +147,7 @@ export class AccountFormComponent implements OnInit {
     const creditCard = v.type === 'CREDIT_CARD';
     const request: AccountRequest = {
       name: v.name!.trim(),
-      amount: Number(v.amount),
+      amount: totalAmount(v.type, v.amount, v.pendingAmount),
       type: v.type!,
       main: !!v.main,
       // Billing fields are only allowed on credit cards.

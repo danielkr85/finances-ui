@@ -86,6 +86,47 @@ describe('AccountFormComponent', () => {
     });
   });
 
+  it('adds pending charges to the amount owed on a credit card', () => {
+    const c = setup(account(7, 'Amex', { type: 'CREDIT_CARD', amount: 1000 }));
+    expect(c.form.controls.pendingAmount.value).toBeNull();
+    expect(c.totalWithPending()).toBeNull();
+    c.form.patchValue({ amount: 900, pendingAmount: 250, statementBalance: 1100 });
+    expect(c.totalWithPending()).toBe(1150);
+    expect(c.form.valid).toBe(true); // the statement is checked against the total
+    c.onSubmit();
+
+    expect(http.expectOne(`${API}/accounts/7`).request.body).toEqual({
+      name: 'Amex',
+      amount: 1150,
+      type: 'CREDIT_CARD',
+      main: false,
+      paymentDueDay: null,
+      closingDaysBeforeDue: null,
+      statementBalance: 1100,
+      monthlyTarget: null,
+    });
+  });
+
+  it('ignores pending charges after switching to another account type', () => {
+    const c = setup();
+    c.form.patchValue({ name: 'Cash', amount: 100, type: 'CREDIT_CARD', pendingAmount: 50 });
+    c.form.patchValue({ type: 'CHECKING' });
+    expect(c.totalWithPending()).toBeNull();
+    c.onSubmit();
+
+    const body = http.expectOne(`${API}/accounts`).request.body;
+    expect(body.amount).toBe(100);
+    expect(body).not.toHaveProperty('pendingAmount');
+  });
+
+  it('rejects negative or fractional pending charges', () => {
+    const c = setup();
+    c.form.patchValue({ name: 'Amex', amount: 100, type: 'CREDIT_CARD', pendingAmount: -5 });
+    expect(c.form.controls.pendingAmount.hasError('min')).toBe(true);
+    c.form.patchValue({ pendingAmount: 5.5 });
+    expect(c.form.controls.pendingAmount.hasError('pattern')).toBe(true);
+  });
+
   it("won't let the unpaid statement exceed what's owed", () => {
     const c = setup();
     c.form.patchValue({ name: 'Amex', amount: 100, type: 'CREDIT_CARD', statementBalance: 200 });
